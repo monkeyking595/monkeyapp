@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width initial-scale=1.0">
+        <meta name="description" content="payment">
+        <title>make your payment here</title>
+    </head>
+    <body>
+        <main>
+            <h1>select your payment method</h1>
+            <form>
+                <label for="payment">credit card</label>
+              <input type="text" id="payment" name="payment" pattern="[0-9]{14,16}">
+              <label for="upipayment">UPI payment, enter your phone number or your UPI id</label>
+              <input type="text" id="upipayment" name="upipayment" maxlength="10" required>
+            </form>
+            <button type="submit">proceed to payment</button>
+        </main>
+    </body>
+</html>

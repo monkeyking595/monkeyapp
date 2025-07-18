@@ -19,7 +19,7 @@ public class User {
 
    private String email;
 
-   public long getId() {
+   public Long getId() {
     return id;
    }
    public void setId(Long id) {

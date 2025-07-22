@@ -10,7 +10,7 @@ import jakarta.persistence.JoinColumn;
  @Entity
 public class Profile {
 @OneToOne
-@JoinColumn(name = "user_id", referencedColumnName = "id, nullable = false")
+@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
 private User user;
 public User getUser() {
     return user;

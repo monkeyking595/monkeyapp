@@ -22,6 +22,18 @@ public class Orders {
     @JoinColumn(name ="user_id", referencedColumnName ="id",nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "products_id", referencedColumnName="id", nullable=false)
+    private Products product;
+
+    public Products getProducts() {
+        return product;
+    }
+    public void setProducts(Products product) {
+        this.product=product;
+
+    }
+
     public long getId() {
         return id;
     }

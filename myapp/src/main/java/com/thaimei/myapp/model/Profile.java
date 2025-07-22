@@ -4,9 +4,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
 
  @Entity
 public class Profile {
+@OneToOne
+@JoinColumn(name = "user_id", referencedColumnName = "id, nullable = false")
+private User user;
+public User getUser() {
+    return user;
+}
+public void setUser(User user) {
+    this.user=user;
+}
 @Id    
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 private Long id;

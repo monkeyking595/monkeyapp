@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="product lists">
+        <title>Start shopping right away!</title>
+    </head>
+    <body>
+        <header>
+                <form action="/search" method="get">
+                    <input type="text" name="query" placeholder="what are you looking for?" required>
+                    <button type="submit">Search</button>
+                </form>
+            </header>
+        <main>
+            <h1>Trending products</h1>
+            <div th:each="product : ${products}">
+                <img th:src="@{${product.imageURL}}" alt="Product Image" width="200" height="200" />
+                <h2 th:text="${product.name}">Product Name</h2>
+                <p th:text="${product.description}">Description</p>
+                <p>Price:$<span th:text="${product.price}">0.00</span></p>
+                <form th:action="@{/cart/add}" method="post">
+                    <input type="hidden" name="productId" th:value="${product.id}" />
+                    <button type="submit">Add to cart</button>
+                </form>
+            </div>
+
+        </main>
+    </body>
+</html>

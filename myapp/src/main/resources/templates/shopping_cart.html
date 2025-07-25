@@ -44,7 +44,9 @@
                     <strong>total amount:</strong>
                     <span th:text="${totalPrice}"></span>
                 </p>
-                <a href="/checkout"><button>checkout</button></a>
+                <form th:action="@{/payment}" method="get">
+                    <button type="submit">checkout</button>
+                </form>
 
             </div>
         </main>

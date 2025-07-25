@@ -4,18 +4,34 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width initial-scale=1.0">
         <meta name="description" content="payment">
-        <title>make your payment here</title>
+        <title>Checkout</title>
     </head>
     <body>
         <main>
-            <h1>select your payment method</h1>
-            <form>
-                <label for="payment">credit card</label>
-              <input type="text" id="payment" name="payment" pattern="[0-9]{14,16}">
-              <label for="upipayment">UPI payment, enter your phone number or your UPI id</label>
-              <input type="text" id="upipayment" name="upipayment" maxlength="10" required>
+            <h1>Payments</h1>
+            <div>
+                <h2>Orders</h2>
+            <ul>
+                <li th:each="items : ${cartItems}">
+                    <img th:src="${items.ImageURL}" alt="product image" width ="50" />
+                    <span th:text="${items.productName}">product name</span>
+                    <span th:text="${items.price}">0.0</span>
+                    <span th:text="${items.quantity}">0</span>
+                </li>
+            </ul>
+            <p>Total: $<span th:text="${totalAmount}">0.00</span></p>
+            </div>
+            <form th:action="@{/payment/process}" method="post">
+                <input type="hidden" name="amount" th:value="${totalAmount}" />
+                <label for="paymentMethod">Select Payment Method</label>
+                <select name="paymentMethod" required>
+                    <option value="COD">Cash on delivery</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Credit/Debit</option>
+                </select>
+                <button type="submit">Place order</button>
             </form>
-            <button type="submit">proceed to payment</button>
+            
         </main>
     </body>
 </html>

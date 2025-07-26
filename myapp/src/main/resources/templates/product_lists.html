@@ -16,8 +16,10 @@
         <main>
             <h1>Trending products</h1>
             <div th:each="product : ${products}">
+                <a th:href="@{'/products/' + ${product.id}}">
                 <img th:src="@{${product.imageURL}}" alt="Product Image" width="200" height="200" />
                 <h2 th:text="${product.name}">Product Name</h2>
+                </a>
                 <p th:text="${product.description}">Description</p>
                 <p>Price:$<span th:text="${product.price}">0.00</span></p>
                 <form th:action="@{/cart/add}" method="post">

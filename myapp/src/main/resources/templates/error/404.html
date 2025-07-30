@@ -6,6 +6,12 @@
     <title>404 broken link</title>
 </head>
 <body>
+    <main>
+        <h1 th:text="'Error' +${status}"></h1>
+        <p th:text="${error}"></p>
+        <p th:text="${message}"></p>
+        <a href="/" th:text="'Go to home'"></a>
+    </main>
     
 </body>
 </html>

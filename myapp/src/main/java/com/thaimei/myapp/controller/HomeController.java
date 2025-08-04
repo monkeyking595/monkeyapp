@@ -14,10 +14,7 @@ public class HomeController {
     public String shopping_cart() {
         return "shopping_cart";
     }
-    @GetMapping("/orders")
-    public String orders() {
-        return "orders";
-    }
+    
     @GetMapping("/products")
     public String products() {
         return "products";

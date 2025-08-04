@@ -9,7 +9,7 @@
     <body>
         <main>
             <section>
-                <form action="/orders"  method="post">
+                <form action="/login"  method="post">
                     <fieldset>
                         <legend>login here</legend>
                         
@@ -22,6 +22,8 @@
                          <button type="submit">login</button>
                     </fieldset>
                 </form>
+                <p class="error-message" th:if="${param.error}">Invalid Credentials</p>
+                <p class="logout-message" th:if="${param.logout}">you have been logged out</p>
             </section>
         </main>
     </body>

@@ -3,7 +3,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class UserRegistration {
+public class UserRegistrationDto {
     @NotBlank(message = "Username is required")
     @Size(min=3, max=20, message = "Username must be between 3 and 20 characters")
     private String username;
@@ -37,6 +37,7 @@ public class UserRegistration {
         this.username=username;
     }
 
+    
     public String getPassword() {
         return password;
     }

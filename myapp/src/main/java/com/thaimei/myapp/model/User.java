@@ -2,7 +2,11 @@ package com.thaimei.myapp.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
+import java.time.LocalDateTime;
 import jakarta.persistence.GenerationType;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Column;
 
  @Entity
@@ -25,6 +29,24 @@ public class User {
     this.password = password;
     this.email=email;
    }
+   @Column(nullable= false)
+   private String role= "USER";
+   @Column(updatable = false)
+   @CreationTimestamp
+   private LocalDateTime createdAt;
+
+   public String getRole() {
+    return role;
+   }
+
+   public void setRole(String role) {
+    this.role = role;
+   }
+
+   public LocalDateTime getCreatedAt() {
+    return createdAt;
+   }
+   
 
    public Long getId() {
     return id;

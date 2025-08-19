@@ -1,26 +1,31 @@
 package com.thaimei.myapp.service;
 import com.thaimei.myapp.model.User;
+import com.thaimei.myapp.dto.UserRegistrationDto;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AccountService {
+public class RegistrationService {
     private final UserService userService;
-    public AccountService(UserService userService) {
+    public RegistrationService(UserService userService) {
         this.userService = userService;
     }
-    public void registerUser(String username, String password, String confirmpassword, String email) {
-        if (username==null || username.isEmpty()) {
+    public void RegisterUser(UserRegistrationDto dto) {
+        if (dto.getUsername()==null || dto.getUsername().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be empty!");
         }
-        if(!password.equals(confirmpassword)) {
+        if(!dto.getPassword().equals(dto.getConfirmpassword())) {
             throw new IllegalArgumentException("password does not match!");
         }
-        if (userService.existsByUsername(username)) {
+        if (userService.existsByUsername(dto.getUsername())) {
             throw new IllegalArgumentException("Username already exists!");
         }
 
     
-    User user=new User(username, password, email);
+    User user=new User(
+        dto.getUsername(),
+        dto.getPassword(),
+        dto.getEmail()
+    );
     userService.save(user);
     }
     

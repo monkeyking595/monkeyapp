@@ -19,19 +19,19 @@ public class RegistrationController {
     public RegistrationController(RegistrationService registrationService) {
         this.registrationService = registrationService;
     }
-    @GetMapping("/your_account")
+    @GetMapping("/signup")
     public String your_account(Model model) {
         model.addAttribute("userRegistrationDto", new UserRegistrationDto());
-        return "your_account";
+        return "signup";
     }
     
-    @PostMapping("/your_account")
+    @PostMapping("/signup")
     public String updateAccount(
         @Valid @ModelAttribute("userRegistrationDto") UserRegistrationDto dto,
         BindingResult result,
         Model model) {
             if (result.hasErrors()) {
-                return "your_account";
+                return "signup";
             }
             try {
                 registrationService.RegisterUser(dto);
@@ -39,7 +39,7 @@ public class RegistrationController {
             } catch (Exception e) {
                 model.addAttribute("error",e.getMessage());
             }
-            return "your_account";
+            return "signup";
         
         }
        

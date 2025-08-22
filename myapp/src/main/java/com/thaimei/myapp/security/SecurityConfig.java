@@ -1,11 +1,12 @@
 package com.thaimei.myapp.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 @Configuration
 public class SecurityConfig {
 
@@ -14,7 +15,8 @@ public class SecurityConfig {
     public SecurityFilterChain SecurityConfigsecurityFilterChain(HttpSecurity http) throws Exception {
         http
         .authorizeHttpRequests(auth -> auth
-        .requestMatchers("/your_account","/css/**","/images/**").permitAll()
+        .requestMatchers("/signup","login_page","/css/**","/images/**").permitAll()
+        .requestMatchers("/index", "/profile","/about","/contact").authenticated()
         .anyRequest().authenticated()
         )
         .formLogin(form -> form
@@ -24,8 +26,8 @@ public class SecurityConfig {
         )
         .logout(logout -> logout
         .logoutSuccessUrl("/login?logout")
-        .permitAll()
-        );
+        .permitAll()  
+    );
     return http.build();
         
     }
@@ -33,5 +35,12 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    @Bean
+    public AuthenticationManager authenticationManager (AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
+    
+    
+
     
 }

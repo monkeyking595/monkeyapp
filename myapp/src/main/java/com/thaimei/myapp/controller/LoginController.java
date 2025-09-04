@@ -1,6 +1,10 @@
 package com.thaimei.myapp.controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+
 
 @Controller
 public class LoginController {
@@ -8,6 +12,11 @@ public class LoginController {
     public String login_page() {
         return "login_page";
     }
+
+    @PostMapping("/login_page")
+    
+    }
+    
   
     
-}
+

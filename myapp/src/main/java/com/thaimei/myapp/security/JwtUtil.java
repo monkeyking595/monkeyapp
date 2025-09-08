@@ -3,7 +3,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,29 +14,29 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtil {
-    private final Key key;
+    private final SecretKey key;
     public JwtUtil(@Value("${jwt.secret}") String secret) {
         this.key= Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));  
     }
    public String generateToken(String subject, long expirationMillis) {
     Map<String, Object> claims= new HashMap<>();
     return Jwts.builder()
-        .setClaims(claims)
-        .setSubject(subject)
-        .setExpiration(new Date(System.currentTimeMillis()+expirationMillis))
-        .setIssuedAt(new Date(System.currentTimeMillis()))
-        .setIssuer("myapp")
-        .setAudience("web-app")
-        .signWith(key)
+        .claims(claims)
+        .subject(subject)
+        .expiration(new Date(System.currentTimeMillis()+expirationMillis))
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .issuer("myapp")
+        .audience().add("web-app").and()
+        .signWith(key, Jwts.SIG.HS256)
         .compact();
 
    }
    public Claims extractAllClaims(String token) throws JwtException {
     return Jwts.parser()
-         .setSigningKey(key)
+         .verifyWith(key)
          .build()
-         .parseClaimsJws(token)
-         .getBody();                 
+         .parseSignedClaims(token)
+         .getPayload();                 
    }
    
     public<T> T extractClaims(String token, Function<Claims, T> ClaimResolver) {

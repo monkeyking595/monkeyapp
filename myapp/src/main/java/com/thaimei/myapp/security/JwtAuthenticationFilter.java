@@ -1,6 +1,12 @@
 package com.thaimei.myapp.security;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+
+
+import org.springframework.lang.NonNull;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -23,8 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-    HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+    @NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
         final  String  authHeader = request.getHeader("Authorization");
         String username= null;
         String token= null;
@@ -33,13 +39,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 username= jwtUtil.extractSubject(token);
                 if(jwtUtil.isTokenexpired(token)) {
-                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
-                 return;
-                }
+                    throw new BadCredentialsException("token expired", new RuntimeException("token expired"));
             }
+        }
             catch(Exception e) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
-                return;
+                throw new InsufficientAuthenticationException("invalid token",e);
             }
             if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
                 var userDetails=userDetailsServiceImpl.loadUserByUsername(username);

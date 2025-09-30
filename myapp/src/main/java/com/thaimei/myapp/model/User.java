@@ -1,5 +1,6 @@
 package com.thaimei.myapp.model;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.Column;
 
  @Entity
+ @Table(name="app_user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -31,7 +31,7 @@ public class LoginController {
         return "login_page";
     }
 
-    @PostMapping("/login_page")
+    @PostMapping("/login")
     @ResponseBody
     ResponseEntity<JwtResponse> login (@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(

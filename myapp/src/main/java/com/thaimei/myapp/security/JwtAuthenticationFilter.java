@@ -26,12 +26,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private  JwtUtil jwtUtil;
     @Autowired
     private  UserDetailsServiceImpl userDetailsServiceImpl;
-    
-
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
     @NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
         final  String  authHeader = request.getHeader("Authorization");
+        String path=request.getServletPath();
+        if(path.equals("/")||path.equals("/signup")||path.equals("/login_page")||path.equals("/login")||path.equals("/error")||path.startsWith("/css/")||path.startsWith("/myimages/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String username= null;
         String token= null;
          if(authHeader != null && authHeader.startsWith("Bearer")) {

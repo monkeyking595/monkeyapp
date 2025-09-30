@@ -26,7 +26,7 @@ public class SecurityConfig {
         .csrf(csrf->csrf.disable())
         .sessionManagement(sm->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthEntryPoint))
-        .authorizeHttpRequests(auth->auth.requestMatchers("/signup","/login_page","/css/**","/images/**").permitAll()
+        .authorizeHttpRequests(auth->auth.requestMatchers("/","/signup","/login_page","/error","/login","/css/**","/myimages/**").permitAll()
         .anyRequest().authenticated());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
        

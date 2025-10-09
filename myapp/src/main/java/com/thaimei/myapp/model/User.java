@@ -2,9 +2,12 @@ package com.thaimei.myapp.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.GeneratedValue;
 import java.time.LocalDateTime;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.CascadeType;
+
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -73,6 +76,15 @@ public class User {
    }
    public void setEmail(String email) {
     this.email = email;
+   }
+   @OneToOne(mappedBy="user", cascade = CascadeType.ALL)
+   private UserprofileModel userprofileModel;
+
+   public UserprofileModel getUserprofileModel() {
+    return userprofileModel;
+   }
+   public void setUserprofileModel(UserprofileModel userprofileModel) {
+    this.userprofileModel=userprofileModel;
    }
 
 

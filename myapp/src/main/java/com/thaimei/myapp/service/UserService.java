@@ -1,5 +1,6 @@
 package com.thaimei.myapp.service;
 import com.thaimei.myapp.model.User;
+import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
@@ -21,6 +22,11 @@ public class UserService {
     public void save(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+    }
+    public User findByUserId(Long id) {
+        return userRepository.findByUserId(id)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+        
     }
 
     

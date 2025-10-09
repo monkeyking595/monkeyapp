@@ -9,10 +9,14 @@ import com.thaimei.myapp.model.User;
 
 
 public class CustomuserDetails implements UserDetails {
-
+   
     private final User user;
     public CustomuserDetails(User user) {
         this.user=user;
+    }
+    
+    public Long getId() {
+        return user.getId();
     }
     @Override
     public String getUsername() {

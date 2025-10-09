@@ -10,7 +10,7 @@
     <body>
         
         <main>
-            <form action="/signup" method="post">
+            <form id="signupform">
                   <div style="color: red;">
         <p th:text="${error}"></p>
     </div>
@@ -34,6 +34,7 @@
                     <button type="submit">submit</button>
                 </fieldset>
             </form>
+            <div id="message"></div>
             <nav>
                 <a href="/login_page">already have an account? login here</a>
             </nav>

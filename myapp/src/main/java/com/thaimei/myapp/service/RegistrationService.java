@@ -3,6 +3,7 @@ import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.dto.UserRegistrationDto;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.thaimei.myapp.dto.AdminRegistrationDto;
 
 @Service
 public class RegistrationService {
@@ -29,6 +30,28 @@ public class RegistrationService {
         passwordEncoder.encode(dto.getPassword()),
         dto.getEmail()
     );
+    user.setRole("USER");
+    userService.save(user);
+    }
+
+    public void adminRegister(AdminRegistrationDto adDto) {
+        if (adDto.getAdminname()==null || adDto.getAdminname().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty!");
+        }
+        if(!adDto.getAdminpassword().equals(adDto.getAdminconfirmpassword())) {
+            throw new IllegalArgumentException("password does not match!");
+        }
+        if (userService.existsByUsername(adDto.getAdminname())) {
+            throw new IllegalArgumentException("Username already exists!");
+
+    }
+    User user=new User(
+        adDto.getAdminname(),
+        passwordEncoder.encode(adDto.getAdminpassword()),
+        adDto.getAdminemail()
+
+    );
+    user.setRole("ADMIN");
     userService.save(user);
     }
     

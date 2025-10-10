@@ -40,7 +40,7 @@ public class AdminRegistration {
     @ResponseBody
     public ResponseEntity<?> registerAdmin(@Valid @RequestBody AdminRegistrationDto adDto) {
         try {
-            registrationService.RegisterUser(adDto);
+            registrationService.adminRegister(adDto);
             Authentication authentication=authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(adDto.getAdminname(),adDto.getAdminpassword())
             );

@@ -36,13 +36,29 @@ public class HomeController {
     public String success() {
         return "success";
     }
-    @GetMapping("products_detail")
+    @GetMapping("/products_detail")
     public String products_detail() {
         return "products_detail";
     }
     @GetMapping("/error")
     public String error() {
         return "error";
+    }
+    @GetMapping("/register") 
+    public String adminregistration() {
+        return "admin-registration";
+    }
+    @GetMapping("/login")
+    public String login_page() {
+        return "login_page";
+    }
+      @GetMapping("/profile")
+    public String profile() {
+    return "UserProfile";
+    }
+     @GetMapping("/signup")
+    public String signup() {
+        return "signup";
     }
     
     }

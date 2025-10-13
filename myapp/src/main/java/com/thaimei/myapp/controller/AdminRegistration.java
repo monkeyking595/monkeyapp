@@ -1,17 +1,14 @@
 package com.thaimei.myapp.controller;
 import com.thaimei.myapp.dto.AdminRegistrationDto;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Map;
-
 import com.thaimei.myapp.service.RegistrationService;
-import org.springframework.stereotype.Controller;
 import com.thaimei.myapp.dto.JwtResponse;
 import com.thaimei.myapp.security.JwtUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +18,7 @@ import jakarta.validation.Valid;
 
 
 
-@Controller
+@RestController
 @RequestMapping
 public class AdminRegistration {
     private final RegistrationService registrationService;
@@ -32,12 +29,8 @@ public class AdminRegistration {
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
     }
-    @GetMapping("/adminregistration") 
-    public String adminregistration() {
-        return "admin-registration";
-    }
-    @PostMapping("/adminregistration")
-    @ResponseBody
+    
+    @PostMapping("/register")
     public ResponseEntity<?> registerAdmin(@Valid @RequestBody AdminRegistrationDto adDto) {
         try {
             registrationService.adminRegister(adDto);

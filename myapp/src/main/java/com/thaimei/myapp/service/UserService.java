@@ -23,8 +23,8 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
-    public User findByUserId(Long id) {
-        return userRepository.findByUserId(id)
+    public User findById(Long id) {
+        return userRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("User not found"));
         
     }

@@ -1,23 +1,21 @@
 package com.thaimei.myapp.controller;
 import com.thaimei.myapp.dto.LoginRequest;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.stereotype.Controller;
 import org.springframework.security.core.context.SecurityContextHolder;
-
+import org.springframework.web.bind.annotation.RestController;
 import com.thaimei.myapp.dto.JwtResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import com.thaimei.myapp.security.JwtUtil;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+
 import org.springframework.http.ResponseEntity;
 
 
 
-@Controller
+@RestController
 @RequestMapping
 public class LoginController {
     private final AuthenticationManager authenticationManager;
@@ -26,13 +24,8 @@ public class LoginController {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
     }
-    @GetMapping("/login_page")
-    public String login_page() {
-        return "login_page";
-    }
 
     @PostMapping("/login")
-    @ResponseBody
     ResponseEntity<JwtResponse> login (@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(

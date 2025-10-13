@@ -6,6 +6,5 @@ import com.thaimei.myapp.model.User;
 
 
 public interface UserProfileRepo extends JpaRepository<UserprofileModel, Long> {
-    UserprofileModel findByFullName(String fullname);
     Optional<UserprofileModel> findByUser(User currentUser);
 }

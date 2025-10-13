@@ -1,15 +1,12 @@
 package com.thaimei.myapp.controller;
-
+import org.springframework.web.bind.annotation.RestController;
 import com.thaimei.myapp.service.RegistrationService;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.thaimei.myapp.dto.UserRegistrationDto;
@@ -20,7 +17,7 @@ import com.thaimei.myapp.security.JwtUtil;
 
 
 
-@Controller
+@RestController
 @RequestMapping
 public class RegistrationController {
     private final RegistrationService registrationService;
@@ -32,13 +29,9 @@ public class RegistrationController {
         this.authenticationManager = authenticationManager;
         
     }
-    @GetMapping("/signup")
-    public String signup() {
-        return "signup";
-    }
+   
     
     @PostMapping("/signup")
-    @ResponseBody
     public ResponseEntity<?> registration(@Valid @RequestBody UserRegistrationDto dto ) {
         try {
             registrationService.RegisterUser(dto);

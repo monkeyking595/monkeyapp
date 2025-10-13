@@ -2,9 +2,9 @@ package com.thaimei.myapp.dto;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest {
-    @NotBlank(message =" Username cannot be blank")
+    @NotBlank(message ="Username cannot be blank")
     private String username;
-    @NotBlank(message ="password cannot be blnak")
+    @NotBlank(message ="password cannot be blank")
     private String password;
 
     public String getUsername() {

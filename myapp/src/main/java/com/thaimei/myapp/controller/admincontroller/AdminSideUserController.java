@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import com.thaimei.myapp.service.UserService;
 import  com.thaimei.myapp.dto.adminDto.AdminUserDto;
-import com.thaimei.myapp.model.User;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 

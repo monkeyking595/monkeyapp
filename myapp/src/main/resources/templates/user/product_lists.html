@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,26 +8,18 @@
     </head>
     <body>
         <header>
-                <form action="/search" method="get">
-                    <input type="text" name="query" placeholder="what are you looking for?" required>
+                <form id="searchForm">
+                    <input type="text" id="searchInput" placeholder="what are you looking for?" required>
                     <button type="submit">Search</button>
                 </form>
             </header>
         <main>
             <h1>Trending products</h1>
-            <div th:each="product : ${products}">
-                <a th:href="@{'/products/' + ${product.id}}">
-                <img th:src="@{${product.imageURL}}" alt="Product Image" width="200" height="200" />
-                <h2 th:text="${product.name}">Product Name</h2>
-                </a>
-                <p th:text="${product.description}">Description</p>
-                <p>Price:$<span th:text="${product.price}">0.00</span></p>
-                <form th:action="@{/cart/add}" method="post">
-                    <input type="hidden" name="productId" th:value="${product.id}" />
-                    <button type="submit">Add to cart</button>
-                </form>
+            <div id="trendingProductList">
+            
             </div>
 
         </main>
+        <script src="js/product_lists.js"></script>
     </body>
 </html>

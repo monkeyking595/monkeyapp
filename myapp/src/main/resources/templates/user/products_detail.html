@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,17 +8,13 @@
     </head>
     <body>
         <header>
-            <h1 th:text="${product.name}">Product Name></h1>
+            <h1> Product Name</h1>
         </header>
         <main>
-            <img th:src="${product.imageURL}" alt="product image" with="300" height="300" />
-            <p><strong>Description:</strong><span th:text="${product.description}">product description</span></p>
-            <p><strong>price:</strong><span th:text="${product.price}">00.0</span></p>
-            <form th:action="@{/cart/add}" method="post">
-                <input type="hidden" name="productId" th:value="${product.id}" />
-                <button type="submit">Add to Cart</button>
-    
-            </form>
+           <div id="ProductDetails">
+            //Product details will be dynamically loaded here via JS
+           </div>
 
         </main>
+        <script src="js/ProductDetails.js"></script>
     </body>

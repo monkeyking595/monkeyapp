@@ -7,7 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 @Entity
-public class Products {
+public class ProductsModel {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(nullable=false)
@@ -62,6 +62,14 @@ public class Products {
     }
     public void setName(String name) {
         this.name=name;
+    }
+    @Column(nullable = false) 
+    private double quantity;
+    public double getQuantity() {
+        return quantity;
+    }
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
     }
 
 }

@@ -24,12 +24,12 @@ public class Orders {
 
     @ManyToOne
     @JoinColumn(name = "products_id", referencedColumnName="id", nullable=false)
-    private Products product;
+    private ProductsModel product;
 
-    public Products getProducts() {
+    public ProductsModel getProducts() {
         return product;
     }
-    public void setProducts(Products product) {
+    public void setProducts(ProductsModel product) {
         this.product=product;
 
     }

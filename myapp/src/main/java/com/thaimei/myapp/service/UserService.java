@@ -1,6 +1,8 @@
 package com.thaimei.myapp.service;
+import com.thaimei.myapp.dto.adminDto.AdminUserDto;
 import com.thaimei.myapp.model.User;
 import java.util.Optional;
+import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
@@ -26,6 +28,19 @@ public class UserService {
     public User findById(Long id) {
         return userRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("User not found"));
+        
+    }
+    public List<AdminUserDto> getAllUsersForAdmin() {
+       List<User> users = userRepository.findAll();
+       return users.stream()
+       .map(user-> new AdminUserDto(
+        user.getId(),
+        user.getUsername(),
+        user.getEmail(),
+        user.getRole(),
+        user.getStatus()
+       ))
+       .toList();
         
     }
 

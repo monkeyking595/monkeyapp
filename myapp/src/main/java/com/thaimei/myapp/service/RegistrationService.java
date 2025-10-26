@@ -1,9 +1,10 @@
 package com.thaimei.myapp.service;
 import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.dto.UserRegistrationDto;
+import com.thaimei.myapp.dto.adminDto.AdminRegistrationDto;
+
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.thaimei.myapp.dto.AdminRegistrationDto;
 
 @Service
 public class RegistrationService {

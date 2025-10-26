@@ -27,7 +27,7 @@ public class UserProfileController {
      }
     
     //fetch user info from the DB
-    @GetMapping("/profile")
+    @GetMapping("/profile-info")
     public ResponseEntity<UserInfoDto> getProfile(@AuthenticationPrincipal CustomuserDetails userDetails)  {
             User currentUser = userService.findById(userDetails.getId());
             UserInfoDto userInfoDto = userProfileService.getprofileByUser(currentUser);

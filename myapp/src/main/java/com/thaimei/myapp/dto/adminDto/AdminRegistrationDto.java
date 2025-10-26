@@ -1,4 +1,4 @@
-package com.thaimei.myapp.dto;
+package com.thaimei.myapp.dto.adminDto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

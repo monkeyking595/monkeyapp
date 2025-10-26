@@ -7,17 +7,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
     @GetMapping("/")
     public String index() {
-        return "index";
+        return "user/index";
     }
     
     @GetMapping("/shopping_cart")
     public String shopping_cart() {
-        return "shopping_cart";
+        return "user/shopping_cart";
     }
     
     @GetMapping("/products")
     public String products() {
-        return "products";
+        return "user/products";
     }
     @GetMapping("/contact")
     public String contact() {
@@ -34,31 +34,31 @@ public class HomeController {
     
     @GetMapping("/success")
     public String success() {
-        return "success";
+        return "error/success";
     }
     @GetMapping("/products_detail")
     public String products_detail() {
-        return "products_detail";
+        return "user/products_detail";
     }
     @GetMapping("/error")
     public String error() {
-        return "error";
+        return "usererror";
     }
     @GetMapping("/register") 
     public String adminregistration() {
-        return "admin-registration";
+        return "admin/admin-registration";
     }
     @GetMapping("/login")
     public String login_page() {
-        return "login_page";
+        return "user/login_page";
     }
       @GetMapping("/profile")
     public String profile() {
-    return "UserProfile";
+    return "user/UserProfile";
     }
      @GetMapping("/signup")
     public String signup() {
-        return "signup";
+        return "user/signup";
     }
     
     }

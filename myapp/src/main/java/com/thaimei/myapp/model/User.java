@@ -27,6 +27,9 @@ public class User {
    private String password;
 
    private String email;
+   @Column(nullable = false)
+   private String status;
+
    public User() {
    }
    public User(String username, String password,String email) {
@@ -85,6 +88,12 @@ public class User {
    }
    public void setUserprofileModel(UserprofileModel userprofileModel) {
     this.userprofileModel=userprofileModel;
+   }
+   public String getStatus() {
+    return status;
+   }
+   public void setStatus(String status) {
+    this.status = status;
    }
 
 

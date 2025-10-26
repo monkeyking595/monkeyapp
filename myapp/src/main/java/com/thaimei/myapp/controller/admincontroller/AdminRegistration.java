@@ -1,5 +1,4 @@
-package com.thaimei.myapp.controller;
-import com.thaimei.myapp.dto.AdminRegistrationDto;
+package com.thaimei.myapp.controller.admincontroller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Map;
 import com.thaimei.myapp.service.RegistrationService;
 import com.thaimei.myapp.dto.JwtResponse;
+import com.thaimei.myapp.dto.adminDto.AdminRegistrationDto;
 import com.thaimei.myapp.security.JwtUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;

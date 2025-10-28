@@ -8,6 +8,7 @@ import com.thaimei.myapp.service.ProductService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 
 
@@ -18,9 +19,9 @@ public class ProductDetails {
     public ProductDetails(ProductService productService) {
         this.productService = productService;
     }
-    @GetMapping("/productDetails")
-    public ResponseEntity<ProductDto> getProductDetails() {
-        ProductDto productDetail= productService.getProductById();
+    @GetMapping("/productDetails/{id}")
+    public ResponseEntity<ProductDto> getProductDetails(@PathVariable Long id) {
+        ProductDto productDetail= productService.getProductById(id);
         return ResponseEntity.ok(productDetail);
     }
     

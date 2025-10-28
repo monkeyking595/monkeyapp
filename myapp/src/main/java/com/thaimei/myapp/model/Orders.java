@@ -18,6 +18,10 @@ public class Orders {
     private int quantity;
     @Column(nullable= false)
     private String imageURL;
+    @Column(nullable=false)
+    private String status;
+    @Column(nullable = false)
+    private double totalPrice;
     @ManyToOne
     @JoinColumn(name ="user_id", referencedColumnName ="id",nullable = false)
     private User user;
@@ -26,10 +30,10 @@ public class Orders {
     @JoinColumn(name = "products_id", referencedColumnName="id", nullable=false)
     private ProductsModel product;
 
-    public ProductsModel getProducts() {
+    public ProductsModel getProduct() {
         return product;
     }
-    public void setProducts(ProductsModel product) {
+    public void setProduct(ProductsModel product) {
         this.product=product;
 
     }
@@ -64,6 +68,18 @@ public class Orders {
     }
     public void setUser(User user) {
         this.user=user;
+    }
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status=status;
+    }
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice=totalPrice;
     }
 
     

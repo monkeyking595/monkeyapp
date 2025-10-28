@@ -6,6 +6,7 @@ import com.thaimei.myapp.repository.ProductsRepo;
 import org.springframework.stereotype.Service;
 
 
+
 @Service
 public class ProductService {
     private final ProductsRepo productsRepo;
@@ -19,12 +20,26 @@ public class ProductService {
         .map(product -> new ProductDto(
             product.getId(),
             product.getName(),
-             product.getPrice(),
+            product.getPrice(),
             product.getDescription(),
             product.getImageURL(),
             product.getQuantity()
         ))
         .toList();
+    }
+    public ProductDto getProductById(Long id) {
+        ProductsModel product = productsRepo.findById(id)
+        .orElseThrow(()-> new RuntimeException("Product cannot be found"));
+
+        return new ProductDto(
+            product.getId(),
+            product.getName(),
+            product.getPrice(),
+            product.getDescription(),
+            product.getImageURL(),
+            product.getQuantity()
+        );
+
     }
 
    

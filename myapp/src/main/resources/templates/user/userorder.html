@@ -9,22 +9,17 @@
 <body>
     <main>
         <h2>Track your orders here</h2>
-        <form action="/search" method="get">
-            <input type="text" name="query" placeholder="enter your order number here" required>
+        <form id="trackOrders">
+            <input type="text" id="orderInput" placeholder="enter your order number here" required>
             <button type="submit">track orders</button>
         </form>
         <section>
             <h3>ordered items: </h3>
-            <ul>
-            <li th:each="order: ${orders}">
-                Order ID: <span th:text="${order.id}"></span><br>
-                Product: <span th:text="${order.productName}"></span><br>
-                Quantity: <span th:text="${order.quantity}"></span>
-                Image: <img th:src="${order.imageURL}" alt="product image"/><br>
-            </li>
-            </ul>
+            <div id="orderedLists">
+                <!--These fields will be dynamically fill with JS.!-->
+            </div>
         </section>
     </main>
-    
+    <script src="js/userorder.js"></script>
 </body>
 </html>

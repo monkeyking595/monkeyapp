@@ -9,6 +9,7 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Orders {
+    public Orders (){}
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,6 +48,9 @@ public class Orders {
     }
     public String getProductName() {
         return productName;
+    }
+    public void setProductName(String productName) {
+        this.productName=productName;
     }
 
     public int  getQuantity() {

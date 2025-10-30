@@ -5,7 +5,9 @@ import jakarta.validation.constraints.Positive;
 
 
 public class OrderDto {
-    public OrderDto(Long id, String productName, double quantity, String status, double totalPrice, String imageURL) {
+    public OrderDto() {}
+    
+    public OrderDto(Long id, String productName, int quantity, String status, double totalPrice, String imageURL) {
         this.id=id;
         this.productName=productName;
         this.quantity=quantity;
@@ -19,7 +21,7 @@ public class OrderDto {
     @NotBlank(message = "Name cannot be empty")
     private String productName;
     @Positive(message="Quantity cannot be negavtive")
-    private double quantity;
+    private int quantity;
     @NotBlank(message = "Status cannot be blank")
     private String status;
     @Positive(message = "Total price cannot be negative")
@@ -38,10 +40,10 @@ public class OrderDto {
     public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
     }
-    public double getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
-    public void setQuantity(double quantity) {
+    public void setQuantity(int quantity) {
         this.quantity=quantity;
     }
     public String getProductName() {

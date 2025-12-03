@@ -4,6 +4,9 @@ import com.thaimei.myapp.model.Payment;
 import com.thaimei.myapp.dto.PaymentDto;
 import org.modelmapper.ModelMapper;
 import java.util.Optional;
+import com.stripe.model.PaymentIntent;
+import com.stripe.model.Charge;
+
 
 
 import com.thaimei.myapp.repository.PaymentRepo;
@@ -16,7 +19,7 @@ public class PaymentService {
         this.modelMapper=modelMapper;
     }
     public Optional<PaymentDto> getPaymentDetailsByPaymentId(String paymentId) {
-        Optional<Payment> payment=paymentRepo.findPaymentById(paymentId);
+        Optional<Payment> payment=paymentRepo.findByPaymentId(paymentId);
         return payment.map(checkout-> modelMapper.map(checkout, PaymentDto.class));
     }
     public boolean  savePaymentDetails(Object paymentObject) {
@@ -32,15 +35,17 @@ public class PaymentService {
             payment.setPaymentId(charge.getId());
             payment.setTotalAmount(charge.getAmount()/100.0);
             payment.setCurrency(charge.getCurrency().toUpperCase());
-            payment.setStatus(charge.getStatus().toUpperCase());
-            payment.setPaymentMethod(charge.getPaymentMethodTypes());
+            payment.setPaymentStatus(charge.getStatus().toUpperCase());
+            payment.setPaymentMethod(charge.getPaymentMethod());
         }
         if(payment.getPaymentId()!=null) {
             paymentRepo.save(payment);
             System.out.println("Payment details saved for ID: " + payment.getPaymentId());
+            return true;
         }
         else {
             System.out.println("Payment ID is null, cannot save payment details.");
+            return false;
         }
 
     }

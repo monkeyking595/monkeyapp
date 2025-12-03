@@ -5,33 +5,36 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import java.util.List;
+import java.util.ArrayList;
+
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cart {
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id",nullable= false)
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id",nullable= false, unique= true)
     private User user;
 
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    private Long id;
+    private Long cartId;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> cartItems = new ArrayList<>();
+
+    @Column(nullable = false) 
+    private double totalPrice;
 
     
-   
-    public Long getId() {
-        return id;
-    }
-     public void setId(Long id) {
-        this.id =id;
-     }
-
-     public User getUser() {
-        return user;
-     }
-     public void setUser(User user) {
-        this.user=user;
-     }
 }
 

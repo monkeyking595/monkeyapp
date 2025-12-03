@@ -16,18 +16,19 @@ import org.springframework.stereotype.Component;
 public class JwtUtil {
     private final SecretKey key;
     public JwtUtil(@Value("${jwt.secret}") String secret) {
+        System.out.println("JWT SECRET INJECTED => " + secret);
         this.key= Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));  
     }
    public String generateToken(String subject, long expirationMillis) {
     Map<String, Object> claims= new HashMap<>();
     return Jwts.builder()
-        .claims(claims)
-        .subject(subject)
-        .expiration(new Date(System.currentTimeMillis()+expirationMillis))
-        .issuedAt(new Date(System.currentTimeMillis()))
-        .issuer("myapp")
-        .audience().add("web-app").and()
-        .signWith(key, Jwts.SIG.HS256)
+        .setClaims(claims)
+        .setSubject(subject)
+        .setExpiration(new Date(System.currentTimeMillis()+expirationMillis))
+        .setIssuedAt(new Date(System.currentTimeMillis()))
+        .setIssuer("ThaimeiEcommerce")
+        .setAudience("ThaimeiEcommerceUsers")
+        .signWith(key)
         .compact();
 
    }
@@ -46,7 +47,7 @@ public class JwtUtil {
    public String extractSubject(String token) {
     return extractClaims(token, Claims::getSubject);
    }
-   public boolean isTokenexpired(String token) {
+   public boolean isTokenExpired(String token) {
     return extractClaims(token, Claims::getExpiration).before(new Date());
    }
 

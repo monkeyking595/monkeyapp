@@ -16,6 +16,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import com.thaimei.myapp.model.User; 
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,21 +36,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        String username= null;
+        String userIdToken= null;
         String token= null;
-         if(authHeader != null && authHeader.startsWith("Bearer")) {
+         if(authHeader != null && authHeader.startsWith("Bearer ")) {
             token=authHeader.substring(7);
             try {
-                username= jwtUtil.extractSubject(token);
-                if(jwtUtil.isTokenexpired(token)) {
+                  userIdToken = jwtUtil.extractSubject(token);
+                if(jwtUtil.isTokenExpired(token)) {
                     throw new BadCredentialsException("token expired", new RuntimeException("token expired"));
             }
         }
             catch(Exception e) {
                 throw new InsufficientAuthenticationException("invalid token",e);
             }
-            if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
-                var userDetails=userDetailsServiceImpl.loadUserByUsername(username);
+            if(userIdToken!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
+                Long userId= Long.valueOf(userIdToken);
+                var userDetails=userDetailsServiceImpl.loadUserById(userId);
                  if(userDetails.isEnabled()) {
                     UsernamePasswordAuthenticationToken authToken= new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

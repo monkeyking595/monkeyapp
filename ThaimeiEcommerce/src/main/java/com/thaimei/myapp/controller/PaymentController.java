@@ -14,7 +14,7 @@ import com.stripe.model.Event;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.Charge;
-
+import org.springframework.beans.factory.annotation.Value;
 import java.util.Optional;
 
 
@@ -22,7 +22,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/payment")
 public class PaymentController {
-
+    @Value("${stripe.webhook.secret}")
     private String webhookSecret;
 
     private final PaymentService paymentService;

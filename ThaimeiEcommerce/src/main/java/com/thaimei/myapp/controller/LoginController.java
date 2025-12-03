@@ -10,8 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import org.springframework.http.ResponseEntity;
+import com.thaimei.myapp.model.User;
+import com.thaimei.myapp.repository.UserRepository;
 
 
 
@@ -20,9 +21,11 @@ import org.springframework.http.ResponseEntity;
 public class LoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    private final UserRepository userRepository;
+    public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
@@ -31,10 +34,12 @@ public class LoginController {
             new UsernamePasswordAuthenticationToken(
                 loginRequest.getUsername(),
                 loginRequest.getPassword()
-            )
+            ) 
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token=jwtUtil.generateToken(authentication.getName(), 3600000L);
+        User user = userRepository.findByUsername(authentication.getName());
+        Long userId=user.getId();
+        String token=jwtUtil.generateToken(String.valueOf(userId), 3600000L);
         return ResponseEntity.ok(new JwtResponse(token, authentication.getName()));
 
     } 

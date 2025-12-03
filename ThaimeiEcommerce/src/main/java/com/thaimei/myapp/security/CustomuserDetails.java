@@ -8,10 +8,10 @@ import java.util.Collections;
 import com.thaimei.myapp.model.User;   
 
 
-public class CustomuserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails {
    
     private final User user;
-    public CustomuserDetails(User user) {
+    public CustomUserDetails(User user) {
         this.user=user;
     }
     

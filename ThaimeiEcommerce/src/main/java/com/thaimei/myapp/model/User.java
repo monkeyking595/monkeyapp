@@ -7,14 +7,21 @@ import jakarta.persistence.GeneratedValue;
 import java.time.LocalDateTime;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.CascadeType;
-
-
 import org.hibernate.annotations.CreationTimestamp;
-
 import jakarta.persistence.Column;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Data;
 
- @Entity
- @Table(name="app_user")
+
+@Entity
+@Table(name="app_user")
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+
+ 
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,72 +37,18 @@ public class User {
    @Column(nullable = false)
    private String status;
 
-   public User() {
-   }
-   public User(String username, String password,String email) {
-    this.username =username;
-    this.password = password;
-    this.email=email;
-   }
+    @OneToOne(mappedBy="user", cascade = CascadeType.ALL)
+   private UserprofileModel userprofileModel;
+
    @Column(nullable= false)
    private String role= "USER";
+   
    @Column(updatable = false)
    @CreationTimestamp
    private LocalDateTime createdAt;
 
-   public String getRole() {
-    return role;
-   }
-
-   public void setRole(String role) {
-    this.role = role;
-   }
-
-   public LocalDateTime getCreatedAt() {
-    return createdAt;
-   }
-   
-
-   public Long getId() {
-    return id;
-   }
-   public void setId(Long id) {
-    this.id=id;
-   }
-   public String getUsername() {
-    return username;
-   }
-   public void setUsername(String username) {
-    this.username = username;
-   }
-   public String getPassword() {
-    return password;
-   }
-   public void setPassword(String password) {
-    this.password = password;
-   }
-   public String getEmail() {
-    return email;
-   }
-   public void setEmail(String email) {
-    this.email = email;
-   }
-   @OneToOne(mappedBy="user", cascade = CascadeType.ALL)
-   private UserprofileModel userprofileModel;
-
-   public UserprofileModel getUserprofileModel() {
-    return userprofileModel;
-   }
-   public void setUserprofileModel(UserprofileModel userprofileModel) {
-    this.userprofileModel=userprofileModel;
-   }
-   public String getStatus() {
-    return status;
-   }
-   public void setStatus(String status) {
-    this.status = status;
-   }
+    @OneToOne(mappedBy = "user", cascade =CascadeType.ALL)
+    private Cart cart;
 
 
-    
 }

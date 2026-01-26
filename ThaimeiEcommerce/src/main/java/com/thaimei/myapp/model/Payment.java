@@ -37,7 +37,7 @@ public class Payment {
     private String paymentMethod;
    
     @Column(nullable = false, unique=true)
-    private String paymentId; //razorpay payment id
+    private String paymentId; //razorpay paymentId
 
     @Column(nullable = false, unique = true)
     private String orderId; //razorpay orderId

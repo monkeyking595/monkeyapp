@@ -10,5 +10,4 @@ import java.util.Optional;
 @Repository
 public interface ProductsRepo extends JpaRepository<ProductsModel, Long>  {
     List<ProductsModel> findByName(String name);
-   
 }

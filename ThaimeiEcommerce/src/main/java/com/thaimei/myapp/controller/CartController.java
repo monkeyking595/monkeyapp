@@ -27,17 +27,20 @@ public class CartController {
     }
     @GetMapping("/getItems")
     public ResponseEntity<?> getMyCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Optional<CartDto> cartDto=cartService.getCartByUserId(userDetails.getId());
-        return cartDto
-            .map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.status(404).body("Cart is empty")); 
-        
+        return cartService.getCartByUserId(userDetails.getId())
+        .map(myCart -> {
+             if (myCart.getItems().isEmpty()) {
+                return ResponseEntity.status(404).body("Cart is empty");
+            }
+        return ResponseEntity.ok(myCart);
+        })
+        .orElseGet(() -> ResponseEntity.status(404).body("Cart is empty"));    
     }
     
     @PostMapping("/AddItems")
     public ResponseEntity<String> addItems(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody AddItem addItem) {
         Long userId = userDetails.getId();
-        cartService.addItemsTocart(addItem, userId);
+        cartService.addItemsToCart(addItem, userId);
         return ResponseEntity.ok("Items added to cart");
 
     } 

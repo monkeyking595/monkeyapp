@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
+import com.thaimei.myapp.dto.CartItemDto;
+
+
 
 @Data
 @NoArgsConstructor
@@ -14,10 +17,13 @@ import java.util.List;
 public class CartDto {
     @NotNull(message="Id cannot be Null")
     private Long cartId;
+
     @NotEmpty(message="items list cannot be empty")
-    private List<cartitemDto> items;
+    private List<CartItemDto> items;
+
     @Positive(message="Total price cannot be negative")
     double totalPrice;
+    
     @Positive(message="Quantity cannot be negative")
     private int quantity;
 }

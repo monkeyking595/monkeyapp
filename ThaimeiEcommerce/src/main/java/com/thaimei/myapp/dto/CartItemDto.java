@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.NotBlank;
+import java.math.BigDecimal;
+
 
 @Data
 @NoArgsConstructor
@@ -12,11 +14,16 @@ import jakarta.validation.constraints.NotBlank;
 public class CartItemDto {
     @NotNull(message="Id cannot be null")
     private Long productId;
+
     @Positive(message="Quantity cannot be negative")
     private int quantity;
+
     @Positive(message="Price cannot be negative")
-    private double price;
+    private BigDecimal price;
+
     @NotBlank(message="Product name cannot be blank")
     private String productName;
     
+    @Positive(message="Total price cannot be negative")
+    private BigDecimal totalPrice;
 }

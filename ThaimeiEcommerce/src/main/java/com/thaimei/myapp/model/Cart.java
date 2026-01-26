@@ -6,17 +6,21 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.CascadeType;
 import java.util.List;
 import java.util.ArrayList;
+import java.math.BigDecimal;
+import lombok.Getter;
+import lombok.Setter;
+
 
 
 @Entity
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Cart {
@@ -31,10 +35,6 @@ public class Cart {
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
-
-    @Column(nullable = false) 
-    private double totalPrice;
-
     
 }
 

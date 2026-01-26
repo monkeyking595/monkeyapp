@@ -1,5 +1,5 @@
 package com.thaimei.myapp.model;
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 import com.thaimei.myapp.model.ProductsModel;
 
@@ -12,10 +12,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+import java.math.BigDecimal;
 
 
 @Entity
-@Data
+@Data 
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItem {
@@ -32,13 +33,34 @@ public class CartItem {
     private Cart cart;
 
     @Column(nullable = false)
-    private double price;
+    private BigDecimal price;
 
     @Column(nullable = false)
     private int quantity;
 
     @Column(nullable = false)
     private String productName;
+    
+    @Column(nullable = false)
+    private BigDecimal totalPrice;
+
+    @Column(nullable = false)
+    private int Quantity;
+
+    @Column(nullable = false)
+    private String imageURL;
+
+    @Column(nullable = false)
+    private Long productId;
+
+    @Column(nullable = false)
+    private String description;
+
+    
+
+
+
+
    
     
 }

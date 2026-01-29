@@ -11,6 +11,9 @@ import java.util.Optional;
 import com.thaimei.myapp.repository.ProductsRepo;
 import org.modelmapper.ModelMapper;
 import java.math.BigDecimal;
+import com.thaimei.myapp.repository.UserRepository;
+import com.thaimei.myapp.model.User;
+
 
 @Service
 public class CartService {
@@ -18,18 +21,24 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ProductsRepo productsRepo;
     private final ModelMapper modelMapper;
-    public CartService(CartRepository cartRepository, ModelMapper modelMapper, CartItemRepository cartItemRepository, ProductsRepo productsRepo) {
+    private final UserRepository userRepository;
+    public CartService(CartRepository cartRepository, ModelMapper modelMapper, CartItemRepository cartItemRepository, ProductsRepo productsRepo, UserRepository userRepository) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productsRepo = productsRepo;
         this.modelMapper = modelMapper;
+        this .userRepository = userRepository;
     }
 
     public void  addItemsToCart(AddItem addItem, Long userId) {
-        Cart cart = cartRepository.findByUserId(userId)
+
+        User user = userRepository.findById(userId) 
+        .orElseThrow (()-> new RuntimeException ("User not found"));
+
+        Cart cart = cartRepository.findByUser(user)
         .orElseGet(() -> {
             Cart newCart = new Cart();
-            newCart.setUserId(userId);
+            newCart.setUser(user);
             return cartRepository.save(newCart);
         });
 
@@ -44,7 +53,7 @@ public class CartService {
             CartItem item =existingItem.get();
             int newQuantity = item.getQuantity() + addItem.getQuantity();
             item.setQuantity(newQuantity);
-            item.setTotalPrice(product.getPrice() * newQuantity);
+            item.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf (newQuantity)));
             cartItemRepository.save(item);
         } else {
             CartItem newItem = new CartItem();
@@ -55,7 +64,7 @@ public class CartService {
             newItem.setProductName(product.getName());
             newItem.setImageURL(product.getImageURL());
             newItem.setDescription(product.getDescription());
-            newItem.setTotalPrice(product.getPrice() * addItem.getQuantity());
+            newItem.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf (addItem.getQuantity())));
             cartItemRepository.save(newItem);
         }
 

@@ -44,7 +44,7 @@ public class CartService {
 
         
         ProductsModel product = productsRepo.findById(addItem.getProductId())
-        .orElseThrow(() -> new RuntimeException("product not found or out of stock"));
+        .orElseThrow(()  -> new RuntimeException("product not found or out of stock"));
 
         //check if item already exists in cart if true merge quantities.
         Optional<CartItem> existingItem= cartItemRepository.findByCartIdAndProductId(cart.getCartId(), addItem.getProductId());
@@ -71,7 +71,11 @@ public class CartService {
     }
 
    public Optional<CartDto> getCartByUserId(Long userId) {
-        return cartRepository.findByUserId(userId)
-        .map(cart -> modelMapper.map(cart, CartDto.class));
+    
+    User user = userRepository.findById(userId)
+    .orElseThrow(()-> new RuntimeException ("user not found"));
+
+    return cartRepository.findByUser(user)
+    .map(cart -> modelMapper.map(cart, CartDto.class));
    }
 }

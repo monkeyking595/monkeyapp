@@ -37,12 +37,13 @@ public class LoginController {
             ) 
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        User user = userRepository.findByUsername(authentication.getName());
+        User user = userRepository.findByUsername(authentication.getName())
+        .orElseThrow(()-> new RuntimeException("User not found"));
         Long userId=user.getId();
         String token=jwtUtil.generateToken(String.valueOf(userId), 3600000L);
         return ResponseEntity.ok(new JwtResponse(token, authentication.getName()));
 
-    } 
+    }  
 
     
     }

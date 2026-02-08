@@ -18,7 +18,7 @@ public class ProductService {
         List<ProductsModel> Allproducts = productsRepo.findAll();
         return Allproducts.stream()
         .map(product -> new ProductDto(
-            product.getId(),
+            product.getProductId(),
             product.getName(),
             product.getPrice(),
             product.getDescription(),
@@ -32,7 +32,7 @@ public class ProductService {
         .orElseThrow(()-> new RuntimeException("Product cannot be found"));
 
         return new ProductDto(
-            product.getId(),
+            product.getProductId(),
             product.getName(),
             product.getPrice(),
             product.getDescription(),

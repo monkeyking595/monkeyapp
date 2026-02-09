@@ -2,6 +2,12 @@ package com.thaimei.myapp.dto.adminDto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdminRegistrationDto {
     @NotBlank(message = "Username cannot be blank")
     @Size(min=3, max=20, message ="Username must be between 3 and 20 chracters")
@@ -17,29 +23,4 @@ public class AdminRegistrationDto {
     @Size(min=8, max=20, message = "Confirm password must be between 8 and 20 charcters")
     private String adminconfirmpassword;
 
-    public String getAdminname() {
-        return adminname;
-    }
-    public void setAdminname(String adminname) {
-        this.adminname=adminname;
-    }
-    public String getAdminpassword() {
-        return adminpassword;
-    }
-    public void setAdminpassword(String adminpassword) {
-        this.adminpassword=adminpassword;
-    }
-    public String getAdminconfirmpassword() {
-        return adminconfirmpassword;
-    }
-    public void setAdminconfirmPassowrd(String adminconfirmpassword) {
-        this.adminconfirmpassword=adminconfirmpassword;
-    }
-    public String getAdminemail() {
-        return adminemail;
-    }
-    public void setAdminemail(String adminemail) {
-        this.adminemail=adminemail;
-    }
-    
 }

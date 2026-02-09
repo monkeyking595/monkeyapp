@@ -9,19 +9,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.CascadeType;
 import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.Column;
-import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
-import lombok.Data;
-
-
 @Entity
 @Table(name="app_user")
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-@Data
-
- 
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +28,9 @@ public class User {
    @Column(nullable = false)
    private String password;
 
+   @Column(nullable = false)
    private String email;
+
    @Column(nullable = false)
    private String status;
 

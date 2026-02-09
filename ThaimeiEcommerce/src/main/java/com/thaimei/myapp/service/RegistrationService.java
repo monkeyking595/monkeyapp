@@ -26,11 +26,10 @@ public class RegistrationService {
         }
 
     
-    User user=new User(
-        dto.getUsername(),
-        passwordEncoder.encode(dto.getPassword()),
-        dto.getEmail()
-    );
+    User user=new User();
+    user.setUsername(dto.getUsername());
+    user.setPassword(passwordEncoder.encode(dto.getPassword()));
+    user.setEmail(dto.getEmail());
     user.setRole("USER");
     userService.save(user);
     }
@@ -46,13 +45,12 @@ public class RegistrationService {
             throw new IllegalArgumentException("Username already exists!");
 
     }
-    User user=new User(
-        adDto.getAdminname(),
-        passwordEncoder.encode(adDto.getAdminpassword()),
-        adDto.getAdminemail()
+    User user=new User();
 
-    );
+    user.setUsername(adDto.getAdminname());
+    user.setPassword(passwordEncoder.encode(adDto.getAdminpassword()));
     user.setRole("ADMIN");
+    user.setEmail(adDto.getAdminemail());
     userService.save(user);
     }
     

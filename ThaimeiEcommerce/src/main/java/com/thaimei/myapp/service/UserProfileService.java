@@ -6,6 +6,7 @@ import  com.thaimei.myapp.model.UserprofileModel;
 import org.modelmapper.ModelMapper;
 import com.thaimei.myapp.model.User;
 import java.util.Optional;
+import java.util.Objects;
 
 
 @Service
@@ -16,7 +17,6 @@ public class UserProfileService {
     public UserProfileService(UserProfileRepo userProfileRepo, ModelMapper modelMapper) {
         this.userProfileRepo = userProfileRepo;
         this.modelMapper = modelMapper;
-        
     }
    
    
@@ -28,11 +28,11 @@ public class UserProfileService {
             modelMapper.map(userInfoDto, profile);
             
         }else {
-            profile=modelMapper.map(userInfoDto, UserprofileModel.class);
+            profile=Objects.requireNonNull(modelMapper.map(userInfoDto, UserprofileModel.class), "profile mapping failed");
             profile.setUser(currentUser);
 
         }
-        userProfileRepo.save(profile);
+        userProfileRepo.save(Objects.requireNonNull(profile));
     }   
      
     public UserInfoDto getprofileByUser(User currentUser) {

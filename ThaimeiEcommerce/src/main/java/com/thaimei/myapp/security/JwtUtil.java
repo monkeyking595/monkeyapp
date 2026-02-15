@@ -22,7 +22,7 @@ public class JwtUtil {
    public String generateToken(String subject, long expirationMillis) {
     Map<String, Object> claims= new HashMap<>();
     return Jwts.builder()
-        .setClaims(claims)
+        .claims(claims)
         .setSubject(subject)
         .setExpiration(new Date(System.currentTimeMillis()+expirationMillis))
         .setIssuedAt(new Date(System.currentTimeMillis()))

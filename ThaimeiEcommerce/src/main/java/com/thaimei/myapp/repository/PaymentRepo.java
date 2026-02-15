@@ -1,6 +1,5 @@
 package com.thaimei.myapp.repository;
 import com.thaimei.myapp.model.Payment;
-import com.thaimei.myapp.dto.PaymentDto;
 import java.util.Optional;
 
 

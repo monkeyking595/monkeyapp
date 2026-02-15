@@ -1,12 +1,10 @@
 package com.thaimei.myapp.security;
 import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.repository.UserRepository;
-import com.thaimei.myapp.security.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 
 @Service

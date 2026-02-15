@@ -27,7 +27,7 @@ public class ProductService {
         ))
         .toList();
     }
-    public ProductDto getProductById(Long id) {
+    public ProductDto getProductById(long id) {
         ProductsModel product = productsRepo.findById(id)
         .orElseThrow(()-> new RuntimeException("Product cannot be found"));
 

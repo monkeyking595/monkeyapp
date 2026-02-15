@@ -1,7 +1,6 @@
 package com.thaimei.myapp.model;
 import jakarta.persistence.Entity;
 
-import com.thaimei.myapp.model.ProductsModel;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import java.math.BigDecimal;
-
 
 @Entity
 @Data 

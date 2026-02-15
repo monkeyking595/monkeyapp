@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import com.thaimei.myapp.model.Orders;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -26,7 +25,7 @@ public class OrderController {
 
     @PostMapping("/PlaceOrder")
     public ResponseEntity<String> placedOrder(@RequestBody OrderDto orderDTo) {
-        Orders order=orderService.saveOrders(orderDTo);
+        orderService.saveOrders(orderDTo);
         return ResponseEntity.ok("Order placed successfully!");
     }
     @GetMapping("/{userId}")

@@ -1,17 +1,12 @@
 package com.thaimei.myapp.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.thaimei.myapp.dto.CartDto;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import com.thaimei.myapp.service.CartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.thaimei.myapp.dto.AddItem;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.thaimei.myapp.security.CustomUserDetails;
 
@@ -39,7 +34,7 @@ public class CartController {
     
     @PostMapping("/AddItems")
     public ResponseEntity<String> addItems(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody AddItem addItem) {
-        Long userId = userDetails.getId();
+        long userId = userDetails.getId();
         cartService.addItemsToCart(addItem, userId);
         return ResponseEntity.ok("Items added to cart");
 

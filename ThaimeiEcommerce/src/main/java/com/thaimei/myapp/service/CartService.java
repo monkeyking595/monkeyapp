@@ -30,7 +30,7 @@ public class CartService {
         this .userRepository = userRepository;
     }
 
-    public void  addItemsToCart(AddItem addItem, Long userId) {
+    public void  addItemsToCart(AddItem addItem, long userId) {
 
         User user = userRepository.findById(userId) 
         .orElseThrow (()-> new RuntimeException ("User not found"));
@@ -42,8 +42,8 @@ public class CartService {
             return cartRepository.save(newCart);
         });
 
-        
-        ProductsModel product = productsRepo.findById(addItem.getProductId())
+          long productId = addItem.getProductId();
+        ProductsModel product = productsRepo.findById( productId)
         .orElseThrow(()  -> new RuntimeException("product not found or out of stock"));
 
         //check if item already exists in cart if true merge quantities.
@@ -70,7 +70,8 @@ public class CartService {
 
     }
 
-   public Optional<CartDto> getCartByUserId(Long userId) {
+   public Optional<CartDto> getCartByUserId(long userId) {
+    
     
     User user = userRepository.findById(userId)
     .orElseThrow(()-> new RuntimeException ("user not found"));

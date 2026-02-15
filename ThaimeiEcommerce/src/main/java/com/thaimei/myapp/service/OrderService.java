@@ -4,6 +4,7 @@ import com.thaimei.myapp.model.Orders;
 import org.springframework.stereotype.Service;
 import com.thaimei.myapp.dto.OrderDto;
 import org.modelmapper.ModelMapper;
+import java.util.Objects;
 import java.util.List;
 
 @Service
@@ -15,11 +16,10 @@ public class OrderService {
         this.modelMapper=modelMapper;
     }
     public Orders saveOrders(OrderDto orderDto) {
-        Orders order = modelMapper.map(orderDto, Orders.class);
-         return orderRepo.save(order);
-        
+        Orders order = Objects.requireNonNull (modelMapper.map(orderDto, Orders.class), "Order mapping failed");
+        return orderRepo.save(order);
     }
-    public List<OrderDto> getOrdersByUserId(Long userId) {
+    public List<OrderDto> getOrdersByUserId(long userId) {
         List<Orders> orders=orderRepo.findByUserId(userId);
         return orders.stream()
         .map(order->modelMapper.map(order,OrderDto.class))

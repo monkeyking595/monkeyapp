@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import com.thaimei.myapp.model.ProductsModel;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ProductsRepo extends JpaRepository<ProductsModel, Long>  {

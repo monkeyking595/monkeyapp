@@ -1,8 +1,8 @@
 package com.thaimei.myapp.model;
 import jakarta.persistence.Entity;
-
-
-import lombok.Data;
+import jakarta.persistence.FetchType;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import jakarta.persistence.Id;
@@ -13,8 +13,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import java.math.BigDecimal;
 
+
 @Entity
-@Data 
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItem {
@@ -23,7 +25,7 @@ public class CartItem {
     @Column(nullable = false)
     private Long itemId;
 
-     @ManyToOne
+     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", referencedColumnName = "productId", nullable = false)
     private ProductsModel product;
     @ManyToOne
@@ -47,9 +49,6 @@ public class CartItem {
 
     @Column(nullable = false)
     private String imageURL;
-
-    @Column(nullable = false)
-    private Long productId;
 
     @Column(nullable = false)
     private String description;

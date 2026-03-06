@@ -58,7 +58,6 @@ public class CartService {
         } else {
             CartItem newItem = new CartItem();
             newItem.setCart(cart);
-            newItem.setProductId(addItem.getProductId());
             newItem.setQuantity(addItem.getQuantity());
             newItem.setPrice(product.getPrice());
             newItem.setProductName(product.getName());

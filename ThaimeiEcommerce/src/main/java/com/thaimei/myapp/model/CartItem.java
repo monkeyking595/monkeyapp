@@ -44,8 +44,6 @@ public class CartItem {
     @Column(nullable = false)
     private BigDecimal totalPrice;
 
-    @Column(nullable = false)
-    private int Quantity;
 
     @Column(nullable = false)
     private String imageURL;
@@ -53,11 +51,6 @@ public class CartItem {
     @Column(nullable = false)
     private String description;
 
-    
 
-
-
-
-   
     
 }

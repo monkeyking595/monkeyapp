@@ -5,8 +5,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import java.math.BigDecimal;
 import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -19,11 +17,6 @@ public class ProductsModel {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(nullable=false)
     private Long productId;
-
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    @ManyToOne
-    private User user;
-    
 
     @Column(nullable= false) 
     private BigDecimal price;

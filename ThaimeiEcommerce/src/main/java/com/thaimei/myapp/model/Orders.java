@@ -33,7 +33,7 @@ public class Orders {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "products_id", referencedColumnName="id", nullable=false)
+    @JoinColumn(name = "products_id", referencedColumnName="productId", nullable=false)
     private ProductsModel product;
  
 }

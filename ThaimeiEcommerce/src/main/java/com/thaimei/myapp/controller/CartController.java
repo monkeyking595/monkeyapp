@@ -22,7 +22,7 @@ public class CartController {
     }
     @GetMapping("/getItems")
     public ResponseEntity<?> getMyCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return cartService.getCartByUserId(userDetails.getId())
+        return   cartService.getCartByUserId(userDetails.getId())
         .map(myCart -> {
              if (myCart.getItems().isEmpty()) {
                 return ResponseEntity.status(404).body("Cart is empty");

@@ -24,7 +24,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
-    public User findById(Long id) {
+    public User findById(long id) {
         return userRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("User not found"));
         

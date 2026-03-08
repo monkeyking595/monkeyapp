@@ -29,6 +29,10 @@ public class UserService {
         .orElseThrow(() -> new RuntimeException("User not found"));
         
     }
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+        .orElseThrow(()-> new RuntimeException ("user not found"));
+    }
     public List<AdminUserDto> getAllUsersForAdmin() {
        List<User> users = userRepository.findAll();
        return users.stream()

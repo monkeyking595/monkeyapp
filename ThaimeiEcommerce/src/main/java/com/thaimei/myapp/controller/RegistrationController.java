@@ -14,6 +14,8 @@ import jakarta.validation.Valid;
 import java.util.Map;
 import com.thaimei.myapp.dto.JwtResponse;
 import com.thaimei.myapp.security.JwtUtil;
+import com.thaimei.myapp.service.UserService;
+import com.thaimei.myapp.model.User;
 
 
 
@@ -23,9 +25,11 @@ public class RegistrationController {
     private final RegistrationService registrationService;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
-    public RegistrationController(RegistrationService registrationService, JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
+    private final UserService userService;
+    public RegistrationController(UserService userService,RegistrationService registrationService, JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
         this.registrationService = registrationService;
         this.jwtUtil = jwtUtil;
+        this.userService = userService;
         this.authenticationManager = authenticationManager;
         
     }
@@ -35,12 +39,14 @@ public class RegistrationController {
     public ResponseEntity<?> registration(@Valid @RequestBody UserRegistrationDto dto ) {
         try {
             registrationService.RegisterUser(dto);
+    
              Authentication authentication =  authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword())
              );
              SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            String token=jwtUtil.generateToken(dto.getUsername(), 3600000L);
+             User user = userService.findByUsername(authentication.getName());
+             //convert userId to string since subject in jwt is type String
+            String token=jwtUtil.generateToken(String.valueOf(user.getId()), 3600000L);
 
         return ResponseEntity.ok(new JwtResponse(token, dto.getUsername()));
 

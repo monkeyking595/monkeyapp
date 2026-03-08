@@ -47,7 +47,7 @@ public class CartService {
         .orElseThrow(()  -> new RuntimeException("product not found or out of stock"));
 
         //check if item already exists in cart if true merge quantities.
-        Optional<CartItem> existingItem= cartItemRepository.findByCartIdAndProductId(cart.getCartId(), addItem.getProductId());
+        Optional<CartItem> existingItem= cartItemRepository.findByCartCartIdAndProductProductId(cart.getCartId(), addItem.getProductId());
         if(existingItem.isPresent()) {
             //extract the existing item and update quantity.
             CartItem item =existingItem.get();

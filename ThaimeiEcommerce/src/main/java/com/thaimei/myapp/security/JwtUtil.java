@@ -22,12 +22,14 @@ public class JwtUtil {
    public String generateToken(String subject, long expirationMillis) {
     Map<String, Object> claims= new HashMap<>();
     return Jwts.builder()
+    //the new version of jjwt doesn't need the set() method to set the claims 
         .claims(claims)
-        .setSubject(subject)
-        .setExpiration(new Date(System.currentTimeMillis()+expirationMillis))
-        .setIssuedAt(new Date(System.currentTimeMillis()))
-        .setIssuer("ThaimeiEcommerce")
-        .setAudience("ThaimeiEcommerceUsers")
+        .subject(subject)
+        .expiration(new Date(System.currentTimeMillis()+expirationMillis))
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .issuer("ThaimeiEcommerce")
+        //the add() method is used to set the audience value and and() is used to continue to the chain
+        .audience().add("ThaimeiEcommerceUsers").and()
         .signWith(key)
         .compact();
 

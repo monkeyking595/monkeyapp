@@ -4,15 +4,13 @@ import com.thaimei.myapp.dto.UserRegistrationDto;
 import com.thaimei.myapp.dto.adminDto.AdminRegistrationDto;
 
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 @Service
 public class RegistrationService {
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
-    public RegistrationService(UserService userService,PasswordEncoder passwordEncoder) {
+    public RegistrationService(UserService userService) {
         this.userService = userService;
-        this.passwordEncoder=passwordEncoder;
     }
     public void RegisterUser(UserRegistrationDto dto) {
         if (dto.getUsername()==null || dto.getUsername().isEmpty()) {
@@ -24,11 +22,10 @@ public class RegistrationService {
         if (userService.existsByUsername(dto.getUsername())) {
             throw new IllegalArgumentException("Username already exists!");
         }
-
     
     User user=new User();
     user.setUsername(dto.getUsername());
-    user.setPassword(passwordEncoder.encode(dto.getPassword()));
+    user.setPassword(dto.getPassword());
     user.setEmail(dto.getEmail());
     user.setRole("USER");
     userService.save(user);
@@ -48,7 +45,7 @@ public class RegistrationService {
     User user=new User();
 
     user.setUsername(adDto.getAdminname());
-    user.setPassword(passwordEncoder.encode(adDto.getAdminpassword()));
+    user.setPassword(adDto.getAdminpassword());
     user.setRole("ADMIN");
     user.setEmail(adDto.getAdminemail());
     userService.save(user);

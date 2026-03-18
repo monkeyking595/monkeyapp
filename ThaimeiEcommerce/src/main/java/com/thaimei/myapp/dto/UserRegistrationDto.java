@@ -29,8 +29,5 @@ public class UserRegistrationDto {
     @Email(message = "email should be valid")
     @Size(max=50, message = "Email must be less than 50 characters")
     private String email;
-
-
-
     
 }

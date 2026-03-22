@@ -43,11 +43,7 @@ public class HomeController {
     }
     @GetMapping("/error")
     public String error() {
-        return "usererror";
-    }
-    @GetMapping("/register") 
-    public String adminregistration() {
-        return "admin/admin-registration";
+        return "error/usererror";
     }
     @GetMapping("/login")
     public String login_page() {
@@ -71,7 +67,7 @@ public class HomeController {
     }
     @GetMapping("/ProductDetails")
     public String getProductDetails() {
-        return "products_details";
+        return "user/products_details";
     }
     
 

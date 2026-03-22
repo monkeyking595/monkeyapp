@@ -8,9 +8,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 
 public class AdminDashboardController {
-    @GetMapping("/dashboard")
+    @GetMapping("/")
     public String adminDashboard() {
-        return "admin/dashboard";
+        return "admin/adminDashboard";
     }
+
+    @GetMapping("/registration") 
+    public String adminregistration() {
+        return "admin/adminRegistration";
+    }
+    @GetMapping("/adminProducts")
+    public String adminProducts() {
+        return "admin/adminProducts";
+    }
+    @GetMapping("/adminOrders")
+    public String adminOrders() {
+        return "admin/adminOrders";
+    }
+    @GetMapping("/adminUsers")
+    public String adminUsers() {
+        return "admin/adminUsers";
+    }
+
 
 }

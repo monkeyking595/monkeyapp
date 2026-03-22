@@ -3,42 +3,54 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="manage your account with ease, view your orders, and upate your frofile.">
-        <title>Your account</title>
+        <meta name="description" content="Create your Thaimei account to start shopping faster and manage your orders.">
+        <title>Create Account</title>
         <link rel="stylesheet" href="/account.css">
     </head>
     <body>
-        
-        <main>
-            <form id="signupform">
-                  <div style="color: red;">
-        <p th:text="${error}"></p>
-    </div>
-    <div style="color: green;">
-        <p th:text="${message}"></p>
-    </div>
-            <form action="/signup" method="post">
-                <fieldset>
-                    <legend>New here? create an account below</legend>
-                    <label for="username">Your username</label>
-                    <input type="text" id="username" name="username" placeholder="Gordon Ramsay" maxlength="20" minlength="8" required>
+        <main class="auth-shell">
+            <section class="auth-card" aria-labelledby="signup-title">
+                <p class="eyebrow">Thaimei E-commerce</p>
+                <h1 id="signup-title">Create your account</h1>
+                <p class="intro">
+                    Sign up to save your cart, place orders, and keep your shopping details in one place.
+                </p>
 
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="********" minlength="8" maxlength="20" required>
+                <form id="signupForm" novalidate>
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Gordon Ramsay" maxlength="20" minlength="3" autocomplete="username" required>
+                        <small class="field-hint">Use 3 to 20 characters.</small>
+                    </div>
 
-                    <label for="confirmpassword">confirm password</label>
-                    <input type="password" id="confirmpassword" name="confirmpassword" placeholder="confirm your password" required>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="gordon@example.com" maxlength="50" autocomplete="email" required>
+                    </div>
 
-                    <label for="email">your email</label>
-                    <input type="email" id="email" name="email" placeholder="jphnth@gmail.com">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" placeholder="Create a password" minlength="6" maxlength="100" autocomplete="new-password" required>
+                        </div>
 
-                    <button type="submit">submit</button>
-                </fieldset>
-            </form>
-            <div id="message"></div>
-            <nav>
-                <a href="/login_page">already have an account? login here</a>
-            </nav>
+                        <div class="form-group">
+                            <label for="confirmpassword">Confirm Password</label>
+                            <input type="password" id="confirmpassword" name="confirmpassword" placeholder="Repeat your password" minlength="6" maxlength="100" autocomplete="new-password" required>
+                        </div>
+                    </div>
+
+                    <div id="formMessage" class="form-message" role="status" aria-live="polite"></div>
+
+                    <button type="submit" id="submitButton" class="submit-btn">Create account</button>
+                </form>
+
+                <nav class="auth-links" aria-label="Account links">
+                    <a href="/login">Already have an account? Log in</a>
+                </nav>
+            </section>
         </main>
+
+        <script src="/js/registration.js" defer></script>
     </body>
 </html>

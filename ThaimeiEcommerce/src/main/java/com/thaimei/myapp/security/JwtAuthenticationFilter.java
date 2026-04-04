@@ -3,14 +3,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
-
-
 import org.springframework.lang.NonNull;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,14 +14,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    private  JwtUtil jwtUtil;
-    @Autowired
-    private  UserDetailsServiceImpl userDetailsServiceImpl;
+    private  final JwtUtil jwtUtil;
+    private  final UserDetailsServiceImpl userDetailsServiceImpl;
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsServiceImpl) {
+        this.jwtUtil = jwtUtil;
+        this.userDetailsServiceImpl = userDetailsServiceImpl;
+    }
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
     @NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {

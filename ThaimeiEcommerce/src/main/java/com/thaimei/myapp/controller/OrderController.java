@@ -5,34 +5,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.thaimei.myapp.dto.OrderDto;
 import com.thaimei.myapp.service.OrderService;
 import org.springframework.http.ResponseEntity;
-
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
-
-
-
+import com.thaimei.myapp.security.CustomUserDetails;
+import com.thaimei.myapp.repository.UserRepository;
 
 
 @RestController
 @RequestMapping("/Orders")
 public class OrderController {
     private final OrderService orderService;
-    public OrderController(OrderService orderService) {
+    private final UserRepository userRepository;
+    public OrderController(OrderService orderService, UserRepository userRepository) {
+        this.userRepository = userRepository;
         this.orderService = orderService;
     }
 
     @PostMapping("/PlaceOrder")
-    public ResponseEntity<String> placedOrder(@RequestBody OrderDto orderDTo) {
+    public ResponseEntity<String> placedOrder(@RequestBody OrderDto orderDTo, @AuthenticationPrincipal CustomUserDetails principal) {
+        long userId=principal.getId();
+        userRepository.findById(userId).orElseThrow(()-> new IllegalArgumentException("user not found"));
         orderService.saveOrders(orderDTo);
         return ResponseEntity.ok("Order placed successfully!");
     }
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<OrderDto>> getOrders(@PathVariable Long userId) {
+    @GetMapping("/GetOrder")
+    public ResponseEntity<List<OrderDto>> getOrders(@AuthenticationPrincipal CustomUserDetails principal) {
+        long userId=principal.getId();
+        userRepository.findById(userId).orElseThrow(()-> new IllegalArgumentException("user not found"));
         List<OrderDto>orders=orderService.getOrdersByUserId(userId);
         return ResponseEntity.ok(orders);
-
     }
     
     

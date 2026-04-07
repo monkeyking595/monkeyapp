@@ -16,7 +16,7 @@ import org.springframework.security.core.Authentication;
 
 
 @RestController
-@RequestMapping
+@RequestMapping("/admin")
 public class AdminLoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;

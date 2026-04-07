@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@RequestMapping
+@RequestMapping("/admin")
 public class AdminRegistration {
     private final RegistrationService registrationService;
     private final JwtUtil jwtUtil;

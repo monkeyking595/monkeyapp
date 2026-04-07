@@ -21,17 +21,15 @@ public class SecurityConfig {
 
     
     @Bean
-    public SecurityFilterChain SecurityConfigsecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain SecurityConfigSecurityFilterChain(HttpSecurity http) throws Exception {
         http
         .csrf(csrf->csrf.disable())
         .sessionManagement(sm->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthEntryPoint))
         .authorizeHttpRequests(auth->auth.requestMatchers("/","/signup","/login_page","/error","/login","/css/**","/myimages/**").permitAll()
+        .requestMatchers("/admin/**").hasRole("ADMIN")
         .anyRequest().authenticated());
-        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-       
-    
-        
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); 
     return http.build();
         
     }
@@ -43,8 +41,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager (AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
-    
-    
-
-    
 }

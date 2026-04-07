@@ -6,6 +6,7 @@ import com.thaimei.myapp.dto.OrderDto;
 import org.modelmapper.ModelMapper;
 import java.util.Objects;
 import java.util.List;
+import com.thaimei.myapp.dto.adminDto.AdminOrderDto;
 
 @Service
 public class OrderService {
@@ -24,7 +25,12 @@ public class OrderService {
         return orders.stream()
         .map(order->modelMapper.map(order,OrderDto.class))
         .toList();
-
+    }
+    public List<AdminOrderDto> getAdminOrders() {
+        List<Orders> orders=orderRepo.findAll();
+        return orders.stream()
+        .map(order->modelMapper.map(order,AdminOrderDto.class))
+        .toList();
     }
 
     

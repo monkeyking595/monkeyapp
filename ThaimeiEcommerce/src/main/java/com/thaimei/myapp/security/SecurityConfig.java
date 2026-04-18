@@ -9,6 +9,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 @Configuration
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -16,10 +17,9 @@ public class SecurityConfig {
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter, JwtAuthenticationEntryPoint jwtAuthEntryPoint) {
         this.jwtAuthFilter = jwtAuthFilter;
-        this.jwtAuthEntryPoint = jwtAuthEntryPoint;
+        this.jwtAuthEntryPoint = jwtAuthEntryPoint; 
     }
-
-    
+        
     @Bean
     public SecurityFilterChain SecurityConfigSecurityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -33,11 +33,14 @@ public class SecurityConfig {
     return http.build();
         
     }
+    //Program to interface, not the implementation method is used here, where the interface is use as the return type.
+    //it gives more flexibility
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
     @Bean
+    // AuthenticationConfiguration configures everything that is needed by the authenticationManager
     public AuthenticationManager authenticationManager (AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }

@@ -31,7 +31,6 @@ public class SecurityConfig {
         .anyRequest().authenticated());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); 
     return http.build();
-        
     }
     //Program to interface, not the implementation method is used here, where the interface is use as the return type.
     //it gives more flexibility

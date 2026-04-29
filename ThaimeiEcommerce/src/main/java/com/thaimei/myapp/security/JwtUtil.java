@@ -45,7 +45,7 @@ public class JwtUtil {
          //takes all the configured settings and return the actual parser which can be use to parse the token, before this it's just settings for the parser
          .build()
          //re-computation of the signature happens here
-         //returns jws<Claims> the whole pared token
+         //returns jws<Claims> the whole parsed token
          .parseSignedClaims(token)
          //if the signature is valid, the payload is extracted and stored in claims 
          .getPayload();                 

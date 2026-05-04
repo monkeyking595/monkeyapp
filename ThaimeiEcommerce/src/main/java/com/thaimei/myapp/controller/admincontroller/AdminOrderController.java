@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/admin/api")
 public class AdminOrderController {
     private final OrderService orderService;
     public AdminOrderController(OrderService orderService) {

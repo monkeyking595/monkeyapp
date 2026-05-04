@@ -50,15 +50,19 @@ public class JwtUtil {
          //if the signature is valid, the payload is extracted and stored in claims 
          .getPayload();                 
    }
-   
+    //functional interface is used here, it has one abstract method apply() which takes a Claims object and returns a T type object, this allows us to extract specific claims from the token by passing different functions as the ClaimResolver argument.
+    //function<Claims, T> this enforces that the function takes a Claims object as input and returns a T<generic> type 
+    //claimResolver holds the method reference Claims::getSubject.
     public<T> T extractClaims(String token, Function<Claims, T> ClaimResolver) {
         final Claims claims=extractAllClaims(token);
+        //the apply() takes the claims object and internally runs claims.getSubject(), since it holds the method reference now we can call the method on the object.
         return ClaimResolver.apply(claims);
    }
    public String extractSubject(String token) {
     return extractClaims(token, Claims::getSubject);
    }
    public boolean isTokenExpired(String token) {
+    //.before() checks if the expiration date is before the current date, if it evaluates to true, the token is expired 
     return extractClaims(token, Claims::getExpiration).before(new Date());
    }
 

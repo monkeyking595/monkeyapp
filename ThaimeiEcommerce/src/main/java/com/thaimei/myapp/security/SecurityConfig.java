@@ -24,9 +24,13 @@ public class SecurityConfig {
     public SecurityFilterChain SecurityConfigSecurityFilterChain(HttpSecurity http) throws Exception {
         http
         .csrf(csrf->csrf.disable())
+        //here the configurer object (sessionManagementConfigurer) is passed in to the lambda 
+        //lambda implements the functional interface (customizer) which has the customize() method which takes the configurer object and configures it with STATELESS
+        //this happens the same for the all the other configurers in the code below
         .sessionManagement(sm->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthEntryPoint))
-        .authorizeHttpRequests(auth->auth.requestMatchers("/","/signup","/login_page","/error","/login","/css/**","/myimages/**").permitAll()
+        .authorizeHttpRequests(auth->auth.requestMatchers("/","/signup","/login_page","/error","/login","/css/**","/js/**","/myimages/**","/myapp.css","/account.css").permitAll()
+        .requestMatchers("/admin/api/adminlogin").permitAll()
         .requestMatchers("/admin/**").hasRole("ADMIN")
         .anyRequest().authenticated());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); 

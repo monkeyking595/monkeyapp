@@ -6,7 +6,6 @@ import com.thaimei.myapp.model.User;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.List; 
 
-
 public class CustomUserDetails implements UserDetails {
    
     private final User user;

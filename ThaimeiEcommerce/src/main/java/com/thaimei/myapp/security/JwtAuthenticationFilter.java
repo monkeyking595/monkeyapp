@@ -54,6 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             }
          }
+         // request carries incoming data URL, headers, body etc.
+         //response carries outgoing data status code, headers, body etc.
           filterChain.doFilter(request, response);
 
     }

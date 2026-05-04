@@ -31,7 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
-
+### file named exactly .env without anything before ###
 .env
 *.env
+### tells git this is not a file but a directory, since the io directory is extracted into the root project ###
 /io/
+### * means any file name before the .log extension ###
+*.log

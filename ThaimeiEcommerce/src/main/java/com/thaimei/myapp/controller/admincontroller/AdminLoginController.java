@@ -12,6 +12,7 @@ import com.thaimei.myapp.dto.adminDto.AdminLoginDto;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import com.thaimei.myapp.security.CustomUserDetails;
 
 
 
@@ -29,7 +30,9 @@ public class AdminLoginController {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(adminLoginDto.getAdminUsername(), adminLoginDto.getAdminPassword())
             );
-            String token=jwtUtil.generateToken(authentication.getName(), 3600000L);
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long userId = userDetails.getId();
+            String token=jwtUtil.generateToken(String.valueOf(userId), 3600000L);
             return ResponseEntity.ok(new JwtResponse(token, authentication.getName()));
     
     }

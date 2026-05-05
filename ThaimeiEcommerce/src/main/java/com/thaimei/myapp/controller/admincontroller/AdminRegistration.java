@@ -14,6 +14,7 @@ import com.thaimei.myapp.security.JwtUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import jakarta.validation.Valid; 
+import com.thaimei.myapp.security.CustomUserDetails;
 
 
 
@@ -38,7 +39,9 @@ public class AdminRegistration {
                 new UsernamePasswordAuthenticationToken(adDto.getAdminname(),adDto.getAdminpassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String token=jwtUtil.generateToken(adDto.getAdminname(),  3600000L);
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long userId = userDetails.getId();
+            String token=jwtUtil.generateToken(String.valueOf(userId),  3600000L);
             return ResponseEntity.ok(new JwtResponse(token, adDto.getAdminname()));
         }
         catch(IllegalArgumentException e) {

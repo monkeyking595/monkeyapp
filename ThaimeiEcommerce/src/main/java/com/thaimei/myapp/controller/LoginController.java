@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
-import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.repository.UserRepository;
+import com.thaimei.myapp.security.CustomUserDetails;
 
 
 
@@ -21,11 +21,9 @@ import com.thaimei.myapp.repository.UserRepository;
 public class LoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
     public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
@@ -37,9 +35,9 @@ public class LoginController {
             ) 
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        User user = userRepository.findByUsername(authentication.getName())
-        .orElseThrow(()-> new RuntimeException("User not found"));
-        Long userId=user.getId();
+        //casting of return type 
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId=userDetails.getId();
         String token=jwtUtil.generateToken(String.valueOf(userId), 3600000L);
         return ResponseEntity.ok(new JwtResponse(token, authentication.getName()));
 

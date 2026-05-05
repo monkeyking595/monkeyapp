@@ -15,7 +15,7 @@ import java.util.Map;
 import com.thaimei.myapp.dto.JwtResponse;
 import com.thaimei.myapp.security.JwtUtil;
 import com.thaimei.myapp.service.UserService;
-import com.thaimei.myapp.model.User;
+import com.thaimei.myapp.security.CustomUserDetails;
 
 
 
@@ -25,11 +25,9 @@ public class RegistrationController {
     private final RegistrationService registrationService;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
-    private final UserService userService;
     public RegistrationController(UserService userService,RegistrationService registrationService, JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
         this.registrationService = registrationService;
         this.jwtUtil = jwtUtil;
-        this.userService = userService;
         this.authenticationManager = authenticationManager;
         
     }
@@ -44,9 +42,10 @@ public class RegistrationController {
                 new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword())
              );
              SecurityContextHolder.getContext().setAuthentication(authentication);
-             User user = userService.findByUsername(authentication.getName());
+             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+             Long userId = userDetails.getId();
              //convert userId to string since subject in jwt is type String
-            String token=jwtUtil.generateToken(String.valueOf(user.getId()), 3600000L);
+            String token=jwtUtil.generateToken(String.valueOf(userId), 3600000L);
 
         return ResponseEntity.ok(new JwtResponse(token, dto.getUsername()));
 

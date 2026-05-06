@@ -31,9 +31,9 @@ public class User {
 
    @Column(nullable = false)
    private String email;
-
+   //set the status value to "ACTIVE" by default the Non-nullable constraint ensures that the status field must always have a value, and it cannot be null in the database. This means that when a new User entity is created, if no value is provided for the status field, it will automatically be set to "ACTIVE".
    @Column(nullable = false)
-   private String status;
+   private String status = "ACTIVE";
 
     @OneToOne(mappedBy="user", cascade = CascadeType.ALL)
    private UserprofileModel userprofileModel;

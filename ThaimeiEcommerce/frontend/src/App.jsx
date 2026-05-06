@@ -4,6 +4,7 @@ import AppShell from "./components/AppShell";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { loadSession } from "./lib/api";
 import AdminPage from "./pages/AdminPage";
+import AdminRegistrationPage from "./pages/AdminRegistrationPage";
 import AuthPage from "./pages/AuthPage";
 import CartPage from "./pages/CartPage";
 import HomePage from "./pages/HomePage";
@@ -67,6 +68,14 @@ export default function App() {
           element={
             <ProtectedRoute session={session} adminOnly>
               <AdminPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/register"
+          element={
+            <ProtectedRoute session={session} adminOnly>
+              <AdminRegistrationPage />
             </ProtectedRoute>
           }
         />

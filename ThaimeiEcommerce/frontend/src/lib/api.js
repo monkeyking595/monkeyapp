@@ -88,6 +88,12 @@ export const api = {
     return session;
   },
 
+  adminRegister: (adminname, adminemail, adminpassword, adminconfirmpassword) =>
+    request("/admin/api/register", {
+      method: "POST",
+      body: JSON.stringify({ adminname, adminemail, adminpassword, adminconfirmpassword })
+    }),
+
   products: () => request("/productsList"),
   product: (id) => request(`/Product/productDetails/${id}`),
   cart: () => request("/Cart/getItems"),

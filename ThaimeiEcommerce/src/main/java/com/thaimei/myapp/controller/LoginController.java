@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import com.thaimei.myapp.repository.UserRepository;
 import com.thaimei.myapp.security.CustomUserDetails;
+import jakarta.validation.Valid;
 
 
 
-@RestController("user")
-@RequestMapping
+@RestController
+@RequestMapping("user")
 public class LoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -27,7 +28,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login (@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtResponse> login (@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 loginRequest.getUsername(),

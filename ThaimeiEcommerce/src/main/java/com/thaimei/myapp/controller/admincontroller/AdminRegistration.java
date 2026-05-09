@@ -9,12 +9,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Map;
 import com.thaimei.myapp.service.RegistrationService;
 import com.thaimei.myapp.dto.JwtResponse;
-import com.thaimei.myapp.dto.adminDto.AdminRegistrationDto;
 import com.thaimei.myapp.security.JwtUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import jakarta.validation.Valid; 
 import com.thaimei.myapp.security.CustomUserDetails;
+import com.thaimei.myapp.dto.UserRegistrationDto;
+import com.thaimei.myapp.model.RoleEnum;
 
 
 
@@ -32,17 +33,17 @@ public class AdminRegistration {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<?> registerAdmin(@Valid @RequestBody AdminRegistrationDto adDto) {
+    public ResponseEntity<?> registerAdmin(@Valid @RequestBody UserRegistrationDto adDto) {
         try {
-            registrationService.adminRegister(adDto);
+            registrationService.RegisterUser(adDto, RoleEnum.ADMIN);
             Authentication authentication=authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(adDto.getAdminname(),adDto.getAdminpassword())
+                new UsernamePasswordAuthenticationToken(adDto.getUsername(),adDto.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             Long userId = userDetails.getId();
             String token=jwtUtil.generateToken(String.valueOf(userId),  3600000L);
-            return ResponseEntity.ok(new JwtResponse(token, adDto.getAdminname()));
+            return ResponseEntity.ok(new JwtResponse(token, adDto.getUsername()));
         }
         catch(IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

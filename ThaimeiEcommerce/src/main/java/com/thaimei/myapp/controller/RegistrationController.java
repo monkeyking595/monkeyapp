@@ -16,6 +16,7 @@ import com.thaimei.myapp.dto.JwtResponse;
 import com.thaimei.myapp.security.JwtUtil;
 import com.thaimei.myapp.service.UserService;
 import com.thaimei.myapp.security.CustomUserDetails;
+import com.thaimei.myapp.model.RoleEnum;
 
 
 
@@ -36,7 +37,7 @@ public class RegistrationController {
     @PostMapping("/signup")
     public ResponseEntity<?> registration(@Valid @RequestBody UserRegistrationDto dto ) {
         try {
-            registrationService.RegisterUser(dto);
+            registrationService.RegisterUser(dto, RoleEnum.SELLER);
     
              Authentication authentication =  authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword())

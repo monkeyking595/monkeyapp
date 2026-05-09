@@ -1,5 +1,4 @@
 package com.thaimei.myapp.controller.sellers;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
@@ -7,7 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.thaimei.myapp.dto.UserRegistrationDto;
 import com.thaimei.myapp.dto.JwtResponse;
-import com.thaimei.myapp.service.UserService;
 import com.thaimei.myapp.service.RegistrationService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -33,10 +31,9 @@ public class SellerRegistration {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
     }
-    @GetMapping("/registration")
-    public ResponseEntity<String> sellerRegistration() {
+   
 
-    }
+    
     @PostMapping("/registration")
     public ResponseEntity<?> registerSeller(@Valid @RequestBody UserRegistrationDto  sellerRegDto) {
         try {

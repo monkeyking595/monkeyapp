@@ -22,7 +22,7 @@ public class UserRegistrationDto {
     private String password;
 
     @NotBlank(message = "confirm password is required")
-    @Size(min=6, max=100, message = "Confirm password must be atleast between 6 and 100 charcters")
+    @Size(min=6, max=100, message = "password doesn't match")
     private String confirmpassword;
 
     @NotBlank(message =" Email is required")

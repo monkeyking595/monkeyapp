@@ -12,6 +12,9 @@ import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;  
+
 @Entity
 @Table(name="app_user")
 @Getter
@@ -39,7 +42,8 @@ public class User {
    private UserprofileModel userprofileModel;
 
    @Column(nullable= false)
-   private String role= "USER";
+   @Enumerated(EnumType.STRING)
+   private RoleEnum role;
    
    @Column(updatable = false)
    @CreationTimestamp
@@ -47,6 +51,4 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade =CascadeType.ALL)
     private Cart cart;
-
-
 }

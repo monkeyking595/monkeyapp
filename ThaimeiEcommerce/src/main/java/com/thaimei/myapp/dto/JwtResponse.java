@@ -1,8 +1,8 @@
 package com.thaimei.myapp.dto;
 
 public class JwtResponse {
-    String token;
-    String username;
+    private String token;
+    private String username;
 
     public JwtResponse(String token, String username) {
         this. token = token;

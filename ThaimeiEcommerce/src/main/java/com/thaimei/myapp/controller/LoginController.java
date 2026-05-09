@@ -16,7 +16,7 @@ import com.thaimei.myapp.security.CustomUserDetails;
 
 
 
-@RestController
+@RestController("user")
 @RequestMapping
 public class LoginController {
     private final AuthenticationManager authenticationManager;

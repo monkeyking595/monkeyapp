@@ -2,20 +2,20 @@ package com.thaimei.myapp.service;
 import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.dto.UserRegistrationDto;
 import com.thaimei.myapp.dto.adminDto.AdminRegistrationDto;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
 @Service
 public class RegistrationService {
     private final UserService userService;
-    public RegistrationService(UserService userService) {
+    private final PasswordEncoder passwordEncoder;
+    public RegistrationService(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
     public void RegisterUser(UserRegistrationDto dto) {
-        if (dto.getUsername()==null || dto.getUsername().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be empty!");
-        }
+       
         if(!dto.getPassword().equals(dto.getConfirmpassword())) {
             throw new IllegalArgumentException("password does not match!");
         }
@@ -25,7 +25,7 @@ public class RegistrationService {
     
     User user=new User();
     user.setUsername(dto.getUsername());
-    user.setPassword(dto.getPassword());
+    user.setPassword(passwordEncoder.encode(dto.getPassword()));
     user.setEmail(dto.getEmail());
     user.setRole("USER");
     userService.save(user);
@@ -45,7 +45,7 @@ public class RegistrationService {
     User user=new User();
 
     user.setUsername(adDto.getAdminname());
-    user.setPassword(adDto.getAdminpassword());
+    user.setPassword(passwordEncoder.encode(adDto.getAdminpassword()));
     user.setRole("ADMIN");
     user.setEmail(adDto.getAdminemail());
     userService.save(user);

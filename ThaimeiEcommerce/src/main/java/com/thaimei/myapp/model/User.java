@@ -14,6 +14,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;  
+import com.thaimei.myapp.enums.RoleEnum;
+import jakarta.persistence.OneToMany;
 
 @Entity
 @Table(name="app_user")
@@ -51,4 +53,7 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade =CascadeType.ALL)
     private Cart cart;
+
+    @OneToMany(mappedBy = "user", cascade= CascadeType.ALL)
+    private BrandEntity brandEntity;
 }

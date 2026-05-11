@@ -5,6 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import java.math.BigDecimal;
 import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -34,6 +36,10 @@ public class ProductsModel {
    
     @Column(nullable = false) 
     private int quantity;
+
+    @JoinColumn(name = "brand_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    private BrandEntity brandEntity;
 }
 
 

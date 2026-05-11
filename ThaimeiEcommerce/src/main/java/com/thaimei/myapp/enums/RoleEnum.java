@@ -1,4 +1,4 @@
-package com.thaimei.myapp.model;
+package com.thaimei.myapp.enums;
 
 public enum RoleEnum {
     USER,

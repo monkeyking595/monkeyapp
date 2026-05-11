@@ -16,7 +16,7 @@ import com.thaimei.myapp.dto.JwtResponse;
 import com.thaimei.myapp.security.JwtUtil;
 import com.thaimei.myapp.service.UserService;
 import com.thaimei.myapp.security.CustomUserDetails;
-import com.thaimei.myapp.model.RoleEnum;
+import com.thaimei.myapp.enums.RoleEnum;
 
 
 

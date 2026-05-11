@@ -27,5 +27,4 @@ public class ProductDto {
     @Positive(message="Quantity cannot be negative")
     private int quantity;
     
-    
 }

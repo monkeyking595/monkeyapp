@@ -15,7 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import jakarta.validation.Valid; 
 import com.thaimei.myapp.security.CustomUserDetails;
 import com.thaimei.myapp.dto.UserRegistrationDto;
-import com.thaimei.myapp.model.RoleEnum;
+import com.thaimei.myapp.enums.RoleEnum;
 
 
 

@@ -2,7 +2,7 @@ package com.thaimei.myapp.dto.adminDto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import com.thaimei.myapp.model.RoleEnum;
+import com.thaimei.myapp.enums.RoleEnum;
 
 @Data
 @NoArgsConstructor

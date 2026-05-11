@@ -3,7 +3,7 @@ import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.dto.UserRegistrationDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.thaimei.myapp.model.RoleEnum;
+import com.thaimei.myapp.enums.RoleEnum;
 
 
 @Service

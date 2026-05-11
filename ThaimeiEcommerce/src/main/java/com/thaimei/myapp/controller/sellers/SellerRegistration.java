@@ -13,7 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import com.thaimei.myapp.security.CustomUserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.thaimei.myapp.security.JwtUtil;
-import com.thaimei.myapp.model.RoleEnum;
+import com.thaimei.myapp.enums.RoleEnum;
 
 
 

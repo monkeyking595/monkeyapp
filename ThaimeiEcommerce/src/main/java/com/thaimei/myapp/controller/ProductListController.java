@@ -20,7 +20,6 @@ public class ProductListController {
     public ResponseEntity<List<ProductDto>> getAllProducts() {
         List<ProductDto> products = productService.getProducts();
         return ResponseEntity.ok(products);
-        
     }
     
 }

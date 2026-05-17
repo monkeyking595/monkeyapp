@@ -15,6 +15,8 @@ import com.thaimei.myapp.enums.BusinessType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.CascadeType;
+import com.thaimei.myapp.enums.StoreStatus;
+import java.util.List;
 
 
 @Entity
@@ -23,23 +25,29 @@ import jakarta.persistence.CascadeType;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class BrandEntity {
+public class StoreModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long storeId;
 
-    @Column(nullable = false, unique = true)
-    private String brandName;
+    @Column(nullable = false)
+    private String storeName;
 
     @ManyToOne
-    @JoinColumn(name ="user_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name ="user_id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
     private BusinessType businessType;
 
-    @OneToMany(mappedBy="brandEntity", cascade = CascadeType.ALL)
-    private ProductsModel productsModel;
+    @OneToMany(mappedBy="storeModel", cascade = CascadeType.ALL)
+    private List<ProductsModel> productsModel;
 
+    @Enumerated(EnumType.STRING) 
+    private StoreStatus storeStatus;
+
+    // coordinates will be hardcoded for now later geocoding will be implemented
+    private Double longitude;
     
+    private Double latitude;
 }

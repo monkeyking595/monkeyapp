@@ -20,7 +20,7 @@ public class Payment {
     @Column(nullable = false)
     private Long id;
     
-    @JoinColumn(name ="user_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name ="user_id", nullable = false)
     @ManyToOne
     private User user;
     

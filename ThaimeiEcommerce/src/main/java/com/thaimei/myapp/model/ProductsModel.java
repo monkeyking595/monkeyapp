@@ -10,11 +10,21 @@ import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
+import com.thaimei.myapp.enums.Category;
+import com.thaimei.myapp.enums.Color;
+import com.thaimei.myapp.enums.Size;   
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint; 
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"store_id", "category", "color", "size",}))
 public class ProductsModel {
+    
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(nullable=false)
@@ -33,13 +43,25 @@ public class ProductsModel {
 
     @Column(nullable=false) 
     private String name;
-   
+  
     @Column(nullable = false) 
     private int quantity;
 
-    @JoinColumn(name = "brand_id", referencedColumnName = "id", nullable = false)
     @ManyToOne
-    private BrandEntity brandEntity;
+    @JoinColumn(name = "store_id", nullable = false)
+    private StoreModel storeModel;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Category category;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Color color;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Size size;
 }
 
 

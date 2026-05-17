@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
     @NoArgsConstructor
 public class UserprofileModel {
 @OneToOne
-@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+@JoinColumn(name = "user_id", nullable = false)
 private User user;
 @Id    
 @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,5 @@
 package com.thaimei.myapp.enums;
 public enum BusinessType {
-    REATAIL,
-    BRAND,
+    RETAIL,
     INDIVIDUAL
 }

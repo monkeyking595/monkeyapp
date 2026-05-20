@@ -4,11 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
-import com.thaimei.myapp.dto.OrderDto;
+import com.thaimei.myapp.dto.OrderPlaceDto;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdminOrderDto {
     @NotEmpty(message="orders cannot be empty")
-    private List<OrderDto> orders;
+    private List<OrderPlaceDto> orders;
 }

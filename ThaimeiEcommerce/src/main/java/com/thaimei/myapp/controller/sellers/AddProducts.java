@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import com.thaimei.myapp.service.ProductService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.thaimei.myapp.security.CustomUserDetails;
+import com.thaimei.myapp.model.User;
 
 @RestController
 @RequestMapping("/seller")
@@ -16,7 +19,9 @@ public class AddProducts {
         this.productService = productService;
     }
     @PostMapping("/addProducts")
-    public ResponseEntity<String> addProducts(@Valid @RequestBody ProductDto productDto) {
+    public ResponseEntity<String> addProducts(@Valid @RequestBody ProductDto productDto, @AuthenticationPrincipal CustomUserDetails customUserDetails ) {
+        User user = customUserDetails.getUser();
+        productService.saveProducts(productDto, user);
         return ResponseEntity.ok("product added successfully");
 
     }

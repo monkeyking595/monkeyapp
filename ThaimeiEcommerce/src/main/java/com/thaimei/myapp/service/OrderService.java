@@ -2,28 +2,46 @@ package com.thaimei.myapp.service;
 import com.thaimei.myapp.repository.OrderRepo;
 import com.thaimei.myapp.model.Orders;
 import org.springframework.stereotype.Service;
-import com.thaimei.myapp.dto.OrderDto;
+import com.thaimei.myapp.dto.OrderPlaceDto;
+import com.thaimei.myapp.dto.OrderResponseDto;
 import org.modelmapper.ModelMapper;
-import java.util.Objects;
+
 import java.util.List;
 import com.thaimei.myapp.dto.adminDto.AdminOrderDto;
+import com.thaimei.myapp.model.ProductsModel;
+import com.thaimei.myapp.repository.ProductsRepo;
+import com.thaimei.myapp.model.User;
+import java.math.BigDecimal;
+import com.thaimei.myapp.enums.OrderStatusEnum;
 
 @Service
 public class OrderService {
     private final OrderRepo orderRepo;
     private final ModelMapper modelMapper;
-    public OrderService(OrderRepo orderRepo, ModelMapper modelMapper) {
+  
+    private final ProductsRepo productsRepo;
+    public OrderService(OrderRepo orderRepo, ModelMapper modelMapper, ProductsRepo productsRepo) {
         this.orderRepo=orderRepo;
         this.modelMapper=modelMapper;
+        this.productsRepo=productsRepo;
     }
-    public Orders saveOrders(OrderDto orderDto) {
-        Orders order = Objects.requireNonNull (modelMapper.map(orderDto, Orders.class), "Order mapping failed");
-        return orderRepo.save(order);
+    public void saveOrders(OrderPlaceDto orderDto, User user) {
+        ProductsModel product = productsRepo.findById(orderDto.getProductId())
+        .orElseThrow(()-> new IllegalArgumentException("product not found"));
+        
+        Orders order = new Orders();
+        order.setUser(user);
+        //store the product_id as a reference(as foreign-key) to the product entity
+        order.setProduct(product);
+        order.setQuantity(orderDto.getQuantity());
+        order.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf((orderDto.getQuantity()))));
+        order.setOrderStatus(OrderStatusEnum.PENDING);
+        orderRepo.save(order);
     }
-    public List<OrderDto> getOrdersByUserId(long userId) {
-        List<Orders> orders=orderRepo.findByUserId(userId);
+    public List<OrderResponseDto> getOrdersByUserId(User user) {
+        List<Orders> orders=orderRepo.findByUserId(user.getId());
         return orders.stream()
-        .map(order->modelMapper.map(order,OrderDto.class))
+        .map(order->modelMapper.map(order,OrderResponseDto.class))
         .toList();
     }
     public List<AdminOrderDto> getAdminOrders() {

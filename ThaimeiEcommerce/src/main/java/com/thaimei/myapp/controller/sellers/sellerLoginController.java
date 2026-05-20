@@ -37,7 +37,6 @@ public class sellerLoginController {
         String token = jwtUtil.generateToken(String.valueOf(userId), 3600000L);
         return ResponseEntity.ok(new JwtResponse(token, sellersLoginDto.getSellersName()));
 
-
     }
     
 }

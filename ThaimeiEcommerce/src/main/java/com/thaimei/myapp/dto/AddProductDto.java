@@ -2,7 +2,6 @@ package com.thaimei.myapp.dto;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,9 +15,7 @@ import com.thaimei.myapp.enums.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class ProductDto {
-    @NotNull(message ="Id cannot be null")
-    private Long productId;
+public class AddProductDto {
     @NotBlank(message ="Product name cannot be blank")
     private String name;
     @Positive(message="price cannot be negative")

@@ -55,5 +55,5 @@ public class User {
     private Cart cart;
 
     @OneToMany(mappedBy = "user", cascade= CascadeType.ALL)
-    private StoreModel brandEntity;
+    private StoreModel storeModel;
 }

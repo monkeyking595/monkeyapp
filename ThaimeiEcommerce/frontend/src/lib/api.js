@@ -88,6 +88,28 @@ export const api = {
     return session;
   },
 
+  async sellerLogin(sellersName, sellersPassword) {
+    const data = await request("/seller/sellerLogin", {
+      method: "POST",
+      auth: false,
+      body: JSON.stringify({ sellersName, sellersPassword })
+    });
+    const session = { ...data, isAdmin: false, isSeller: true };
+    saveSession(session);
+    return session;
+  },
+
+  async sellerSignup(username, email, password, confirmpassword) {
+    const data = await request("/seller/registration", {
+      method: "POST",
+      auth: false,
+      body: JSON.stringify({ username, email, password, confirmpassword })
+    });
+    const session = { ...data, isAdmin: false, isSeller: true };
+    saveSession(session);
+    return session;
+  },
+
   adminRegister: (adminname, adminemail, adminpassword, adminconfirmpassword) =>
     request("/admin/api/register", {
       method: "POST",
@@ -114,5 +136,21 @@ export const api = {
       method: "POST",
       body: JSON.stringify(profile)
     }),
-  adminUsers: () => request("/admin/api/AllUsers")
+  adminUsers: () => request("/admin/api/AllUsers"),
+  sellerStores: () => request("/seller/getStoresForSeller"),
+  createSellerStore: (store) =>
+    request("/seller/addBusiness", {
+      method: "POST",
+      body: JSON.stringify(store)
+    }),
+  sellerProducts: () => request("/seller/getProducts"),
+  addSellerProduct: (product) =>
+    request("/seller/addProducts", {
+      method: "POST",
+      body: JSON.stringify({
+        ...product,
+        storeId: Number(product.storeId),
+        quantity: Number(product.quantity)
+      })
+    })
 };

@@ -24,7 +24,8 @@ a {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -363,19 +364,32 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
-  height: 44px;
   border: 1px solid #d9d0c2;
   border-radius: 8px;
   background: #fff;
   color: #22211f;
-  padding: 0 12px;
   outline: 0;
 }
 
+input,
+select {
+  height: 44px;
+  padding: 0 12px;
+}
+
+textarea {
+  min-height: 104px;
+  resize: vertical;
+  padding: 12px;
+  line-height: 1.5;
+}
+
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   border-color: #161616;
   box-shadow: 0 0 0 3px rgba(22, 22, 22, 0.09);
 }
@@ -493,6 +507,72 @@ select:focus {
   padding: 20px;
 }
 
+.seller-grid,
+.seller-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.seller-summary {
+  margin-top: 18px;
+}
+
+.seller-form {
+  align-self: stretch;
+}
+
+.form-heading {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.form-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.seller-summary .summary-panel {
+  position: static;
+}
+
+.store-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.store-chip {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #d9d0c2;
+  border-radius: 999px;
+  background: #faf8f3;
+  font-weight: 800;
+}
+
+.store-chip small {
+  color: #746f67;
+  font-weight: 700;
+}
+
+.table-title {
+  padding: 18px 18px 0;
+}
+
+.seller-summary .empty-state {
+  margin: 16px 18px 18px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
 .span-two {
   grid-column: 1 / -1;
 }
@@ -586,6 +666,8 @@ th {
   .feature-strip,
   .detail-layout,
   .split-layout,
+  .seller-grid,
+  .seller-summary,
   .auth-page {
     grid-template-columns: 1fr;
   }

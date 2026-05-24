@@ -8,6 +8,7 @@ import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.model.StoreModel;
 import com.thaimei.myapp.repository.StoreRepo;
 import com.thaimei.myapp.dto.AddProductDto;
+import org.modelmapper.ModelMapper;
 
 
 
@@ -15,52 +16,56 @@ import com.thaimei.myapp.dto.AddProductDto;
 public class ProductService {
     private final ProductsRepo productsRepo;
     private final StoreRepo storeRepo;
-    public ProductService(ProductsRepo productsRepo, StoreRepo storeRepo) {
+    private final ModelMapper modelMapper;
+    public ProductService(ProductsRepo productsRepo, StoreRepo storeRepo, ModelMapper modelMapper) {
         this.productsRepo = productsRepo;
         this.storeRepo = storeRepo;
+        this.modelMapper = modelMapper;
     }
 
     public List<ProductDto> getProducts() {
-        List<ProductsModel> Allproducts = productsRepo.findAll();
-        return Allproducts.stream()
-        .map(product -> new ProductDto(
-            product.getProductId(),
-            product.getName(),
-            product.getPrice(),
-            product.getDescription(),
-            product.getImageURL(),
-            product.getQuantity()
-            product.getCategory(),
-            product.getColor(),
-            product.getSize()
-        ))
+        List<ProductsModel> allproducts = productsRepo.findAll();
+        return allproducts.stream()
+        .map(product -> modelMapper.map(product, ProductDto.class))
+        .toList();
+    }
+
+    public List<ProductDto> getProductsForSeller(User user) {
+        List<StoreModel> stores = storeRepo.findAllByUser(user);
+        //IN passes multiple store model at a time preventing mutiple DB querying which could happen if we use flatMap.
+        return productsRepo.findByStoreModelIn(stores)
+        .stream()
+        .map(product -> modelMapper.map(product, ProductDto.class))
         .toList();
     }
     public ProductDto getProductById(long id) {
         ProductsModel product = productsRepo.findById(id)
         .orElseThrow(()-> new RuntimeException("Product cannot be found"));
 
-        return new ProductDto(
-            product.getProductId(),
-            product.getName(),
-            product.getPrice(),
-            product.getDescription(),
-            product.getImageURL(),
-            product.getQuantity()
-            product.getCategory(),
-            product.getColor(),
-            product.getSize()
-        );
+        return modelMapper.map(product, ProductDto.class);
 
     }
     public void saveProducts(AddProductDto productDto, User user) {
-        StoreModel store = storeRepo.findByUser(user)
+        StoreModel store = storeRepo.findByStoreIdAndUser(productDto.getStoreId(), user)
         .orElseThrow(() -> new IllegalArgumentException("Store not found for the given User"));
-        if(productsRepo.existByStoreCategoryColorSize(store, productDto.getCategory(), productDto.getColor(), productDto.getsize())) {
-            throw new IllegalArgumentException("Product with the same category, color, and size already exists in the store");
-        }
-    }
+        ProductsModel existing = productsRepo.findByStoreModelAndCategoryAndColorAndSize(store, productDto.getCategory(), productDto.getColor(), productDto.getSize());
 
-   
-    
+        if (existing!=null) {
+            existing.setQuantity(existing.getQuantity() + productDto.getQuantity());
+            productsRepo.save(existing);
+            return;
+        }
+
+        ProductsModel product = new ProductsModel();
+        product.setName(productDto.getName());
+        product.setPrice(productDto.getPrice());
+        product.setDescription(productDto.getDescription());
+        product.setImageURL(productDto.getImageURL());
+        product.setQuantity(productDto.getQuantity());
+        product.setCategory(productDto.getCategory());
+        product.setColor(productDto.getColor());
+        product.setSize(productDto.getSize());
+        product.setStoreModel(store);
+    } 
+
 }

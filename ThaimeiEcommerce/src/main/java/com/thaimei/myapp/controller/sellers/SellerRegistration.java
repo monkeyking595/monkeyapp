@@ -13,14 +13,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import com.thaimei.myapp.security.CustomUserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.thaimei.myapp.security.JwtUtil;
-import com.thaimei.myapp.enums.RoleEnum;
 
 
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("seller")
+@RequestMapping("/seller")
 public class SellerRegistration {
     private final RegistrationService registrationService;
     private final AuthenticationManager authenticationManager;
@@ -37,7 +36,7 @@ public class SellerRegistration {
     @PostMapping("/registration")
     public ResponseEntity<?> registerSeller(@Valid @RequestBody UserRegistrationDto  sellerRegDto) {
         try {
-            registrationService.RegisterUser(sellerRegDto, RoleEnum.SELLER);
+            registrationService.registerSeller(sellerRegDto);
             Authentication authentication = authenticationManager.authenticate( new UsernamePasswordAuthenticationToken(sellerRegDto.getUsername(), sellerRegDto.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();

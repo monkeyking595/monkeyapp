@@ -12,6 +12,7 @@ import OrdersPage from "./pages/OrdersPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductsPage from "./pages/ProductsPage";
 import ProfilePage from "./pages/ProfilePage";
+import SellerDashboardPage from "./pages/SellerDashboardPage";
 
 export default function App() {
   const [session, setSession] = useState(() => loadSession());
@@ -21,6 +22,8 @@ export default function App() {
       <Route path="/login" element={<AuthPage mode="login" onSession={setSession} />} />
       <Route path="/signup" element={<AuthPage mode="signup" onSession={setSession} />} />
       <Route path="/admin-login" element={<AuthPage mode="admin" onSession={setSession} />} />
+      <Route path="/seller-login" element={<AuthPage mode="seller" onSession={setSession} />} />
+      <Route path="/seller-signup" element={<AuthPage mode="seller-signup" onSession={setSession} />} />
       <Route element={<AppShell session={session} onLogout={() => setSession(null)} />}>
         <Route path="/" element={<HomePage session={session} />} />
         <Route
@@ -60,6 +63,14 @@ export default function App() {
           element={
             <ProtectedRoute session={session}>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/seller"
+          element={
+            <ProtectedRoute session={session} sellerOnly>
+              <SellerDashboardPage />
             </ProtectedRoute>
           }
         />

@@ -5,14 +5,19 @@ import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.repository.StoreRepo;
 import com.thaimei.myapp.model.StoreModel;
 import com.thaimei.myapp.enums.StoreStatus;
+import java.util.List;
+import com.thaimei.myapp.dto.sellersDto.StoresDto;
+import org.modelmapper.ModelMapper;
 
 
 @Service
 public class StoreService {
     private final StoreRepo storeRepo;
+    private final ModelMapper modelMapper;
 
-    public StoreService(StoreRepo storeRepo) {
+    public StoreService(StoreRepo storeRepo, ModelMapper modelMapper) {
         this.storeRepo = storeRepo;
+        this.modelMapper = modelMapper;
     }
 
     public void saveStore(RegisterStoreDto storeDto, User user) {
@@ -24,5 +29,16 @@ public class StoreService {
         store.setLongitude(storeDto.getLongitude());
         store.setUser(user);
         storeRepo.save(store);
+    }
+    //outer List is for returning a list of StoresDto to the endpoint
+    public List<StoresDto> getStoresByUser(User user) {
+        //inner list is for storing the list of StoreModel which will come from the repo they should always match the type 
+        List<StoreModel> stores = storeRepo.findAllByUser(user);
+        return stores.stream()
+        //take each store model object and convert it to storeDto
+        .map(store -> modelMapper.map(store, StoresDto.class))
+        //converts back to list 
+        //stop confusing over silly stuff you dumbass
+        .toList();
     }
 }

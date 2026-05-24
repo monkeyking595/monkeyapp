@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LogOut, Package, Search, ShieldPlus, ShoppingBag, ShoppingCart, UserRound, UsersRound } from "lucide-react";
+import { LogOut, Package, Search, ShieldPlus, ShoppingBag, ShoppingCart, Store, UserRound, UsersRound } from "lucide-react";
 import { clearSession } from "../lib/api";
 
 export default function AppShell({ session, onLogout }) {
@@ -44,6 +44,12 @@ export default function AppShell({ session, onLogout }) {
             <UserRound size={18} />
             Profile
           </NavLink>
+          {session?.isSeller && (
+            <NavLink to="/seller">
+              <Store size={18} />
+              Seller
+            </NavLink>
+          )}
           {session?.isAdmin && (
             <>
               <NavLink to="/admin">

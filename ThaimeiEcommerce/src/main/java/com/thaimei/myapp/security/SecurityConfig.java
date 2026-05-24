@@ -31,7 +31,9 @@ public class SecurityConfig {
         .exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthEntryPoint))
         .authorizeHttpRequests(auth->auth.requestMatchers("/","/signup","/login_page","/error","/login","/css/**","/js/**","/myimages/**","/myapp.css","/account.css").permitAll()
         .requestMatchers("/admin/api/adminlogin").permitAll()
+        .requestMatchers("/seller/sellerLogin","/seller/registration").permitAll()
         .requestMatchers("/admin/**").hasRole("ADMIN")
+        .requestMatchers("/seller/**").hasRole("SELLER")
         .anyRequest().authenticated());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); 
     return http.build();

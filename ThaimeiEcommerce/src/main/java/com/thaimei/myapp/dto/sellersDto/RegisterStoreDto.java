@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotNull;
 public class RegisterStoreDto {
     @NotBlank(message="brand/store name cannot be blank")
     private String storeName;
-    @NotBlank(message="business type cannot be blank")
+    @NotNull(message="business type cannot be blank")
     private BusinessType businessType;   
     @NotNull(message="latitude cannot be null")
     private Double latitude;

@@ -10,8 +10,10 @@ import com.thaimei.myapp.enums.Category;
 import com.thaimei.myapp.enums.Color;
 import com.thaimei.myapp.enums.Size;
 
+
 @Repository
 public interface ProductsRepo extends JpaRepository<ProductsModel, Long>  {
     List<ProductsModel> findByName(String name);
-    Boolean existByStoreCategoryColorSize(StoreModel store, Category category, Color color, Size size);
+    ProductsModel  findByStoreModelAndCategoryAndColorAndSize(StoreModel store, Category category, Color color, Size size);
+    List<ProductsModel> findByStoreModelIn(List<StoreModel> stores);
 }

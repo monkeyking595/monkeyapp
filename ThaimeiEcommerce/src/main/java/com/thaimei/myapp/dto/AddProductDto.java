@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import com.thaimei.myapp.enums.Category;
 import com.thaimei.myapp.enums.Color;
 import com.thaimei.myapp.enums.Size;
+import jakarta.validation.constraints.NotNull;
 
 
 @Data
@@ -16,9 +17,12 @@ import com.thaimei.myapp.enums.Size;
 @AllArgsConstructor
 
 public class AddProductDto {
+    @NotNull(message = "Store Id cannot be null")
+    private Long storeId;
     @NotBlank(message ="Product name cannot be blank")
     private String name;
-    @Positive(message="price cannot be negative")
+    @NotNull(message="price cannot be null")
+    @Positive(message = "Price cannot be negative")
     private BigDecimal price;
     @NotBlank(message="description cannot be blank")
     private String description;
@@ -26,11 +30,11 @@ public class AddProductDto {
     private String imageURL;
     @Positive(message="Quantity cannot be negative")
     private int quantity;
-    @NotBlank(message="Category cannot be blank")
+    @NotNull(message="Category cannot be null")
     private Category category;
-    @NotBlank(message="Color cannot be blank")
+    @NotNull(message="Color cannot be null")
     private Color color;
-    @NotBlank(message="Size cannot be blank")
+    @NotNull(message="Size cannot be null")
     private Size size;
     
 }

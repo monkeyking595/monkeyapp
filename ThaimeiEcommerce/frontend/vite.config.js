@@ -13,7 +13,8 @@ export default defineConfig({
             "/Orders": "http://localhost:8080",
             "/profile": "http://localhost:8080",
             "/profile-info": "http://localhost:8080",
-            "/admin": "http://localhost:8080"
+            "/admin": "http://localhost:8080",
+            "/seller": "http://localhost:8080"
         }
     }
 });

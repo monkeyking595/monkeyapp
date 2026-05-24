@@ -15,7 +15,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import jakarta.validation.Valid; 
 import com.thaimei.myapp.security.CustomUserDetails;
 import com.thaimei.myapp.dto.UserRegistrationDto;
-import com.thaimei.myapp.enums.RoleEnum;
 
 
 
@@ -35,7 +34,7 @@ public class AdminRegistration {
     @PostMapping("/register")
     public ResponseEntity<?> registerAdmin(@Valid @RequestBody UserRegistrationDto adDto) {
         try {
-            registrationService.RegisterUser(adDto, RoleEnum.ADMIN);
+            registrationService.registerAdmin(adDto);
             Authentication authentication=authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(adDto.getUsername(),adDto.getPassword())
             );

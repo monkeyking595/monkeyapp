@@ -16,6 +16,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;  
 import com.thaimei.myapp.enums.RoleEnum;
 import jakarta.persistence.OneToMany;
+import java.util.List;
 
 @Entity
 @Table(name="app_user")
@@ -55,5 +56,5 @@ public class User {
     private Cart cart;
 
     @OneToMany(mappedBy = "user", cascade= CascadeType.ALL)
-    private StoreModel storeModel;
+    private List<StoreModel> storeModel;
 }

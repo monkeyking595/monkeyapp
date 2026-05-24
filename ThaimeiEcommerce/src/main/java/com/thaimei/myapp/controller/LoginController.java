@@ -18,7 +18,7 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("/user")
 public class LoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;

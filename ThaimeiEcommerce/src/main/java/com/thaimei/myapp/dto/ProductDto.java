@@ -29,11 +29,11 @@ public class ProductDto {
     private String imageURL;
     @Positive(message="Quantity cannot be negative")
     private int quantity;
-    @NotBlank(message="Category cannot be blank")
+    @NotNull(message="Category cannot be blank")
     private Category category;
-    @NotBlank(message="Color cannot be blank")
+    @NotNull(message="Color cannot be blank")
     private Color color;
-    @NotBlank(message="Size cannot be blank")
+    @NotNull(message="Size cannot be blank")
     private Size size;
     
 }

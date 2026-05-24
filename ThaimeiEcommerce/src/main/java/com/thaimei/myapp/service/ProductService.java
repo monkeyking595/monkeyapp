@@ -66,6 +66,7 @@ public class ProductService {
         product.setColor(productDto.getColor());
         product.setSize(productDto.getSize());
         product.setStoreModel(store);
+        productsRepo.save(product);
     } 
 
 }

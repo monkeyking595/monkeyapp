@@ -15,7 +15,7 @@ import com.thaimei.myapp.security.JwtUtil;
 import com.thaimei.myapp.dto.JwtResponse;
 
 
-@RequestMapping("/seller")
+@RequestMapping("/sellers")
 @RestController
 public class sellerLoginController {
     private final AuthenticationManager authenticationManager;

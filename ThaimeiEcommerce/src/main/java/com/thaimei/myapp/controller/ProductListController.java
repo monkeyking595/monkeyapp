@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
-@RequestMapping
+@RequestMapping("/products")
 public class ProductListController {
     private final ProductService productService;
     public ProductListController(ProductService productService) {

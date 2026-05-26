@@ -20,7 +20,7 @@ import com.thaimei.myapp.security.CustomUserDetails;
 
 
 @RestController
-@RequestMapping
+@RequestMapping("/customers")
 public class RegistrationController {
     private final RegistrationService registrationService;
     private final JwtUtil jwtUtil;
@@ -32,7 +32,6 @@ public class RegistrationController {
         
     }
    
-    
     @PostMapping("/signup")
     public ResponseEntity<?> registration(@Valid @RequestBody UserRegistrationDto dto ) {
         try {
@@ -41,10 +40,12 @@ public class RegistrationController {
              Authentication authentication =  authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword())
              );
+             //getContext() returns a container that'll hold the authentication object
              SecurityContextHolder.getContext().setAuthentication(authentication);
+             //getPrincipal() gets the userDeatails user's identity 
              CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
              Long userId = userDetails.getId();
-             //convert userId to string since subject in jwt is type String
+             //convert userId to string since subject in jwt is typed as String
             String token=jwtUtil.generateToken(String.valueOf(userId), 3600000L);
 
         return ResponseEntity.ok(new JwtResponse(token, dto.getUsername()));
@@ -53,8 +54,6 @@ public class RegistrationController {
         catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-       
-        
     }
 
             

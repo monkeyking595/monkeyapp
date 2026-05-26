@@ -18,7 +18,7 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/customers")
 public class LoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -41,7 +41,6 @@ public class LoginController {
         Long userId=userDetails.getId();
         String token=jwtUtil.generateToken(String.valueOf(userId), 3600000L);
         return ResponseEntity.ok(new JwtResponse(token, authentication.getName()));
-
     }  
 
     

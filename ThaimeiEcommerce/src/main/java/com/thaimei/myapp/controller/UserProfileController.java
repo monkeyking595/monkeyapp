@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 
-@RequestMapping
+@RequestMapping("/customers")
 @RestController
 public class UserProfileController {
      

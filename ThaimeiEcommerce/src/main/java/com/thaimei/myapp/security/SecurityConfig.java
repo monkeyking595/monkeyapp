@@ -29,11 +29,11 @@ public class SecurityConfig {
         //this happens the same for the all the other configurers in the code below
         .sessionManagement(sm->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthEntryPoint))
-        .authorizeHttpRequests(auth->auth.requestMatchers("/","/signup","/login_page","/error","/login","/css/**","/js/**","/myimages/**","/myapp.css","/account.css").permitAll()
+        .authorizeHttpRequests(auth->auth.requestMatchers("/customers/signup","/customers/login").permitAll()
         .requestMatchers("/admin/api/adminlogin").permitAll()
-        .requestMatchers("/seller/sellerLogin","/seller/registration").permitAll()
+        .requestMatchers("/sellers/sellerLogin","/sellers/registration").permitAll()
         .requestMatchers("/admin/**").hasRole("ADMIN")
-        .requestMatchers("/seller/**").hasRole("SELLER")
+        .requestMatchers("/sellers/**").hasRole("SELLER")
         .anyRequest().authenticated());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); 
     return http.build();

@@ -56,7 +56,7 @@ function tryParseJson(text) {
 
 export const api = {
   async login(username, password) {
-    const data = await request("/login", {
+    const data = await request("/customers/login", {
       method: "POST",
       auth: false,
       body: JSON.stringify({ username, password })
@@ -67,7 +67,7 @@ export const api = {
   },
 
   async signup(username, email, password, confirmpassword) {
-    const data = await request("/signup", {
+    const data = await request("/customers/signup", {
       method: "POST",
       auth: false,
       body: JSON.stringify({ username, email, password, confirmpassword })
@@ -89,7 +89,7 @@ export const api = {
   },
 
   async sellerLogin(sellersName, sellersPassword) {
-    const data = await request("/seller/sellerLogin", {
+    const data = await request("/sellers/sellerLogin", {
       method: "POST",
       auth: false,
       body: JSON.stringify({ sellersName, sellersPassword })
@@ -100,7 +100,7 @@ export const api = {
   },
 
   async sellerSignup(username, email, password, confirmpassword) {
-    const data = await request("/seller/registration", {
+    const data = await request("/sellers/registration", {
       method: "POST",
       auth: false,
       body: JSON.stringify({ username, email, password, confirmpassword })
@@ -116,8 +116,8 @@ export const api = {
       body: JSON.stringify({ adminname, adminemail, adminpassword, adminconfirmpassword })
     }),
 
-  products: () => request("/productsList"),
-  product: (id) => request(`/Product/productDetails/${id}`),
+  products: () => request("/products/productsList"),
+  product: (id) => request(`/Products/productDetails/${id}`),
   cart: () => request("/Cart/getItems"),
   addToCart: (productId, quantity) =>
     request("/Cart/AddItems", {
@@ -130,22 +130,22 @@ export const api = {
       method: "POST",
       body: JSON.stringify(order)
     }),
-  profile: () => request("/profile-info"),
+  profile: () => request("/customers/profile-info"),
   saveProfile: (profile) =>
-    request("/profile", {
+    request("/customers/profile", {
       method: "POST",
       body: JSON.stringify(profile)
     }),
   adminUsers: () => request("/admin/api/AllUsers"),
-  sellerStores: () => request("/seller/getStoresForSeller"),
+  sellerStores: () => request("/sellers/getStoresForSeller"),
   createSellerStore: (store) =>
-    request("/seller/addBusiness", {
+    request("/sellers/addBusiness", {
       method: "POST",
       body: JSON.stringify(store)
     }),
-  sellerProducts: () => request("/seller/getProducts"),
+  sellerProducts: () => request("/sellers/getProducts"),
   addSellerProduct: (product) =>
-    request("/seller/addProducts", {
+    request("/sellers/addProducts", {
       method: "POST",
       body: JSON.stringify({
         ...product,

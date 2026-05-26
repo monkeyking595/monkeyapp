@@ -14,7 +14,7 @@ import java.util.List;
 import com.thaimei.myapp.dto.ProductDto;
 import org.springframework.web.bind.annotation.GetMapping;
 @RestController
-@RequestMapping("/seller")
+@RequestMapping("/sellers")
 public class SellerProductsController {
     private final ProductService productService;
     public SellerProductsController(ProductService productService) {

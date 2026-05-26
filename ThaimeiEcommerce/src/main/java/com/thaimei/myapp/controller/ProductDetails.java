@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
-@RequestMapping("/Product")
+@RequestMapping("/Products")
 public class ProductDetails {
     private final  ProductService productService;
     public ProductDetails(ProductService productService) {

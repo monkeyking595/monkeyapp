@@ -33,8 +33,8 @@ public class AdminLoginController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             Long userId = userDetails.getId();
             String token=jwtUtil.generateToken(String.valueOf(userId), 3600000L);
-            return ResponseEntity.ok(new JwtResponse(token, authentication.getName()));
-    
+            return ResponseEntity.ok(new JwtResponse(token, authentication.getName())
+        );
     }
 }
 

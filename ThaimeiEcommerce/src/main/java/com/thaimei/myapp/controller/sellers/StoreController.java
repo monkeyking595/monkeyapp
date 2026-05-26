@@ -17,7 +17,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/seller")
+@RequestMapping("/sellers")
 public class StoreController {
     private final StoreService storeService;
     public StoreController( StoreService storeService) {

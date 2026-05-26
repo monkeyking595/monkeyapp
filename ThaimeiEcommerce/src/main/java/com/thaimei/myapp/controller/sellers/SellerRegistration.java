@@ -19,7 +19,7 @@ import com.thaimei.myapp.security.JwtUtil;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/seller")
+@RequestMapping("/sellers")
 public class SellerRegistration {
     private final RegistrationService registrationService;
     private final AuthenticationManager authenticationManager;

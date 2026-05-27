@@ -24,36 +24,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
-    @NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
+        @NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
         final  String  authHeader = request.getHeader("Authorization");
         String path=request.getServletPath();
-        if(path.equals("/")||path.equals("/signup")||path.equals("/login_page")||path.equals("/login")||path.equals("/error")||path.startsWith("/css/")||path.startsWith("/myimages/")) {
+        if(path.equals("/customers/signup")||path.equals("/customers/login")||path.equals("/admin/api/adminLogin")||path.equals("/sellers/sellerLogin")||path.startsWith("/sellers/sellerRegistration")) {
             filterChain.doFilter(request, response);
             return;
         }
         String userIdToken= null;
         String token= null;
-         if(authHeader != null && authHeader.startsWith("Bearer ")) {
+        if(authHeader != null && authHeader.startsWith("Bearer ")) {
             token=authHeader.substring(7);
             try {
                   userIdToken = jwtUtil.extractSubject(token);
                 if(jwtUtil.isTokenExpired(token)) {
                     throw new BadCredentialsException("token expired", new RuntimeException("token expired"));
+                }
             }
-        }
             catch(Exception e) {
                 throw new InsufficientAuthenticationException("invalid token",e);
             }
+
             if(userIdToken!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
                 Long userId= Long.valueOf(userIdToken);
                 var userDetails=userDetailsServiceImpl.loadUserById(userId);
-                 if(userDetails.isEnabled()) {
+                if(userDetails.isEnabled()) {
                     UsernamePasswordAuthenticationToken authToken= new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
-            }
-         }
+        }
          // request carries incoming data URL, headers, body etc.
          //response carries outgoing data status code, headers, body etc.
           filterChain.doFilter(request, response);

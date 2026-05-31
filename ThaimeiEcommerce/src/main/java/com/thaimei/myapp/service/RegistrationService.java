@@ -4,6 +4,7 @@ import com.thaimei.myapp.dto.UserRegistrationDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.thaimei.myapp.enums.RoleEnum;
+import com.thaimei.myapp.error.AppException;
 
 
 @Service
@@ -26,7 +27,7 @@ public class RegistrationService {
 
     private void  validateUser(UserRegistrationDto dto) {
         if(!dto.getPassword().equals(dto.getConfirmpassword())) {
-            throw new IllegalArgumentException("password does not match!");
+            throw new AppException("password does not match!",400);
         }
         if (userService.existsByUsername(dto.getUsername())) {
             throw new IllegalArgumentException("Username already exists!");

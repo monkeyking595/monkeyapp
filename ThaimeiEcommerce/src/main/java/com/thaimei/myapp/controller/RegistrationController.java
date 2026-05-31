@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.thaimei.myapp.dto.UserRegistrationDto;
 import jakarta.validation.Valid; 
-import java.util.Map;
 import com.thaimei.myapp.dto.JwtResponse;
 import com.thaimei.myapp.security.JwtUtil;
 import com.thaimei.myapp.service.UserService;
@@ -34,7 +33,6 @@ public class RegistrationController {
    
     @PostMapping("/signup")
     public ResponseEntity<?> registration(@Valid @RequestBody UserRegistrationDto dto ) {
-        try {
             registrationService.registerUser(dto);
     
              Authentication authentication =  authenticationManager.authenticate(
@@ -47,18 +45,9 @@ public class RegistrationController {
              Long userId = userDetails.getId();
              //convert userId to string since subject in jwt is typed as String
             String token=jwtUtil.generateToken(String.valueOf(userId), 3600000L);
-
-        return ResponseEntity.ok(new JwtResponse(token, dto.getUsername()));
-
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
             
-        
-        
+        return ResponseEntity.ok(new JwtResponse(token, dto.getUsername()));
+    }
        
     }
    

@@ -30,7 +30,7 @@ public class RegistrationService {
             throw new AppException("password does not match!",400);
         }
         if (userService.existsByUsername(dto.getUsername())) {
-            throw new IllegalArgumentException("Username already exists!");
+            throw new AppException ("Username already exists!", 409);
         }
     }
 

@@ -13,6 +13,7 @@ import com.thaimei.myapp.model.User;
 import java.util.List;
 import com.thaimei.myapp.dto.ProductDto;
 import org.springframework.web.bind.annotation.GetMapping;
+import java.util.Map;
 @RestController
 @RequestMapping("/sellers")
 public class SellerProductsController {
@@ -21,10 +22,11 @@ public class SellerProductsController {
         this.productService = productService;
     }
     @PostMapping("/addProducts")
-    public ResponseEntity<String> addProducts(@Valid @RequestBody AddProductDto addProductDto, @AuthenticationPrincipal CustomUserDetails customUserDetails ) {
+    public ResponseEntity<?> addProducts(@Valid @RequestBody AddProductDto addProductDto, @AuthenticationPrincipal CustomUserDetails customUserDetails ) {
         User user = customUserDetails.getUser();
         productService.saveProducts(addProductDto, user);
-        return ResponseEntity.ok("product added successfully");
+        //since success message is just a plain string we should wrap it in Map.of() so frontend never reveives plain string but always a JSON object.
+        return ResponseEntity.ok(Map.of("message","product added successfully"));
     }
 
     @GetMapping("/getProducts")

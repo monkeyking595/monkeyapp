@@ -25,9 +25,13 @@ public class CartItem {
     @Column(nullable = false)
     private Long itemId;
 
-     @ManyToOne(fetch = FetchType.LAZY)
+    //many cartItems can belong to one product meaning one product can be in many cartItems of multiple users/different carts
+    //but there can be only one product in one cartItems no duplicates, only the quantity increases.
+    //one product = one cartItem
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private ProductsModel product;
+
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;

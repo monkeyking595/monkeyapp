@@ -35,7 +35,6 @@ public class SellerRegistration {
     
     @PostMapping("/registration")
     public ResponseEntity<?> registerSeller(@Valid @RequestBody UserRegistrationDto  sellerRegDto) {
-        try {
             registrationService.registerSeller(sellerRegDto);
             Authentication authentication = authenticationManager.authenticate( new UsernamePasswordAuthenticationToken(sellerRegDto.getUsername(), sellerRegDto.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -43,12 +42,6 @@ public class SellerRegistration {
             Long userId = userDetails.getId();
             String token = jwtUtil.generateToken(String.valueOf(userId), 3600000L);
             return ResponseEntity.ok(new JwtResponse(token, sellerRegDto.getUsername()));
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-
-
     }
 }
         

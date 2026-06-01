@@ -13,6 +13,8 @@ import org.modelmapper.ModelMapper;
 import java.math.BigDecimal;
 import com.thaimei.myapp.repository.UserRepository;
 import com.thaimei.myapp.model.User;
+import com.thaimei.myapp.error.AppException;
+import com.thaimei.myapp.error.ResourceNotFoundException;
 
 
 @Service
@@ -30,21 +32,31 @@ public class CartService {
         this .userRepository = userRepository;
     }
 
+    public CartDto getCartByUserId(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+        .orElseThrow(()-> new ResourceNotFoundException("cart not found for current User"));
+
+        if (cart.getCartItems().isEmpty()) {
+            throw new AppException("cart is empty",404);
+        }
+        return modelMapper.map(cart, CartDto.class);
+    }
+
     public void  addItemsToCart(AddItem addItem, long userId) {
 
         User user = userRepository.findById(userId) 
-        .orElseThrow (()-> new RuntimeException ("User not found"));
+        .orElseThrow (()-> new ResourceNotFoundException ("User not found"));
 
-        Cart cart = cartRepository.findByUser(user)
+        Cart cart = cartRepository.findByUserId(userId)
         .orElseGet(() -> {
             Cart newCart = new Cart();
             newCart.setUser(user);
             return cartRepository.save(newCart);
         });
 
-          long productId = addItem.getProductId();
-        ProductsModel product = productsRepo.findById( productId)
-        .orElseThrow(()  -> new RuntimeException("product not found or out of stock"));
+        
+        ProductsModel product = productsRepo.findById(addItem.getProductId())
+        .orElseThrow(()  -> new ResourceNotFoundException("product not found or out of stock"));
 
         //check if item already exists in cart if true merge quantities.
         Optional<CartItem> existingItem= cartItemRepository.findByCartCartIdAndProductProductId(cart.getCartId(), addItem.getProductId());
@@ -57,6 +69,7 @@ public class CartService {
             cartItemRepository.save(item);
         } else {
             CartItem newItem = new CartItem();
+            newItem.setProduct(product);
             newItem.setCart(cart);
             newItem.setQuantity(addItem.getQuantity());
             newItem.setPrice(product.getPrice());
@@ -69,13 +82,4 @@ public class CartService {
 
     }
 
-   public Optional<CartDto> getCartByUserId(long userId) {
-    
-    
-    User user = userRepository.findById(userId)
-    .orElseThrow(()-> new RuntimeException ("user not found"));
-
-    return cartRepository.findByUser(user)
-    .map(cart -> modelMapper.map(cart, CartDto.class));
-   }
 }

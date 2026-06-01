@@ -13,6 +13,7 @@ import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.service.UserService;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
+import java.util.Map;
 
 
 @RequestMapping("/customers")
@@ -35,14 +36,11 @@ public class UserProfileController {
     }
     //Save or update User profile
      @PostMapping("/profile")
-     public ResponseEntity<String> updateProfile( @Valid @RequestBody UserInfoDto userInfoDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+     public ResponseEntity<?> updateProfile( @Valid @RequestBody UserInfoDto userInfoDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
           User currentUser = userService.findById(userDetails.getId());
           userProfileService.saveOrUpdateProfile(userInfoDto, currentUser);
-          return ResponseEntity.ok("Profile updated successfully!");
-          
-          
+          return ResponseEntity.ok(Map.of("message","Profile updated successfully!"));
      }
-    
     }
     
 

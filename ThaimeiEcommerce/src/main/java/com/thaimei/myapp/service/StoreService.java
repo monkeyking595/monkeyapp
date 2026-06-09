@@ -9,7 +9,6 @@ import java.util.List;
 import com.thaimei.myapp.dto.sellersDto.StoresDto;
 import org.modelmapper.ModelMapper;
 
-
 @Service
 public class StoreService {
     private final StoreRepo storeRepo;
@@ -30,6 +29,7 @@ public class StoreService {
         store.setUser(user);
         storeRepo.save(store);
     }
+
     //outer List is for returning a list of StoresDto to the endpoint
     public List<StoresDto> getStoresByUser(User user) {
         //inner list is for storing the list of StoreModel which will come from the repo they should always match the type 

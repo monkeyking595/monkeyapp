@@ -4,16 +4,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import com.thaimei.myapp.service.ProductService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.thaimei.myapp.security.CustomUserDetails;
 import com.thaimei.myapp.model.User;
-import java.util.List;
 import com.thaimei.myapp.dto.ProductDto;
 import org.springframework.web.bind.annotation.GetMapping;
 import java.util.Map;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 @RestController
 @RequestMapping("/sellers")
 public class SellerProductsController {
@@ -21,6 +24,7 @@ public class SellerProductsController {
     public SellerProductsController(ProductService productService) {
         this.productService = productService;
     }
+    
     @PostMapping("/addProducts")
     public ResponseEntity<?> addProducts(@Valid @RequestBody AddProductDto addProductDto, @AuthenticationPrincipal CustomUserDetails customUserDetails ) {
         User user = customUserDetails.getUser();
@@ -30,9 +34,10 @@ public class SellerProductsController {
     }
 
     @GetMapping("/getProducts")
-    public ResponseEntity<List<ProductDto>> getProductsForSeller(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public ResponseEntity<Slice<ProductDto>> getProductsForSeller(@AuthenticationPrincipal CustomUserDetails customUserDetails , @RequestParam (defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         User user = customUserDetails.getUser();
-        List<ProductDto> products = productService.getProductsForSeller(user);
+        Pageable pageable = PageRequest.of(page, size);
+        Slice <ProductDto> products = productService.getProductsForSeller(user, pageable);
         return ResponseEntity.ok(products);
     }
     

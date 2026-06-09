@@ -9,6 +9,11 @@ import com.thaimei.myapp.model.StoreModel;
 import com.thaimei.myapp.repository.StoreRepo;
 import com.thaimei.myapp.dto.AddProductDto;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import com.thaimei.myapp.error.ResourceNotFoundException;
+import org.springframework.lang.NonNull;
 
 
 
@@ -23,21 +28,23 @@ public class ProductService {
         this.modelMapper = modelMapper;
     }
 
-    public List<ProductDto> getProducts() {
-        List<ProductsModel> allproducts = productsRepo.findAll();
-        return allproducts.stream()
-        .map(product -> modelMapper.map(product, ProductDto.class))
-        .toList();
+    public Slice<ProductDto> getProducts(@NonNull Pageable pageable) {
+        Page<ProductsModel> allproducts = productsRepo.findAll(pageable);
+        if (allproducts.isEmpty()) {
+            throw new ResourceNotFoundException("no product found");
+        }
+        return allproducts
+        .map(product -> modelMapper.map(product, ProductDto.class));
     }
 
-    public List<ProductDto> getProductsForSeller(User user) {
+    public Slice<ProductDto> getProductsForSeller(User user, Pageable pageable) {
         List<StoreModel> stores = storeRepo.findAllByUser(user);
         //IN passes multiple store model at a time preventing mutiple DB querying which could happen if we use flatMap.
-        return productsRepo.findByStoreModelIn(stores)
-        .stream()
-        .map(product -> modelMapper.map(product, ProductDto.class))
-        .toList();
+        //getContent() = method of Page which returns the actual content of the Page in List<T> since we can't store the storeModel as Page<T>
+        return productsRepo.findByStoreModelIn(stores, pageable)
+        .map(product -> modelMapper.map(product, ProductDto.class));
     }
+
     public ProductDto getProductById(long id) {
         ProductsModel product = productsRepo.findById(id)
         .orElseThrow(()-> new RuntimeException("Product cannot be found"));
@@ -45,6 +52,7 @@ public class ProductService {
         return modelMapper.map(product, ProductDto.class);
 
     }
+    
     public void saveProducts(AddProductDto productDto, User user) {
         StoreModel store = storeRepo.findByStoreIdAndUser(productDto.getStoreId(), user)
         .orElseThrow(() -> new IllegalArgumentException("Store not found for the given User"));

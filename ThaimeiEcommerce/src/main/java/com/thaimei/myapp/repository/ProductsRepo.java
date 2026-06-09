@@ -9,11 +9,14 @@ import com.thaimei.myapp.model.StoreModel;
 import com.thaimei.myapp.enums.Category;
 import com.thaimei.myapp.enums.Color;
 import com.thaimei.myapp.enums.Size;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 
 
 @Repository
 public interface ProductsRepo extends JpaRepository<ProductsModel, Long>  {
     List<ProductsModel> findByName(String name);
     ProductsModel  findByStoreModelAndCategoryAndColorAndSize(StoreModel store, Category category, Color color, Size size);
-    List<ProductsModel> findByStoreModelIn(List<StoreModel> stores);
+    Page <ProductsModel> findByStoreModelIn(List<StoreModel> stores, Pageable pageable);   
 }

@@ -13,6 +13,9 @@ import com.thaimei.myapp.repository.ProductsRepo;
 import com.thaimei.myapp.model.User;
 import java.math.BigDecimal;
 import com.thaimei.myapp.enums.OrderStatusEnum;
+import com.thaimei.myapp.error.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 @Service
 public class OrderService {
@@ -27,7 +30,7 @@ public class OrderService {
     }
     public void saveOrders(OrderPlaceDto orderDto, User user) {
         ProductsModel product = productsRepo.findById(orderDto.getProductId())
-        .orElseThrow(()-> new IllegalArgumentException("product not found"));
+        .orElseThrow(()-> new ResourceNotFoundException ("product not found"));
         
         Orders order = new Orders();
         order.setUser(user);
@@ -44,11 +47,10 @@ public class OrderService {
         .map(order->modelMapper.map(order,OrderResponseDto.class))
         .toList();
     }
-    public List<AdminOrderDto> getAdminOrders() {
-        List<Orders> orders=orderRepo.findAll();
-        return orders.stream()
-        .map(order->modelMapper.map(order,AdminOrderDto.class))
-        .toList();
+    public Slice <AdminOrderDto> getAdminOrders() {
+        Page <Orders> orders=orderRepo.findAll();
+        return orders
+        .map(order->modelMapper.map(order,AdminOrderDto.class));
     }
 
     

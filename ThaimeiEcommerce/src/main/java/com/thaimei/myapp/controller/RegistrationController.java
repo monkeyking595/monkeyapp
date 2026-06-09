@@ -7,7 +7,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.thaimei.myapp.dto.UserRegistrationDto;
 import jakarta.validation.Valid; 
@@ -38,8 +37,6 @@ public class RegistrationController {
              Authentication authentication =  authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword())
              );
-             //getContext() returns a container that'll hold the authentication object
-             SecurityContextHolder.getContext().setAuthentication(authentication);
              //getPrincipal() gets the userDeatails user's identity 
              CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
              Long userId = userDetails.getId();

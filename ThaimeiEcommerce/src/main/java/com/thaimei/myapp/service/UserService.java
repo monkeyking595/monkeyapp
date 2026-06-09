@@ -2,6 +2,7 @@ package com.thaimei.myapp.service;
 import com.thaimei.myapp.dto.adminDto.AdminUserDto;
 import com.thaimei.myapp.model.User;
 import java.util.List;
+import org.modelmapper.ModelMapper;
 
 
 import org.springframework.stereotype.Service;
@@ -13,7 +14,9 @@ import com.thaimei.myapp.repository.UserRepository;
 public class UserService {
     
     private final UserRepository userRepository;
-    public UserService(UserRepository userRepository) {
+    private final ModelMapper modelMapper;
+    public UserService(UserRepository userRepository, ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
         this.userRepository = userRepository;
     }
     public boolean existsByUsername(String username) {
@@ -37,15 +40,8 @@ public class UserService {
     public List<AdminUserDto> getAllUsersForAdmin() {
        List<User> users = userRepository.findAll();
        return users.stream()
-       .map(user-> new AdminUserDto(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getRole(),
-        user.getStatus()
-       ))
+       .map(user -> modelMapper.map(user, AdminUserDto.class))
        .toList();
-        
     }
     
     

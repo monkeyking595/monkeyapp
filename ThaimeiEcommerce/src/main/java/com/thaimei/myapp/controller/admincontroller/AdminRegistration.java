@@ -33,21 +33,16 @@ public class AdminRegistration {
     
     @PostMapping("/register")
     public ResponseEntity<?> registerAdmin(@Valid @RequestBody UserRegistrationDto adDto) {
-        try {
             registrationService.registerAdmin(adDto);
+    
             Authentication authentication=authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(adDto.getUsername(),adDto.getPassword())
             );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             Long userId = userDetails.getId();
             String token=jwtUtil.generateToken(String.valueOf(userId),  3600000L);
             return ResponseEntity.ok(new JwtResponse(token, adDto.getUsername()));
-        }
-        catch(IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-
+       
     }
     
 }

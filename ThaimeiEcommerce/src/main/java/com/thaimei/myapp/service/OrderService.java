@@ -16,6 +16,8 @@ import com.thaimei.myapp.enums.OrderStatusEnum;
 import com.thaimei.myapp.error.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 
 @Service
 public class OrderService {
@@ -47,11 +49,9 @@ public class OrderService {
         .map(order->modelMapper.map(order,OrderResponseDto.class))
         .toList();
     }
-    public Slice <AdminOrderDto> getAdminOrders() {
-        Page <Orders> orders=orderRepo.findAll();
+    public Slice <AdminOrderDto> getAdminOrders(Long userId, @NonNull Pageable pageable) {
+        Page <Orders> orders=orderRepo.findAll(pageable);
         return orders
         .map(order->modelMapper.map(order,AdminOrderDto.class));
-    }
-
-    
+    }    
 }

@@ -5,8 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import java.util.Map;
 import com.thaimei.myapp.service.RegistrationService;
 import com.thaimei.myapp.dto.JwtResponse;
 import com.thaimei.myapp.security.JwtUtil;
@@ -42,7 +40,6 @@ public class AdminRegistration {
             Long userId = userDetails.getId();
             String token=jwtUtil.generateToken(String.valueOf(userId),  3600000L);
             return ResponseEntity.ok(new JwtResponse(token, adDto.getUsername()));
-       
     }
     
 }

@@ -8,6 +8,8 @@ import com.thaimei.myapp.enums.StoreStatus;
 import java.util.List;
 import com.thaimei.myapp.dto.sellersDto.StoresDto;
 import org.modelmapper.ModelMapper;
+import com.thaimei.myapp.dto.adminDto.AdminStoreApprovalDto;
+import com.thaimei.myapp.error.ResourceNotFoundException;
 
 @Service
 public class StoreService {
@@ -28,6 +30,15 @@ public class StoreService {
         store.setLongitude(storeDto.getLongitude());
         store.setUser(user);
         storeRepo.save(store);
+    }
+
+    public void updateStoreStatus(long storeId, long userId, AdminStoreApprovalDto dto) {
+        StoreModel store = storeRepo.findById(storeId)
+        .orElseThrow(()-> new ResourceNotFoundException("Store not found"));
+        store.setStoreStatus(dto.getStatus());
+        storeRepo.save(store);
+
+        //audit log for admins will be done here...
     }
 
     //outer List is for returning a list of StoresDto to the endpoint

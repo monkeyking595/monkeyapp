@@ -49,9 +49,11 @@ public class OrderService {
         .map(order->modelMapper.map(order,OrderResponseDto.class))
         .toList();
     }
-    public Slice <AdminOrderDto> getAdminOrders(Long userId, @NonNull Pageable pageable) {
+    
+    public Slice <AdminOrderDto> getAdminOrders( @NonNull Pageable pageable) {
         Page <Orders> orders=orderRepo.findAll(pageable);
         return orders
         .map(order->modelMapper.map(order,AdminOrderDto.class));
-    }    
+    } 
+    //logging will be integrated later...  
 }

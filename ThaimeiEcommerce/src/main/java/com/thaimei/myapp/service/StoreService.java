@@ -10,6 +10,9 @@ import com.thaimei.myapp.dto.sellersDto.StoresDto;
 import org.modelmapper.ModelMapper;
 import com.thaimei.myapp.dto.adminDto.AdminStoreApprovalDto;
 import com.thaimei.myapp.error.ResourceNotFoundException;
+import org.springframework.data.domain.Pageable;
+import com.thaimei.myapp.dto.adminDto.AdminStoresDto;
+import org.springframework.data.domain.Slice;
 
 @Service
 public class StoreService {
@@ -35,6 +38,7 @@ public class StoreService {
     public void updateStoreStatus(long storeId, long userId, AdminStoreApprovalDto dto) {
         StoreModel store = storeRepo.findById(storeId)
         .orElseThrow(()-> new ResourceNotFoundException("Store not found"));
+        
         store.setStoreStatus(dto.getStatus());
         storeRepo.save(store);
 
@@ -51,5 +55,10 @@ public class StoreService {
         //converts back to list 
         //stop confusing over silly stuff you dumbass
         .toList();
+    }
+
+    public List<AdminStoresDto> getAllStoreBySeller(Long sellerId) {
+        
+
     }
 }

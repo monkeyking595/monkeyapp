@@ -9,8 +9,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
-import com.thaimei.myapp.security.CustomUserDetails;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 
 
 @RestController
@@ -20,12 +19,19 @@ public class AdminOrderController {
     public AdminOrderController(OrderService orderService) {
         this.orderService=orderService;
     }
-    //audit log is yet to be integrated..
+
     @GetMapping("/adminOrders")
-    public ResponseEntity<Slice<AdminOrderDto>> getAllOrders(@RequestParam (defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        Long userId = customUserDetails.getId();
+    public ResponseEntity<Slice<AdminOrderDto>> getAllOrders(@RequestParam (defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+    
         Pageable pageable = PageRequest.of(page, size);
-        var adminOrders = orderService.getAdminOrders(userId, pageable);
+        var adminOrders = orderService.getAdminOrders(pageable);
         return ResponseEntity.ok(adminOrders);
     } 
+
+    @GetMapping("/sellerOrdersForAdmin")
+    public ResponseEntity<Slice<?>> getSellerOrders(@RequestParam (defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        
+
+    }
 }

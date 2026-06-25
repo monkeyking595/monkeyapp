@@ -1,5 +1,4 @@
 package com.thaimei.myapp.controller.admincontroller;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import com.thaimei.myapp.enums.RoleEnum;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
-
 @RequestMapping("/admin/api")
 @RestController
 public class AdminSideUserController {
@@ -24,7 +22,7 @@ public class AdminSideUserController {
     @GetMapping("/AllUsers")
     public ResponseEntity<Slice<AdminUserDto>> getAllCustomer(@RequestParam (defaultValue ="0")int page, @RequestParam(defaultValue="20")int size, RoleEnum role) {
         Pageable pageable = PageRequest.of(page, size);
-        Slice<AdminUserDto> users = userService.getUserByRole(role, pageable);
+        Slice<AdminUserDto> users = userService.getUserByRole(RoleEnum.CUSTOMER, pageable);
         return ResponseEntity.ok(users);
     }
 
@@ -35,7 +33,11 @@ public class AdminSideUserController {
         Slice<AdminUserDto> users = userService.getUserByRole(RoleEnum.SELLER, pageable);
         return ResponseEntity.ok(users);
     }
-    
-    
+
+    @GetMapping("/searchSellers")
+    public ResponseEntity<AdminUserDto> searchSeller(@RequestParam String email) {
+        AdminUserDto seller = userService.searchByEmail(email);
+        return ResponseEntity.ok(seller);
+    }
     
 }

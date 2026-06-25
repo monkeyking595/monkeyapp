@@ -10,18 +10,19 @@ import com.thaimei.myapp.dto.sellersDto.StoresDto;
 import org.modelmapper.ModelMapper;
 import com.thaimei.myapp.dto.adminDto.AdminStoreApprovalDto;
 import com.thaimei.myapp.error.ResourceNotFoundException;
-import org.springframework.data.domain.Pageable;
 import com.thaimei.myapp.dto.adminDto.AdminStoresDto;
-import org.springframework.data.domain.Slice;
+import com.thaimei.myapp.repository.UserRepository;
 
 @Service
 public class StoreService {
     private final StoreRepo storeRepo;
     private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
 
-    public StoreService(StoreRepo storeRepo, ModelMapper modelMapper) {
+    public StoreService(StoreRepo storeRepo, ModelMapper modelMapper, UserRepository userRepository) {
         this.storeRepo = storeRepo;
         this.modelMapper = modelMapper;
+        this.userRepository = userRepository;
     }
 
     public void saveStore(RegisterStoreDto storeDto, User user) {
@@ -57,8 +58,12 @@ public class StoreService {
         .toList();
     }
 
-    public List<AdminStoresDto> getAllStoreBySeller(Long sellerId) {
-        
-
+    public List<AdminStoresDto> getAllStoresBySeller(long sellerId) {
+        User seller = userRepository.findById(sellerId)
+        .orElseThrow(()-> new ResourceNotFoundException ("seller  not found"));
+        List<StoreModel> stores = storeRepo.findAllByUser(seller);
+        return stores.stream()
+        .map(store -> modelMapper.map(store, AdminStoresDto.class))
+        .toList();
     }
 }

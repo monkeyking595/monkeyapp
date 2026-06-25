@@ -17,6 +17,7 @@ import jakarta.persistence.Enumerated;
 import com.thaimei.myapp.enums.RoleEnum;
 import jakarta.persistence.OneToMany;
 import java.util.List;
+import com.thaimei.myapp.enums.UserStatus;
 
 @Entity
 @Table(name="app_user")
@@ -35,11 +36,12 @@ public class User {
    @Column(nullable = false)
    private String password;
 
-   @Column(nullable = false)
+   @Column(unique = true, nullable = false)
    private String email;
    //set the status value to "ACTIVE" by default the Non-nullable constraint ensures that the status field must always have a value, and it cannot be null in the database. This means that when a new User entity is created, if no value is provided for the status field, it will automatically be set to "ACTIVE".
    @Column(nullable = false)
-   private String status = "ACTIVE";
+   @Enumerated(EnumType.STRING)
+   private UserStatus status= UserStatus.ACTIVE;
 
     @OneToOne(mappedBy="user", cascade = CascadeType.ALL)
    private UserprofileModel userprofileModel;

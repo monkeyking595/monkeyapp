@@ -35,9 +35,6 @@ public class StoreController {
         User user = customUserDetails.getUser();
         List<StoresDto> stores=storeService.getStoresByUser(user);
         return ResponseEntity.ok(stores);
-        
-
-
     }
     
 }

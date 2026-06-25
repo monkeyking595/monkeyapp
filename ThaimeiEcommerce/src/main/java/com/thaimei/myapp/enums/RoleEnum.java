@@ -1,7 +1,7 @@
 package com.thaimei.myapp.enums;
 
 public enum RoleEnum {
-    USER,
+    CUSTOMER,
     ADMIN,
     SELLER
 }

@@ -13,14 +13,10 @@ import com.thaimei.myapp.service.StoreService;
 
 import jakarta.validation.Valid;
 import java.util.Map;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.data.domain.Slice;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.thaimei.myapp.dto.adminDto.AdminStoresDto;
 import java.util.List;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 
@@ -40,10 +36,12 @@ public class AdminStoresController {
         return ResponseEntity.ok(Map.of("message","Store updated successfully!"));
     }
     
-    @GetMapping("/getAllStoresForAdmin/{sellerId}")
-    public ResponseEntity<List<AdminStoresDto>> getStoresForAdmin ( @PathVariable Long sellerId) {
-        storeService.getAllStoresBySeller(sellerId);
-
-
+    @GetMapping("/getAllStoresBySeller/{sellerId}")
+    public ResponseEntity<List<AdminStoresDto>> getStoresByUser(@PathVariable Long sellerId) {
+        List<AdminStoresDto> stores = storeService.getAllStoresBySeller(sellerId);
+        return ResponseEntity.ok(stores);
     }
+
+    //feature that could be added in the future
+    // 1. check all pending user status.
 }

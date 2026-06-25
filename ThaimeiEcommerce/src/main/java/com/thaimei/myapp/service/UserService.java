@@ -7,6 +7,7 @@ import com.thaimei.myapp.repository.UserRepository;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Pageable;
 import com.thaimei.myapp.enums.RoleEnum;
+import com.thaimei.myapp.error.ResourceNotFoundException;
 
 
 
@@ -45,6 +46,13 @@ public class UserService {
     public Slice<AdminUserDto> getUserByRole(RoleEnum role, Pageable pageable) {
        return  userRepository.findByRole(role,pageable)
        .map(user -> modelMapper.map(user, AdminUserDto.class));
+    }
+
+    public AdminUserDto searchByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+        .orElseThrow(()-> new ResourceNotFoundException("Seller doesn't exist"));
+        return modelMapper.map(user, AdminUserDto.class);
+
     }
     
     

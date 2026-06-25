@@ -3,6 +3,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import com.thaimei.myapp.enums.RoleEnum;
+import com.thaimei.myapp.enums.UserStatus;
 
 @Data
 @NoArgsConstructor
@@ -13,6 +14,5 @@ public class AdminUserDto {
     private String username;
     private String email;
     private RoleEnum role;
-    private String status;
-
+    private UserStatus status;
 }

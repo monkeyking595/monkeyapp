@@ -58,7 +58,7 @@ public class StoreService {
         .toList();
     }
 
-    public List<AdminStoresDto> getAllStoresBySeller(long sellerId) {
+    public List<AdminStoresDto> getAllStoresForAdmin(long sellerId) {
         User seller = userRepository.findById(sellerId)
         .orElseThrow(()-> new ResourceNotFoundException ("seller  not found"));
         List<StoreModel> stores = storeRepo.findAllByUser(seller);

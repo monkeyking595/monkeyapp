@@ -36,7 +36,7 @@ public class RegistrationService {
 
     public void registerUser(UserRegistrationDto dto) {
         validateUser(dto);
-        userService.save(BuildUser(dto, RoleEnum.USER));
+        userService.save(BuildUser(dto, RoleEnum.CUSTOMER));
     }
 
     public void registerSeller(UserRegistrationDto dto) {

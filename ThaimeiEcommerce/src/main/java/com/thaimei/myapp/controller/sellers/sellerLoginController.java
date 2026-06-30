@@ -17,11 +17,11 @@ import com.thaimei.myapp.dto.JwtResponse;
 
 @RequestMapping("/sellers")
 @RestController
-public class sellerLoginController {
+public class SellerLoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    public sellerLoginController (AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public SellerLoginController (AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil  = jwtUtil;
     }

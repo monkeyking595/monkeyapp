@@ -50,4 +50,7 @@ public class StoreModel {
     private Double longitude;
     
     private Double latitude;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+    private List<Orders> orders;
 }

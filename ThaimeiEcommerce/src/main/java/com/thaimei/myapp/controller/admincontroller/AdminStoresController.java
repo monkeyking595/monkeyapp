@@ -38,7 +38,7 @@ public class AdminStoresController {
     
     @GetMapping("/getAllStoresBySeller/{sellerId}")
     public ResponseEntity<List<AdminStoresDto>> getStoresByUser(@PathVariable Long sellerId) {
-        List<AdminStoresDto> stores = storeService.getAllStoresBySeller(sellerId);
+        List<AdminStoresDto> stores = storeService.getAllStoresForAdmin(sellerId);
         return ResponseEntity.ok(stores);
     }
 

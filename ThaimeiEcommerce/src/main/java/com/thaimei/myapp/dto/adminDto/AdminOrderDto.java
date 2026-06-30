@@ -12,3 +12,5 @@ public class AdminOrderDto {
     @NotEmpty(message="orders cannot be empty")
     private List<OrderPlaceDto> orders;
 }
+
+// some dtos required changes !!!!!!

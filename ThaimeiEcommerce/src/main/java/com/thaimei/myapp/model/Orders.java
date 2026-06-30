@@ -7,12 +7,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import com.thaimei.myapp.enums.OrderStatusEnum;
 import jakarta.persistence.Enumerated;
+import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.CascadeType;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,17 +30,9 @@ public class Orders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable =false)
-    private String productName;
-
-    @Column(nullable = false)
-    private int quantity;
-
-    @Column(nullable= false)
-    private String imageURL;
-
+    @Enumerated(EnumType.STRING)
     @Column(nullable=false)
-    private String status;
+    private OrderStatusEnum status = OrderStatusEnum.PENDING;
 
     @Column(nullable = false)
     private BigDecimal totalPrice;
@@ -42,11 +41,18 @@ public class Orders {
     @JoinColumn(name ="user_id",nullable = false)
     private User user;
 
+    
     @ManyToOne
-    @JoinColumn(name = "products_id", nullable=false)
-    private ProductsModel product;
+    @JoinColumn(name = "store_id", nullable = false)
+    private StoreModel store;
 
-    @Enumerated(EnumType.STRING)
-    private OrderStatusEnum orderStatus;
- 
+    //cascade = whatever operation you do on the parent, it cascades down to the children automatically.
+    //operations like delete, save, update (cascade means flows down in general)
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
+    private List<OrderItems> orderItems;
+
+    @Column(updatable = false)
+    @CreationTimestamp
+    private LocalDateTime creationTime;
+
 }

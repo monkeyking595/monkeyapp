@@ -38,6 +38,7 @@ public class User {
 
    @Column(unique = true, nullable = false)
    private String email;
+
    //set the status value to "ACTIVE" by default the Non-nullable constraint ensures that the status field must always have a value, and it cannot be null in the database. This means that when a new User entity is created, if no value is provided for the status field, it will automatically be set to "ACTIVE".
    @Column(nullable = false)
    @Enumerated(EnumType.STRING)
@@ -51,6 +52,8 @@ public class User {
    private RoleEnum role;
    
    @Column(updatable = false)
+   //automatically gets the current time.
+   //LocalDateTime a class that represents Date and time together
    @CreationTimestamp
    private LocalDateTime createdAt;
 

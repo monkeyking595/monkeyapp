@@ -29,9 +29,9 @@ public class AdminOrderController {
     } 
 
     @GetMapping("/sellerOrdersForAdmin/{sellerId}")
-    public ResponseEntity<Slice<?>> getOrdersBySeller(@RequestParam (defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size, @PathVariable Long sellerId) {
+    public ResponseEntity<Slice<AdminOrderDto>> getOrdersBySeller(@RequestParam (defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size, @PathVariable Long sellerId) {
         Pageable pageable = PageRequest.of(page, size);
-        
-
+        Slice<AdminOrderDto> orders = orderService.getOrderForAdminBySeller(sellerId, pageable);
+        return ResponseEntity.ok(orders);
     }
 }

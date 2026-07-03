@@ -72,7 +72,20 @@ public class OrderService {
     public Slice <AdminOrderDto> getAdminOrders( @NonNull Pageable pageable) {
         Page <Orders> orders=orderRepo.findAll(pageable);
         return orders
-        .map(order->modelMapper.map(order,AdminOrderDto.class));
+        // here block lambda is used to map the orders entity to adminorderDto.
+        // the block lambda uses "{}" to define the body of the lambda, 
+        // the only difference between block and expression is that blocks deals with multiple statements 
+        // it uses the return keyword to return the explicit object we want, whereas in block we don't need it since it has only one statement.
+        // in block we need to create the object explicitly "dto" in my case.
+        // we do this since we use modelmapper which map fields which matches the other and here we're adding fields which is not exactly in the orders entity. 
+        .map(order-> { AdminOrderDto dto = modelMapper.map(order,AdminOrderDto.class);
+            dto.setUserId(order.getUser().getId());
+            dto.setUserName(order.getUser().getUsername());
+            dto.setStoreId(order.getStore().getStoreId());
+            dto.setStoreName(order.getStore().getStoreName());
+            return dto;});
+
+            
     } 
     //logging will be integrated later... 
 

@@ -15,5 +15,4 @@ public class OrderPlaceDto {
 
     @NotNull(message = "Quantity cannot be null")
     private int quantity;
-    
 }

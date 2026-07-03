@@ -2,6 +2,9 @@ package com.thaimei.myapp.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+
+import java.math.BigDecimal;
+
 import com.thaimei.myapp.enums.OrderStatusEnum;
 @Data
 @NoArgsConstructor
@@ -15,7 +18,7 @@ public class OrderResponseDto {
     
     private OrderStatusEnum status;
     
-    private double totalPrice;
+    private BigDecimal totalPrice;
     
     private String imageURL;
 

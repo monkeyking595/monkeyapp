@@ -3,16 +3,18 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
 public class OrderPlaceDto {
-    @NotNull(message = "Product ID cannot be null")
-    private long productId;
+    @NotEmpty(message ="OrderItems cannot be empty")
+    @Valid 
+    private List<ItemRequestDto> orderItems;
+} 
 
-    @NotNull(message = "Quantity cannot be null")
-    private int quantity;
-}

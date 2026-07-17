@@ -25,12 +25,19 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping("/PlaceOrder")
-    public ResponseEntity<?> placedOrder(@RequestBody OrderPlaceDto orderDTo, @AuthenticationPrincipal CustomUserDetails principal) {
+    @PostMapping("/buynowCheckout")
+    public ResponseEntity<?> buynow (@RequestBody OrderPlaceDto orderDTo, @AuthenticationPrincipal CustomUserDetails principal) {
         User  user=principal.getUser();
-        orderService.saveOrders(orderDTo, user);
+        orderService.checkout(orderDTo, user);
         return ResponseEntity.ok(Map.of("message","Order placed successfully!"));
     }
+
+    @PostMapping("/buyfromCartCheckout")
+    public ResponseEntity< ?> checkoutFromCart () {
+
+    }
+
+    
     @GetMapping("/GetOrder")
     public ResponseEntity<List<OrderResponseDto>> getOrders(@AuthenticationPrincipal CustomUserDetails principal) {
         User user=principal.getUser();

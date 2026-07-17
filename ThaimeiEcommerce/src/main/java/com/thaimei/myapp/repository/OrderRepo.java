@@ -8,7 +8,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OrderRepo extends JpaRepository<Orders, Long> {
-    public List<Orders>  findByUserId (Long id);
+    public List<Orders>  findByUser_Id (Long id);
     Slice<Orders> findByStore_User(User user, Pageable pageable);
     Slice<Orders> findByStoreId(Long storeId, Pageable pageable);
 }

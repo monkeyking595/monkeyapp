@@ -39,7 +39,7 @@ public class RegistrationController {
              );
              //getPrincipal() gets the userDeatails user's identity 
              CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-             Long userId = userDetails.getId();
+             long userId = userDetails.getId();
              //convert userId to string since subject in jwt is typed as String
             String token=jwtUtil.generateToken(String.valueOf(userId), 3600000L);
             

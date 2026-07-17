@@ -11,7 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
-import java.math.BigDecimal;
+
 
 
 @Entity
@@ -32,29 +32,14 @@ public class CartItem {
     @JoinColumn(name = "product_id", nullable = false)
     private ProductsModel product;
 
-    @ManyToOne
+    //LAZY fetch type is used to avoid loading the entire cart when fetching a cartItem, which can be inefficient if the cart has many items. Instead, the cart is only loaded when explicitly accessed.
+    //EAGER fetch type is used to load the associated product when fetching a cartItem,
+    //Lazy fetch could prevent N+1 query problem, which is wasteful and can lead to performance issues when fetching a list of cartItems, as it would require additional queries to fetch the associated products for each cartItem.
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 
-    @Column(nullable = false)
-    private BigDecimal price;
 
     @Column(nullable = false)
     private int quantity;
-
-    @Column(nullable = false)
-    private String productName;
-    
-    @Column(nullable = false)
-    private BigDecimal totalPrice;
-
-
-    @Column(nullable = false)
-    private String imageURL;
-
-    @Column(nullable = false)
-    private String description;
-
-
-    
 }

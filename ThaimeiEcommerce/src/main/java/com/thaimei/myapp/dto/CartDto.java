@@ -1,10 +1,12 @@
 package com.thaimei.myapp.dto;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.NotEmpty;
+
+
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -16,12 +18,12 @@ public class CartDto {
     @NotNull(message="Id cannot be Null")
     private Long cartId;
 
-    @NotEmpty(message="items list cannot be empty")
+    
     private List<CartItemDto> items;
 
-    @Positive(message="Total price cannot be negative")
-    double totalPrice;
+    @PositiveOrZero(message="Total price cannot be negative")
+    BigDecimal totalPrice;
     
-    @Positive(message="Quantity cannot be negative")
-    private int quantity;
+    @PositiveOrZero(message="Quantity cannot be negative")
+    private int totalquantity;
 }

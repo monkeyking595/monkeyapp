@@ -9,7 +9,8 @@ import jakarta.validation.constraints.Positive;
 @AllArgsConstructor
 public class AddItem {
     @NotNull(message="Product ID cannot be null")
-    private long productId;
+    private Long productId;
+    
     @Positive(message="Quantity cannot be negative")
     private int quantity;
 }

@@ -53,7 +53,6 @@ public class OrderService {
         .toList();
 
         
-
         //findById behaves just like findAll but it takes long as an argument.
         List<ProductsModel> products = productsRepo.findAllById(productId);
         
@@ -107,12 +106,13 @@ public class OrderService {
 
                 orderItemsList.add(orderItems);
 
-                //accumulates the total price of each iteration 
+                //accumulates the total price of each iteration (totalPrice+=)
                 totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
             }
 
             order.setOrderItems(orderItemsList);
             order.setTotalPrice(totalPrice);
+            //add(), appends the order object into the empty list ordersToSave().
             ordersToSave.add(order);
         }
         // saveAll(), save  a list of orders 
@@ -121,7 +121,7 @@ public class OrderService {
 
 
     public List<OrderResponseDto> getOrdersByUserId(User user) {
-        List<Orders> orders=orderRepo.findByUserId(user.getId());
+        List<Orders> orders=orderRepo.findByUser_Id(user.getId());
         return orders.stream()
         .map(order->modelMapper.map(order,OrderResponseDto.class))
         .toList();
@@ -141,9 +141,8 @@ public class OrderService {
             dto.setUserName(order.getUser().getUsername());
             dto.setStoreId(order.getStore().getStoreId());
             dto.setStoreName(order.getStore().getStoreName());
-            return dto;});
-
-            
+            return dto;
+        });
     } 
     
     //logging will be integrated later... 
@@ -166,7 +165,7 @@ public class OrderService {
             throw new AppException("You do not  own this store",  403);
         }
 
-        Slice<Orders> orders = orderRepo.findByStoreId(storeId, pageable);
+        Slice<Orders> orders = orderRepo.findByStore_Id(storeId, pageable);
 
         return orders
         .map(order -> modelMapper.map(order, SellerOrdersResponse.class));

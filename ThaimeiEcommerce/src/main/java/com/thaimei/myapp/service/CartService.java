@@ -9,12 +9,16 @@ import com.thaimei.myapp.model.ProductsModel;
 import com.thaimei.myapp.repository.CartItemRepository;
 import java.util.Optional;
 import com.thaimei.myapp.repository.ProductsRepo;
-import org.modelmapper.ModelMapper;
 import java.math.BigDecimal;
 import com.thaimei.myapp.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.error.AppException;
 import com.thaimei.myapp.error.ResourceNotFoundException;
+import java.util.List;
+import com.thaimei.myapp.dto.CartItemDto;
 
 
 @Service
@@ -22,27 +26,70 @@ public class CartService {
     private final  CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductsRepo productsRepo;
-    private final ModelMapper modelMapper;
     private final UserRepository userRepository;
-    public CartService(CartRepository cartRepository, ModelMapper modelMapper, CartItemRepository cartItemRepository, ProductsRepo productsRepo, UserRepository userRepository) {
+    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductsRepo productsRepo, UserRepository userRepository) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productsRepo = productsRepo;
-        this.modelMapper = modelMapper;
         this .userRepository = userRepository;
     }
 
     public CartDto getCartByUserId(Long userId) {
         Cart cart = cartRepository.findByUserId(userId)
         .orElseThrow(()-> new ResourceNotFoundException("cart not found for current User"));
-
+        // if the cart is empty return the empty cart as it is, empty is not an exception.
         if (cart.getCartItems().isEmpty()) {
-            throw new AppException("cart is empty",404);
+
+            CartDto emptyCart = new CartDto();
+            emptyCart.setCartId(cart.getCartId());
+            emptyCart.setItems(List.of());
+            emptyCart.setTotalquantity(0);
+            emptyCart.setTotalPrice(BigDecimal.ZERO);
+            return emptyCart;
         }
-        return modelMapper.map(cart, CartDto.class);
+
+        List <CartItemDto> itemDtos = cart.getCartItems().stream()
+        .map(item -> {
+            CartItemDto cartItemDto = new CartItemDto();
+            cartItemDto.setItemId(item.getItemId());
+            cartItemDto.setQuantity(item.getQuantity());
+            cartItemDto.setPrice(item.getProduct().getPrice());
+            cartItemDto.setProductName(item.getProduct().getName());
+            cartItemDto.setImageURL(item.getProduct().getImageURL());
+            cartItemDto.setDescription(item.getProduct().getDescription());
+            cartItemDto.setTotalPrice(item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            return cartItemDto;
+        })
+        .toList();
+
+        // first declare the accumulator
+        BigDecimal cartTotalPrice = itemDtos.stream()
+        //pull each element from the stream and call a method on it (getTotalPrice), method reference 
+        .map(CartItemDto::getTotalPrice)
+
+        //the first parameter is the partialResult(set to zero) and the second is the stream's element.
+        // this expands to (total, element) -> total.add(element), adding each element to partialResult.
+
+        //reduce(), combines all the elements in a stream into a single value by repeatedly applying the combining function.
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        int totalQuantity = itemDtos.stream()
+        // pull each streamed elements call the getQuantity on it, convert the stream<CartItemDto> which is a object into InStream<> a primitive type so that we can call the .sum() method on it.
+        // Object doesn't have the sum() method on it so we have to convert it.
+        .mapToInt(CartItemDto::getQuantity)
+        .sum();
+
+        CartDto cartDto = new CartDto();
+        cartDto.setCartId(cart.getCartId());
+        cartDto.setItems(itemDtos);
+        cartDto.setTotalquantity(totalQuantity);
+        cartDto.setTotalPrice(cartTotalPrice);
+        return cartDto;
     }
 
-    public void  addItemsToCart(AddItem addItem, long userId) {
+    //return an int the quantity of the items in the cart, so that we can instantly display the number of items in the cart after adding the items.
+    @Transactional
+    public int  addItemsToCart(AddItem addItem, long userId) {
 
         User user = userRepository.findById(userId) 
         .orElseThrow (()-> new ResourceNotFoundException ("User not found"));
@@ -56,30 +103,41 @@ public class CartService {
 
         
         ProductsModel product = productsRepo.findById(addItem.getProductId())
-        .orElseThrow(()  -> new ResourceNotFoundException("product not found or out of stock"));
+        .orElseThrow(()  -> new ResourceNotFoundException("product not found"));
 
         //check if item already exists in cart if true merge quantities.
         Optional<CartItem> existingItem= cartItemRepository.findByCartCartIdAndProductProductId(cart.getCartId(), addItem.getProductId());
+
+        // .map(), a method of Optional<> if the object exist return the value, else 0
+        int currentQtyInCart = existingItem.map(CartItem::getQuantity).orElse(0);
+
+        // add the current cartItem quantity with the new incoming quantity.
+        int totalRequestQty = currentQtyInCart + addItem.getQuantity();
+
+        // checks if the current product's quantity is less than the incoming new quantity (existing cartItem quantity + new incoming quantity).
+        // if smaller then the there's no more stock.
+        if (product.getQuantity() < totalRequestQty) {
+            throw new AppException ("insufficient stock", 400);
+        }
+        
         if(existingItem.isPresent()) {
             //extract the existing item and update quantity.
             CartItem item =existingItem.get();
-            int newQuantity = item.getQuantity() + addItem.getQuantity();
-            item.setQuantity(newQuantity);
-            item.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf (newQuantity)));
+            item.setQuantity(totalRequestQty);
             cartItemRepository.save(item);
         } else {
             CartItem newItem = new CartItem();
             newItem.setProduct(product);
             newItem.setCart(cart);
             newItem.setQuantity(addItem.getQuantity());
-            newItem.setPrice(product.getPrice());
-            newItem.setProductName(product.getName());
-            newItem.setImageURL(product.getImageURL());
-            newItem.setDescription(product.getDescription());
-            newItem.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf (addItem.getQuantity())));
             cartItemRepository.save(newItem);
         }
 
+        //pulls the quantity and sum it up to display it in the product listing page.
+        return cartItemRepository.findByCartCartId(cart.getCartId())
+        .stream()
+        .mapToInt(CartItem::getQuantity)
+        .sum();
     }
 
 }

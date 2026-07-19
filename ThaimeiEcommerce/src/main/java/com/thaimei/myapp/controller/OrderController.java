@@ -4,7 +4,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.thaimei.myapp.dto.OrderPlaceDto;
 import com.thaimei.myapp.dto.OrderResponseDto;
+import com.thaimei.myapp.error.AppException;
 import com.thaimei.myapp.service.OrderService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,16 +29,21 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping("/buynowCheckout")
-    public ResponseEntity<?> buynow (@RequestBody OrderPlaceDto orderDTo, @AuthenticationPrincipal CustomUserDetails principal) {
+    @PostMapping("/buyNowCheckout")
+    public ResponseEntity<?> buynow (@Valid @RequestBody OrderPlaceDto orderDto, @AuthenticationPrincipal CustomUserDetails principal) {
+        if (orderDto.getOrderItems().size() != 1) {
+            throw new AppException("buynow excepts only one item", 400);
+        }
         User  user=principal.getUser();
-        orderService.checkout(orderDTo, user);
+        orderService.checkout(orderDto, user);
         return ResponseEntity.ok(Map.of("message","Order placed successfully!"));
     }
 
-    @PostMapping("/buyfromCartCheckout")
-    public ResponseEntity< ?> checkoutFromCart () {
-
+    @PostMapping("/CartCheckout")
+    public ResponseEntity<?> checkoutFromCart (@Valid @RequestBody OrderPlaceDto orderDto, @AuthenticationPrincipal CustomUserDetails principal) {
+        User  user=principal.getUser();
+        orderService.checkout(orderDto, user);
+        return ResponseEntity.ok(Map.of("message","Order placed successfully!"));
     }
 
     

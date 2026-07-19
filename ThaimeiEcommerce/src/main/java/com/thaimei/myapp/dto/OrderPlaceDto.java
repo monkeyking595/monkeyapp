@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 public class OrderPlaceDto {
     @NotEmpty(message ="OrderItems cannot be empty")
+    // @Valid, it handles cascading validation into nested objects, without this the validation annotation in the ItemRquestDto will be ignore by the validator. it's telling the validator to one level deeper.
     @Valid 
     private List<ItemRequestDto> orderItems;
 } 

@@ -54,6 +54,35 @@ function tryParseJson(text) {
   }
 }
 
+function slicePayload(data) {
+  if (Array.isArray(data)) {
+    return {
+      content: data,
+      first: true,
+      last: true,
+      number: 0,
+      size: data.length
+    };
+  }
+
+  return {
+    content: Array.isArray(data?.content) ? data.content : [],
+    first: data?.first ?? true,
+    last: data?.last ?? true,
+    number: data?.number ?? 0,
+    size: data?.size ?? 20
+  };
+}
+
+function adminList(path, page = 0, size = 20) {
+  const query = new URLSearchParams({
+    page: String(page),
+    size: String(size)
+  });
+
+  return request(`${path}?${query}`).then(slicePayload);
+}
+
 export const api = {
   async login(username, password) {
     const data = await request("/customers/login", {
@@ -136,7 +165,13 @@ export const api = {
       method: "POST",
       body: JSON.stringify(profile)
     }),
-  adminUsers: () => request("/admin/api/AllUsers"),
+  adminUsers: (page = 0, size = 20) => adminList("/admin/api/AllUsers", page, size),
+  adminSellers: (page = 0, size = 20) => adminList("/admin/api/getAllSellers", page, size),
+  updateUserStatus: (userId, userStatus) =>
+    request(`/admin/api/updateUserStatus/${userId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ userStatus })
+    }),
   sellerStores: () => request("/sellers/getStoresForSeller"),
   createSellerStore: (store) =>
     request("/sellers/addBusiness", {

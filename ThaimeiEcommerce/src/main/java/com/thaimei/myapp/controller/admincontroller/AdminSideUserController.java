@@ -3,14 +3,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import com.thaimei.myapp.service.UserService;
+
+import jakarta.validation.Valid;
+
 import  com.thaimei.myapp.dto.adminDto.AdminUserDto;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.thaimei.myapp.enums.RoleEnum;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 
+import java.util.Map;
+
+import org.springframework.data.domain.PageRequest;
+import com.thaimei.myapp.dto.adminDto.UpdateUserStatus;
 @RequestMapping("/admin/api")
 @RestController
 public class AdminSideUserController {
@@ -38,6 +47,12 @@ public class AdminSideUserController {
     public ResponseEntity<AdminUserDto> searchSeller(@RequestParam String email) {
         AdminUserDto seller = userService.searchByEmail(email);
         return ResponseEntity.ok(seller);
+    }
+
+    @PatchMapping("/updateUserStatus/{userId}")
+    public ResponseEntity<?> disableUser (@PathVariable Long userId,@Valid @RequestBody UpdateUserStatus updateUserStatus) {
+        userService.updateUserStatus(userId, updateUserStatus);
+        return ResponseEntity.ok(Map.of("message","user status updated successfully!"));
     }
     
 }

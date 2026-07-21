@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import com.thaimei.myapp.error.ResourceNotFoundException;
 
 
 @Service
@@ -17,13 +18,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { 
         User user = userRepository.findByUsername(username)
-       .orElseThrow(() -> new UsernameNotFoundException ("Username not found"));
+       .orElseThrow(() -> new ResourceNotFoundException ("Username not found"));
     return new CustomUserDetails(user);
     }
 
     public UserDetails loadUserById(long userId) {
         User user= userRepository.findById(userId)
-        .orElseThrow(()-> new UsernameNotFoundException("Username not found"));
+        .orElseThrow(()-> new ResourceNotFoundException ("Username not found"));
         return new CustomUserDetails(user);
     }
 

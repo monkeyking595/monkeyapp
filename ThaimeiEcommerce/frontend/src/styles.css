@@ -566,6 +566,31 @@ textarea:focus {
   padding: 18px 18px 0;
 }
 
+.admin-toolbar {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(126px, 1fr));
+  gap: 4px;
+  margin: 0 0 16px;
+  padding: 4px;
+  border: 1px solid #ded6ca;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.segment {
+  min-height: 38px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #5d574f;
+  font-weight: 800;
+}
+
+.segment.active {
+  background: #161616;
+  color: #fff;
+}
+
 .seller-summary .empty-state {
   margin: 16px 18px 18px;
   border: 0;
@@ -637,12 +662,51 @@ th {
   display: inline-flex;
   min-height: 26px;
   align-items: center;
+  width: max-content;
   padding: 0 10px;
   border-radius: 999px;
   background: #edf5e5;
   color: #355318;
   font-size: 12px;
   font-weight: 800;
+}
+
+.status-deactivated {
+  background: #fff4dc;
+  color: #7a4d00;
+}
+
+.status-deleted {
+  background: #fff0ee;
+  color: #9a291d;
+}
+
+.status-control {
+  display: grid;
+  grid-template-columns: minmax(106px, auto) minmax(150px, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 276px;
+}
+
+.status-control select {
+  height: 38px;
+}
+
+.pager {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 16px;
+  color: #5d574f;
+  font-weight: 800;
+}
+
+button:disabled,
+select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 @media (max-width: 960px) {
@@ -722,5 +786,22 @@ th {
   .line-item {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .admin-toolbar,
+  .status-control,
+  .pager {
+    width: 100%;
+  }
+
+  .status-control,
+  .pager {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .status-control {
+    grid-template-columns: 1fr;
+    min-width: 180px;
   }
 }

@@ -165,7 +165,7 @@ public class OrderService {
             throw new AppException("You do not  own this store",  403);
         }
 
-        Slice<Orders> orders = orderRepo.findByStore_Id(storeId, pageable);
+        Slice<Orders> orders = orderRepo.findByStore_StoreId(storeId, pageable);
 
         return orders
         .map(order -> modelMapper.map(order, SellerOrdersResponse.class));

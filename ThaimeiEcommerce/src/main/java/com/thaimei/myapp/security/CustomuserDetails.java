@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.thaimei.myapp.model.User;  
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.List; 
+import com.thaimei.myapp.enums.UserStatus;
 
 public class CustomUserDetails implements UserDetails {
    
@@ -32,9 +33,11 @@ public class CustomUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
+
+    // set the user to active until i want to deliberately unactivate it.
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return user.getStatus() == UserStatus.ACTIVE;
     }
     @Override
     public boolean isAccountNonLocked() {

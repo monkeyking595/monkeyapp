@@ -65,7 +65,4 @@ public class JwtUtil {
     //.before() checks if the expiration date is before the current date, if it evaluates to true, the token is expired 
     return extractClaims(token, Claims::getExpiration).before(new Date());
    }
-
-   
-    
 }

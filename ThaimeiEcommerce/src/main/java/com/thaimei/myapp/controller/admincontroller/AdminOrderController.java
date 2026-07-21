@@ -22,14 +22,14 @@ public class AdminOrderController {
     }
 
     @GetMapping("/adminOrders")
-    public ResponseEntity<Slice<AdminOrderDto>> getAllOrders(@RequestParam (defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+    public ResponseEntity<Slice<AdminOrderDto>> getAllOrdersForAdmin(@RequestParam (defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
         var adminOrders = orderService.getAdminOrders(pageable);
         return ResponseEntity.ok(adminOrders);
     } 
 
     @GetMapping("/sellerOrdersForAdmin/{sellerId}")
-    public ResponseEntity<Slice<AdminOrderDto>> getOrdersBySeller(@RequestParam (defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size, @PathVariable Long sellerId) {
+    public ResponseEntity<Slice<AdminOrderDto>> getOrdersBySellerForAdmin(@RequestParam (defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size, @PathVariable Long sellerId) {
         Pageable pageable = PageRequest.of(page, size);
         Slice<AdminOrderDto> orders = orderService.getOrderForAdminBySeller(sellerId, pageable);
         return ResponseEntity.ok(orders);

@@ -1,5 +1,6 @@
 package com.thaimei.myapp.service;
 import com.thaimei.myapp.dto.adminDto.AdminUserDto;
+import com.thaimei.myapp.dto.adminDto.UpdateUserStatus;
 import com.thaimei.myapp.model.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -7,6 +8,7 @@ import com.thaimei.myapp.repository.UserRepository;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Pageable;
 import com.thaimei.myapp.enums.RoleEnum;
+import com.thaimei.myapp.error.AppException;
 import com.thaimei.myapp.error.ResourceNotFoundException;
 
 
@@ -52,8 +54,17 @@ public class UserService {
         User user = userRepository.findByEmail(email)
         .orElseThrow(()-> new ResourceNotFoundException("Seller doesn't exist"));
         return modelMapper.map(user, AdminUserDto.class);
-
     }
     
+    public void updateUserStatus(Long userId, UpdateUserStatus updateUserStatus) {
+        User user = userRepository.findById(userId) 
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.getRole() == RoleEnum.ADMIN) {
+            throw new AppException("Admin's Status cannot be updated", 403);
+        }
+        user.setStatus(updateUserStatus.getUserStatus());
+        userRepository.save(user);
+    }
     
 }

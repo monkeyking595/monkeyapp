@@ -1,5 +1,4 @@
 package com.thaimei.myapp.controller.sellers;
-import com.thaimei.myapp.dto.AddProductDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +11,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.thaimei.myapp.security.CustomUserDetails;
 import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.dto.ProductDto;
+import com.thaimei.myapp.dto.sellersDto.AddProductDto;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +44,18 @@ public class SellerProductsController {
         Pageable pageable = PageRequest.of(page, size);
         Slice <ProductDto> products = productService.getProductsForSeller(user, pageable);
         return ResponseEntity.ok(products);
+    }
+
+    // rest naming convention uses the resources not the verb (not action)
+    @DeleteMapping("/seller/Stores/{storeId}/productId")
+    // why uses both the @pathVariable and @RequestBody here? why not just use the @PathVariable to send the list of productIDs?
+    // technically you could use just the pathVariable to send a list of productIds but there are some nuance to it.
+    // URL length limits --> servers limit URLs to ~2048-8191 characters. If you have 100+ productIds you'll exceed the limit.
+    // REST convention --> pathVariables are for single indentifier (one store, one product). for bulk data, use the body.
+    // security --> URLs get logged everywhere. RequestBody data is private. Sensitive IDs in the body are safer.
+    public ResponseEntity<?> removeProducts (@PathVariable Long storeId, @RequestBody List<Long> productIds, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        productService.deleteProducts(storeId, productIds,userDetails.getId());
+        return ResponseEntity.ok(Map.of("message", "products deleted successfully"));
     }
     
 }

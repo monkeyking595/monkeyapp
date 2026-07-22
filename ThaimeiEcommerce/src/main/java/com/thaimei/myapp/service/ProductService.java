@@ -1,5 +1,6 @@
 package com.thaimei.myapp.service;
 import com.thaimei.myapp.dto.ProductDto;
+import com.thaimei.myapp.dto.sellersDto.AddProductDto;
 import  com.thaimei.myapp.model.ProductsModel;
 import java.util.List;
 import com.thaimei.myapp.repository.ProductsRepo;
@@ -7,13 +8,17 @@ import org.springframework.stereotype.Service;
 import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.model.StoreModel;
 import com.thaimei.myapp.repository.StoreRepo;
-import com.thaimei.myapp.dto.AddProductDto;
+import com.thaimei.myapp.repository.UserRepository;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
+
+import com.thaimei.myapp.error.AppException;
 import com.thaimei.myapp.error.ResourceNotFoundException;
 import org.springframework.lang.NonNull;
+
 
 
 
@@ -22,8 +27,10 @@ public class ProductService {
     private final ProductsRepo productsRepo;
     private final StoreRepo storeRepo;
     private final ModelMapper modelMapper;
-    public ProductService(ProductsRepo productsRepo, StoreRepo storeRepo, ModelMapper modelMapper) {
+    private final UserRepository userRepository;
+    public ProductService(ProductsRepo productsRepo,UserRepository userRepository, StoreRepo storeRepo, ModelMapper modelMapper) {
         this.productsRepo = productsRepo;
+        this.userRepository = userRepository;
         this.storeRepo = storeRepo;
         this.modelMapper = modelMapper;
     }
@@ -76,5 +83,22 @@ public class ProductService {
         product.setStoreModel(store);
         productsRepo.save(product);
     } 
+
+    public void deleteProducts (Long storeId, List<Long> productIds, Long userId) {
+        StoreModel store = storeRepo.findById(storeId)
+        .orElseThrow(() -> new ResourceNotFoundException("store not found"));
+
+        if(!store.getUser().getId().equals(userId)) {
+            throw new AppException("you don't own this store", 403);
+        }
+
+        List<ProductsModel> products = productsRepo.findAllById(productIds);
+        if(products.stream().anyMatch(p -> !p.getStoreModel().getStoreId().equals(storeId))) {
+            throw new AppException("some products don't belong to this store",403);
+        }
+
+        productsRepo.deleteAllById(productIds);
+
+    }
 
 }

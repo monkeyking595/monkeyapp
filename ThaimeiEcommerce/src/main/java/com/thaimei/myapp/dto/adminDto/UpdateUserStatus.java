@@ -13,6 +13,4 @@ public class UpdateUserStatus {
     // frontend sends the status and this accepts it.
     @NotNull(message  ="status cannot be empty")
     private UserStatus userStatus;
-
-    
 }

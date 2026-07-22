@@ -12,7 +12,4 @@ public class StripeConfig {
     public void init() {
         Stripe.apiKey=secretKey; //sets the api key with the secretKey we pulled from the application properties
     }
-
-
-    
 }

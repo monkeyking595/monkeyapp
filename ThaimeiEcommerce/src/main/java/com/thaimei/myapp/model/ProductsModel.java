@@ -17,6 +17,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint; 
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import com.thaimei.myapp.enums.ProductStatus;
 
 @Entity
 @Data
@@ -62,6 +63,10 @@ public class ProductsModel {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Size size;
+
+    @Enumerated (EnumType.STRING)
+    @Column(nullable = false)
+    private ProductStatus productStatus = ProductStatus.ACTIVE;
 }
 
 

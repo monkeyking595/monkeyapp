@@ -1,4 +1,4 @@
-package com.thaimei.myapp.dto;
+package com.thaimei.myapp.dto.sellersDto;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.NotBlank;

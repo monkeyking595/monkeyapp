@@ -28,20 +28,14 @@ public class AdminSideUserController {
         this.userService = userService;
     }
 
-    @GetMapping("/AllUsers")
-    public ResponseEntity<Slice<AdminUserDto>> getAllCustomer(@RequestParam (defaultValue ="0")int page, @RequestParam(defaultValue="20")int size, RoleEnum role) {
+    // this get will be used for both the customer and seller (generic), frontend sends the role.
+    @GetMapping("/customers/sellers")
+    public ResponseEntity<Slice<AdminUserDto>> getAllCustomer(@RequestParam (defaultValue ="0")int page, @RequestParam(defaultValue="20")int size, @RequestParam RoleEnum role) {
         Pageable pageable = PageRequest.of(page, size);
-        Slice<AdminUserDto> users = userService.getUserByRole(RoleEnum.CUSTOMER, pageable);
+        Slice<AdminUserDto> users = userService.getUserByRole(role, pageable);
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/getAllSellers")
-    public ResponseEntity<Slice<AdminUserDto>> allSellersForAdmin(@RequestParam(defaultValue ="0") int page, @RequestParam(defaultValue = "20") int size) {
-        //page always comes first in pageable
-        Pageable pageable = PageRequest.of(page, size);
-        Slice<AdminUserDto> users = userService.getUserByRole(RoleEnum.SELLER, pageable);
-        return ResponseEntity.ok(users);
-    }
 
     @GetMapping("/searchSellers")
     public ResponseEntity<AdminUserDto> searchSeller(@RequestParam String email) {

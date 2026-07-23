@@ -2,6 +2,9 @@ package com.thaimei.myapp.controller;
 
 import org.springframework.http.ResponseEntity;
 import  com.thaimei.myapp.dto.ProductDto;
+import com.thaimei.myapp.enums.ProductStatus;
+
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.thaimei.myapp.service.ProductService;
@@ -21,10 +24,11 @@ public class ProductListController {
         this.productService=productService;
     }
 
-    @GetMapping("/productsList")
+    @GetMapping("/productlist")
     public ResponseEntity<Slice<ProductDto>> getAllProducts(@RequestParam (defaultValue = "0")int page, @RequestParam ( defaultValue = "20")int size) {
         Pageable pageable = PageRequest.of(page, size,Sort.by("price").ascending().and (Sort.by("productId").ascending()));
-        Slice<ProductDto> products = productService.getProducts(pageable);
+        //the status here is hardcoded so every product the user is pulling should have an active status else the request will be  ignored.
+        Slice<ProductDto> products = productService.getProducts(pageable, ProductStatus.ACTIVE);
         return ResponseEntity.ok(products);
     }
     

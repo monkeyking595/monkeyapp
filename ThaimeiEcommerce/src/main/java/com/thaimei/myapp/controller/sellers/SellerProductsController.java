@@ -47,7 +47,7 @@ public class SellerProductsController {
     }
 
     // rest naming convention uses the resources not the verb (not action)
-    @DeleteMapping("/seller/Stores/{storeId}/productId")
+    @DeleteMapping("/Stores/{storeId}/productId")
     // why uses both the @pathVariable and @RequestBody here? why not just use the @PathVariable to send the list of productIDs?
     // technically you could use just the pathVariable to send a list of productIds but there are some nuance to it.
     // URL length limits --> servers limit URLs to ~2048-8191 characters. If you have 100+ productIds you'll exceed the limit.

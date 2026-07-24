@@ -1,8 +1,13 @@
 package com.thaimei.myapp.service;
+import com.stripe.param.issuing.AuthorizationCreateParams.MerchantData.Category;
 import com.thaimei.myapp.dto.ProductDto;
 import com.thaimei.myapp.dto.sellersDto.AddProductDto;
+import com.thaimei.myapp.enums.Color;
 import com.thaimei.myapp.enums.ProductStatus;
+import com.thaimei.myapp.enums.Size;
 import  com.thaimei.myapp.model.ProductsModel;
+
+import java.math.BigDecimal;
 import java.util.List;
 import com.thaimei.myapp.repository.ProductsRepo;
 import org.springframework.stereotype.Service;
@@ -12,6 +17,7 @@ import com.thaimei.myapp.repository.StoreRepo;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Pageable;
 
 
@@ -48,17 +54,16 @@ public class ProductService {
         .map(product -> modelMapper.map(product, ProductDto.class));
     }
 
-    public ProductDto getProductById(long id) {
+    public ProductDto getProductById(Long id) {
         ProductsModel product = productsRepo.findById(id)
-        .orElseThrow(()-> new RuntimeException("Product cannot be found"));
+        .orElseThrow(()-> new ResourceNotFoundException("Product cannot be found"));
 
         return modelMapper.map(product, ProductDto.class);
-
     }
     
     public void saveProducts(AddProductDto productDto, User user) {
         StoreModel store = storeRepo.findByStoreIdAndUser(productDto.getStoreId(), user)
-        .orElseThrow(() -> new IllegalArgumentException("Store not found for the given User"));
+        .orElseThrow(() -> new AppException("Store not found for the given User", 400));
         ProductsModel existing = productsRepo.findByStoreModelAndCategoryAndColorAndSize(store, productDto.getCategory(), productDto.getColor(), productDto.getSize());
 
         if (existing!=null) {
@@ -102,6 +107,16 @@ public class ProductService {
         //forEach() this is a method of List/Collection, it can be call on any iterable object, it loops through every element in the collection and runs whatever code you give it against each one.
         products.forEach(p-> p.setProductStatus(status));
         productsRepo.saveAll(products);
+    }
+
+    public Slice<ProductDto> searchProduct(String q, Color color, Size size, Category category, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+        Specification<ProductsModel> spec = Specification.unrestricted();
+
+        if(q!= null && !q.isBlank()) {
+            String likePattern = "%" + q.toLowerCase() + "%";
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), likePattern)); 
+        }
+        
     }
 
 }

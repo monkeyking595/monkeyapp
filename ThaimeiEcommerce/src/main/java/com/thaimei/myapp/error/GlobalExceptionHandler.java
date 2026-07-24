@@ -13,7 +13,7 @@ public class GlobalExceptionHandler  {
         return ResponseEntity.status(ex.getStatusCode())
         .body(Map.of("error",ex.getMessage()));
     } 
-    //handle unexpected errors (checked) used as a safety net 
+    //handle unexpected errors (safety net for everything which is not caught in the above handler) used as a safety net 
     @ExceptionHandler(Exception.class) 
     public ResponseEntity<?> genericExceptionHandler(Exception ex) {
         return ResponseEntity.status(500)

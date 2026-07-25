@@ -20,7 +20,7 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/payment")
+@RequestMapping("/cutomers")
 public class PaymentController {
     @Value("${stripe.webhook.secret}")
     private String webhookSecret;

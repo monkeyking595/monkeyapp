@@ -21,7 +21,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/Orders")
+@RequestMapping("/cutomers")
 public class OrderController {
     private final OrderService orderService;
     

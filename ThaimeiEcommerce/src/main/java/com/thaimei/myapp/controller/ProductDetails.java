@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/customers")
 public class ProductDetails {
     private final  ProductService productService;
     public ProductDetails(ProductService productService) {
@@ -35,7 +35,7 @@ public class ProductDetails {
         return ResponseEntity.ok(productDetail);
     }
 
-    @GetMapping("/search") 
+    @GetMapping("/products/search") 
     // required = false, an attribute of @RequestParameter which allow the request to be null/empty, by default it's required = true implicit.
     public ResponseEntity<Slice<ProductDto>> searchProducts(@RequestParam(required = false) String q,
         @RequestParam(required = false) Color color,

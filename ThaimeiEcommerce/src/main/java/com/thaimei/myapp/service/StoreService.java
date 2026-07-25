@@ -8,6 +8,8 @@ import com.thaimei.myapp.enums.StoreStatus;
 import java.util.List;
 import com.thaimei.myapp.dto.sellersDto.StoresDto;
 import org.modelmapper.ModelMapper;
+
+import com.thaimei.myapp.dto.UserStoreDto;
 import com.thaimei.myapp.dto.adminDto.AdminStoreApprovalDto;
 import com.thaimei.myapp.error.ResourceNotFoundException;
 import com.thaimei.myapp.dto.adminDto.AdminStoresDto;
@@ -65,5 +67,11 @@ public class StoreService {
         return stores.stream()
         .map(store -> modelMapper.map(store, AdminStoresDto.class))
         .toList();
+    }
+
+    public UserStoreDto findStoreByName(String storeName) {
+        StoreModel storeModel = storeRepo.findByStoreName(storeName)
+        .orElseThrow(() -> new ResourceNotFoundException("Store doesn't exist"));
+        return modelMapper.map(storeModel, UserStoreDto.class);
     }
 }

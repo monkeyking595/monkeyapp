@@ -17,7 +17,7 @@ import org.springframework.data.domain.Sort;
 
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/customers")
 public class ProductListController {
     private final ProductService productService;
     public ProductListController(ProductService productService) {

@@ -11,6 +11,7 @@ import java.util.List;
 public interface StoreRepo extends JpaRepository<StoreModel, Long> {
     List<StoreModel> findAllByUser(User user);
     Optional<StoreModel> findByStoreIdAndUser(Long id, User user);
+    Optional<StoreModel> findByStoreName(String storeName);
 }
     
 

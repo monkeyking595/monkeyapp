@@ -1,6 +1,7 @@
 package com.thaimei.myapp.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import com.thaimei.myapp.model.ProductsModel;
@@ -17,11 +18,11 @@ import org.springframework.data.domain.Slice;
 
 
 @Repository
-public interface ProductsRepo extends JpaRepository<ProductsModel, Long>  {
+public interface ProductsRepo extends JpaRepository<ProductsModel, Long>, JpaSpecificationExecutor<ProductsModel>  {
     List<ProductsModel> findByName(String name);
     ProductsModel  findByStoreModelAndCategoryAndColorAndSize(StoreModel store, Category category, Color color, Size size);
     Page <ProductsModel> findByStoreModelIn(List<StoreModel> stores, Pageable pageable); 
     //filters the products by it's status (the default is set to ACTIVE)  
     Slice <ProductsModel> findAllByProductStatus( ProductStatus status, Pageable pageable);
-    List<ProductsModel> findAllByIdInAndStoreModel_storeId(List<Long> productIds, Long storeId);
+    List<ProductsModel> findAllByProductIdInAndStoreModel_storeId(List<Long> productIds, Long storeId);
 }

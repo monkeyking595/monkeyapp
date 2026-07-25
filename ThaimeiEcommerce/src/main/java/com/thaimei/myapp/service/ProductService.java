@@ -73,7 +73,7 @@ public class ProductService {
         }
 
         ProductsModel product = new ProductsModel();
-        product.setName(productDto.getName());
+        product.setName(productDto.getName()); 
         product.setPrice(productDto.getPrice());
         product.setDescription(productDto.getDescription());
         product.setImageURL(productDto.getImageURL());
@@ -103,7 +103,7 @@ public class ProductService {
 
     //diabling the products, it's a bulk request which takes a list of ids.
     public void updateProductsStatus(Long storeId, List<Long> productIds, ProductStatus status) {
-        List<ProductsModel> products = productsRepo.findAllByIdInAndStoreModel_storeId(productIds, storeId);
+        List<ProductsModel> products = productsRepo.findAllByProductIdInAndStoreModel_storeId(productIds, storeId);
         //forEach() this is a method of List/Collection, it can be call on any iterable object, it loops through every element in the collection and runs whatever code you give it against each one.
         products.forEach(p-> p.setProductStatus(status));
         productsRepo.saveAll(products);
@@ -113,9 +113,39 @@ public class ProductService {
         Specification<ProductsModel> spec = Specification.unrestricted();
 
         if(q!= null && !q.isBlank()) {
+            // the String "q" is modified by adding the "%" which is a wildcard for SQL like operator, later it'll be used to interpreted by database when the query runs as SQL syntax.
             String likePattern = "%" + q.toLowerCase() + "%";
+            // "name", string will be used to look up the field name in the productsModel table.
+            // the lambda is the concrete implementation of Predicate interface
+            // cb, is what actually builds the Predicate object.
+            // this line doesn't query the DB yet but it'c a contruction, which will later be executed when the filter actually runs (findAll(spec)).
+            //cb.like, this takes two aruguments, works exactly like the "LIKE" operator in SQL.
             spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), likePattern)); 
         }
+        
+        if (color != null) {
+            spec = spec.and((root,query,cb) -> cb.equal(root.get("color"), color));
+        }
+
+        if (size != null) {
+            spec = spec.and((root,query,cb)-> cb.equal(root.get("size"), size));
+        }
+
+        if (category != null) {
+            spec = spec.and((root,query,cb)-> cb.equal(root.get("category"), category));
+        }
+
+        if (minPrice != null) {
+            spec = spec.and((root,query,cb)-> cb.greaterThanOrEqualTo(root.get("price"), minPrice));
+        }
+
+        if (maxPrice != null) {
+            spec = spec.and((root,query, cb)-> cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+        }
+
+        Slice<ProductsModel> results = productsRepo.findAll(spec, pageable);
+        return results.map(r -> modelMapper.map(r, ProductDto.class));
+
         
     }
 

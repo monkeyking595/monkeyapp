@@ -1,6 +1,6 @@
 package com.thaimei.myapp.enums;
 
-public enum IsOpen {
+public enum OpenCloseStore {
     OPEN,
     CLOSED
     

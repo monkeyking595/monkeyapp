@@ -17,6 +17,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.CascadeType;
 import com.thaimei.myapp.enums.StoreStatus;
 import java.util.List;
+import com.thaimei.myapp.enums.OpenCloseStore;
 
 
 @Entity
@@ -30,7 +31,7 @@ public class StoreModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long storeId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String storeName;
 
     @ManyToOne
@@ -53,4 +54,7 @@ public class StoreModel {
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
     private List<Orders> orders;
+
+    @Enumerated(EnumType.STRING)
+    private OpenCloseStore openCloseStore = OpenCloseStore.CLOSED;
 }

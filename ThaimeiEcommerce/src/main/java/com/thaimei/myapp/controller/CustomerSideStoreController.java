@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.thaimei.myapp.service.StoreService;
 import com.thaimei.myapp.dto.UserStoreDto;
 
+
 @RestController
 @RequestMapping("/customers")
 
@@ -21,6 +22,5 @@ public class CustomerSideStoreController {
     @GetMapping("/search/store")
     public ResponseEntity<UserStoreDto> searchStore(@RequestParam String storeName) {
         return ResponseEntity.ok(storeService.findStoreByName(storeName));
-    }
-    
+    }    
 }

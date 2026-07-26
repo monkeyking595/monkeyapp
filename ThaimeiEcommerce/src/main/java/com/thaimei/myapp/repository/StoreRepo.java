@@ -11,7 +11,10 @@ import java.util.List;
 public interface StoreRepo extends JpaRepository<StoreModel, Long> {
     List<StoreModel> findAllByUser(User user);
     Optional<StoreModel> findByStoreIdAndUser(Long id, User user);
-    Optional<StoreModel> findByStoreName(String storeName);
+    //IgnoreCase, this will makes the case insensitive
+    Optional<StoreModel> findByStoreNameIgnoreCase(String storeName);
+    // this method checks if the column already exists in the DB, it returns true or False.
+    boolean existsByStoreNameIgnoreCase(String storeName);
 }
     
 

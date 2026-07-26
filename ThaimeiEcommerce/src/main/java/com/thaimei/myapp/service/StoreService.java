@@ -1,9 +1,12 @@
 package com.thaimei.myapp.service;
 import org.springframework.stereotype.Service;
+
+import com.thaimei.myapp.dto.sellersDto.OpenStoreDto;
 import com.thaimei.myapp.dto.sellersDto.RegisterStoreDto;
 import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.repository.StoreRepo;
 import com.thaimei.myapp.model.StoreModel;
+import com.thaimei.myapp.enums.OpenCloseStore;
 import com.thaimei.myapp.enums.StoreStatus;
 import java.util.List;
 import com.thaimei.myapp.dto.sellersDto.StoresDto;
@@ -11,6 +14,7 @@ import org.modelmapper.ModelMapper;
 
 import com.thaimei.myapp.dto.UserStoreDto;
 import com.thaimei.myapp.dto.adminDto.AdminStoreApprovalDto;
+import com.thaimei.myapp.error.AppException;
 import com.thaimei.myapp.error.ResourceNotFoundException;
 import com.thaimei.myapp.dto.adminDto.AdminStoresDto;
 import com.thaimei.myapp.repository.UserRepository;
@@ -28,8 +32,14 @@ public class StoreService {
     }
 
     public void saveStore(RegisterStoreDto storeDto, User user) {
+        //the store name should be unique, if exists deny new creation of new store.
+        //trim the store name since it came from the frontend as raw string, excess space which is bad.
+        if (storeRepo.existsByStoreNameIgnoreCase(storeDto.getStoreName().trim())) {
+            throw new AppException("store already exists", 409);
+        }
+
         StoreModel store = new StoreModel();
-        store.setStoreName(storeDto.getStoreName());
+        store.setStoreName(storeDto.getStoreName().trim());
         store.setBusinessType(storeDto.getBusinessType());
         store.setStoreStatus(StoreStatus.PENDING);
         store.setLatitude(storeDto.getLatitude());
@@ -70,8 +80,22 @@ public class StoreService {
     }
 
     public UserStoreDto findStoreByName(String storeName) {
-        StoreModel storeModel = storeRepo.findByStoreName(storeName)
+        StoreModel store = storeRepo.findByStoreNameIgnoreCase(storeName.trim())
         .orElseThrow(() -> new ResourceNotFoundException("Store doesn't exist"));
-        return modelMapper.map(storeModel, UserStoreDto.class);
+
+        if(store.getOpenCloseStore() == OpenCloseStore.CLOSED) {
+            throw new AppException("store is closed, orders may be delayed",409 );
+        }
+        return modelMapper.map(store, UserStoreDto.class);
     }
+
+    public void openStore(OpenStoreDto openStoreDto, Long storeId, User user) {
+        
+        StoreModel store = storeRepo.findByStoreIdAndUser(storeId, user)
+        .orElseThrow(() -> new AppException("store not found or you don't own it", 403));
+
+        store.setOpenCloseStore(openStoreDto.getOpenCloseStore());
+        storeRepo.save(store);
+    }
+
 }

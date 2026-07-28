@@ -25,19 +25,30 @@ export default function OrdersPage() {
         </div>
         <PackageCheck size={30} />
       </div>
+
       {error && <ErrorBanner message={error} />}
       {loading && <LoadingBlock label="Loading orders" />}
       {!loading && !orders.length && <EmptyState title="No orders found" text="Completed orders from your backend will appear here." />}
+
       <section className="line-items">
-        {orders.map((order, index) => (
-          <article className="line-item" key={`${order.id}-${index}`}>
-            <div>
-              <h2>{order.productName}</h2>
-              <p>{order.status} · Qty {order.quantity}</p>
-            </div>
-            <strong>Rs. {Number(order.totalPrice).toFixed(2)}</strong>
-          </article>
-        ))}
+        {orders.map((order, index) => {
+          const title = order.productName || "Order";
+
+          return (
+            <article className="line-item" key={`${title}-${index}`}>
+              <div className="item-copy">
+                {order.imageURL && <img className="item-thumb" src={order.imageURL} alt={title} />}
+                <div>
+                  <h2>{title}</h2>
+                  <p>
+                    {order.status || "PENDING"} / Qty {order.quantity || 1}
+                  </p>
+                </div>
+              </div>
+              <strong>Rs. {Number(order.totalPrice || 0).toFixed(2)}</strong>
+            </article>
+          );
+        })}
       </section>
     </main>
   );

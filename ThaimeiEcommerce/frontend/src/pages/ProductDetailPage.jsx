@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Minus, Plus, ShoppingCart } from "lucide-react";
+import { ArrowLeft, CreditCard, Minus, Plus, ShoppingCart } from "lucide-react";
 import { api } from "../lib/api";
 import { ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 import { productImage } from "./ProductsPage";
@@ -10,6 +10,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [busyAction, setBusyAction] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -25,14 +26,38 @@ export default function ProductDetailPage() {
 
   async function add() {
     if (!product) return;
+    setError("");
     setNotice("");
+    setBusyAction("cart");
+
     try {
       await api.addToCart(product.productId, quantity);
       setNotice("Added to cart.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not add item");
+    } finally {
+      setBusyAction("");
     }
   }
+
+  async function buyNow() {
+    if (!product) return;
+    setError("");
+    setNotice("");
+    setBusyAction("buy");
+
+    try {
+      await api.buyNow(product.productId, quantity);
+      setNotice("Order request sent.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Order could not be placed");
+    } finally {
+      setBusyAction("");
+    }
+  }
+
+  const maxQuantity = Math.max(1, Number(product?.quantity || 1));
+  const isUnavailable = Number(product?.quantity || 0) < 1;
 
   return (
     <main className="page detail-page">
@@ -56,14 +81,20 @@ export default function ProductDetailPage() {
                 <Minus size={17} />
               </button>
               <span>{quantity}</span>
-              <button type="button" onClick={() => setQuantity(quantity + 1)} title="Increase">
+              <button type="button" onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))} title="Increase">
                 <Plus size={17} />
               </button>
             </div>
-            <button className="button" type="button" onClick={add}>
-              <ShoppingCart size={18} />
-              Add to cart
-            </button>
+            <div className="button-row">
+              <button className="button" type="button" onClick={add} disabled={isUnavailable || busyAction === "cart"}>
+                <ShoppingCart size={18} />
+                {busyAction === "cart" ? "Adding..." : "Add to cart"}
+              </button>
+              <button className="button secondary" type="button" onClick={buyNow} disabled={isUnavailable || busyAction === "buy"}>
+                <CreditCard size={18} />
+                {busyAction === "buy" ? "Placing..." : "Buy now"}
+              </button>
+            </div>
           </div>
         </section>
       )}

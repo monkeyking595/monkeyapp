@@ -1,41 +1,82 @@
 import { useEffect, useMemo, useState } from "react";
-import { CreditCard } from "lucide-react";
+import { CreditCard, RefreshCw } from "lucide-react";
 import { api } from "../lib/api";
 import { EmptyState, ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 
 export default function CartPage() {
   const [cart, setCart] = useState(null);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const total = useMemo(() => cart?.items.reduce((sum, item) => sum + Number(item.totalPrice || 0), 0) ?? 0, [cart]);
+  const items = useMemo(() => {
+    const productMatches = products.reduce((matches, product) => {
+      const keys = [
+        product.name,
+        `${product.name}|${product.price}`,
+        `${product.name}|${product.price}|${product.imageURL || ""}`
+      ];
+
+      keys.forEach((key) => {
+        if (key && !matches.has(key)) {
+          matches.set(key, product);
+        }
+      });
+
+      return matches;
+    }, new Map());
+
+    return (cart?.items ?? []).map((item) => {
+      const product =
+        productMatches.get(`${item.productName}|${item.price}|${item.imageURL || ""}`) ||
+        productMatches.get(`${item.productName}|${item.price}`) ||
+        productMatches.get(item.productName);
+
+      return { ...item, productId: item.productId || product?.productId };
+    });
+  }, [cart, products]);
+  const total = useMemo(() => items.reduce((sum, item) => sum + Number(item.totalPrice || 0), 0), [items]);
 
   useEffect(() => {
-    api
-      .cart()
-      .then(setCart)
-      .catch((err) => setError(err instanceof Error ? err.message : "Cart could not load"))
-      .finally(() => setLoading(false));
+    loadCart();
   }, []);
 
+  async function loadCart() {
+    setError("");
+    setLoading(true);
+
+    Promise.all([api.cart(), api.products(0, 100)])
+      .then(([nextCart, nextProducts]) => {
+        setCart(nextCart);
+        setProducts(nextProducts);
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : "Cart could not load"))
+      .finally(() => setLoading(false));
+  }
+
   async function placeOrders() {
-    if (!cart?.items.length) return;
+    if (!items.length) return;
     setError("");
     setNotice("");
+    setCheckoutBusy(true);
+
+    const orderItems = items.filter((item) => item.productId);
+
+    if (orderItems.length !== items.length) {
+      setError("Some cart products could not be matched for checkout.");
+      setCheckoutBusy(false);
+      return;
+    }
+
     try {
-      for (const item of cart.items) {
-        await api.placeOrder({
-          id: item.productId,
-          productName: item.productName,
-          quantity: item.quantity,
-          status: "PLACED",
-          totalPrice: Number(item.totalPrice),
-          imageURL: item.imageURL || ""
-        });
-      }
+      await api.checkoutCart(orderItems);
       setNotice("Order request sent.");
+      await loadCart();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Order could not be placed");
+    } finally {
+      setCheckoutBusy(false);
     }
   }
 
@@ -46,22 +87,30 @@ export default function CartPage() {
           <span className="pill">Checkout</span>
           <h1>Your cart</h1>
         </div>
-        <strong className="price">Rs. {total.toFixed(2)}</strong>
+        <div className="heading-actions">
+          <strong className="price">Rs. {total.toFixed(2)}</strong>
+          <button className="icon-button" type="button" onClick={loadCart} title="Refresh cart">
+            <RefreshCw size={18} />
+          </button>
+        </div>
       </div>
 
       {error && <ErrorBanner message={error} />}
       {notice && <div className="banner success">{notice}</div>}
       {loading && <LoadingBlock label="Loading cart" />}
-      {!loading && !cart?.items?.length && <EmptyState title="Cart is empty" text="Add a product and it will show up here." />}
+      {!loading && !items.length && <EmptyState title="Cart is empty" text="Add a product and it will show up here." />}
 
-      {!!cart?.items?.length && (
+      {!!items.length && (
         <section className="split-layout">
           <div className="line-items">
-            {cart.items.map((item) => (
-              <article className="line-item" key={item.productId}>
-                <div>
-                  <h2>{item.productName}</h2>
-                  <p>Qty {item.quantity} x Rs. {Number(item.price).toFixed(2)}</p>
+            {items.map((item, index) => (
+              <article className="line-item" key={item.itemId || `${item.productName}-${index}`}>
+                <div className="item-copy">
+                  {item.imageURL && <img className="item-thumb" src={item.imageURL} alt={item.productName} />}
+                  <div>
+                    <h2>{item.productName}</h2>
+                    <p>Qty {item.quantity} x Rs. {Number(item.price).toFixed(2)}</p>
+                  </div>
                 </div>
                 <strong>Rs. {Number(item.totalPrice).toFixed(2)}</strong>
               </article>
@@ -69,14 +118,14 @@ export default function CartPage() {
           </div>
           <aside className="summary-panel">
             <h2>Summary</h2>
-            <p>{cart.items.length} items ready for checkout.</p>
+            <p>{items.length} items ready for checkout.</p>
             <div className="summary-row">
               <span>Total</span>
               <strong>Rs. {total.toFixed(2)}</strong>
             </div>
-            <button className="button" type="button" onClick={placeOrders}>
+            <button className="button" type="button" onClick={placeOrders} disabled={checkoutBusy}>
               <CreditCard size={18} />
-              Place order
+              {checkoutBusy ? "Placing..." : "Place order"}
             </button>
           </aside>
         </section>

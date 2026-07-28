@@ -1,9 +1,12 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LogOut, Package, Search, ShieldPlus, ShoppingBag, ShoppingCart, Store, UserRound, UsersRound } from "lucide-react";
-import { clearSession } from "../lib/api";
+import { LogOut, Package, ShieldPlus, ShoppingBag, ShoppingCart, Store, UserRound, UsersRound } from "lucide-react";
+import { clearSession, hasRole, ROLES } from "../lib/api";
 
 export default function AppShell({ session, onLogout }) {
   const navigate = useNavigate();
+  const isAdmin = hasRole(session, ROLES.ADMIN);
+  const isSeller = hasRole(session, ROLES.SELLER);
+  const isCustomer = !session || hasRole(session, ROLES.CUSTOMER);
 
   function logout() {
     clearSession();
@@ -22,35 +25,36 @@ export default function AppShell({ session, onLogout }) {
           </span>
         </Link>
 
-        <label className="search">
-          <Search size={18} />
-          <input placeholder="Search shirts, essentials, new drops" />
-        </label>
-
         <nav className="nav">
-          <NavLink to="/products">
-            <ShoppingBag size={18} />
-            Products
-          </NavLink>
-          <NavLink to="/cart">
-            <ShoppingCart size={18} />
-            Cart
-          </NavLink>
-          <NavLink to="/orders">
-            <Package size={18} />
-            Orders
-          </NavLink>
-          <NavLink to="/profile">
-            <UserRound size={18} />
-            Profile
-          </NavLink>
-          {session?.isSeller && (
+          {isCustomer && (
+            <>
+              <NavLink to="/products">
+                <ShoppingBag size={18} />
+                Products
+              </NavLink>
+              <NavLink to="/cart">
+                <ShoppingCart size={18} />
+                Cart
+              </NavLink>
+              <NavLink to="/orders">
+                <Package size={18} />
+                Orders
+              </NavLink>
+            </>
+          )}
+          {session && !isAdmin && (
+            <NavLink to="/profile">
+              <UserRound size={18} />
+              Profile
+            </NavLink>
+          )}
+          {isSeller && (
             <NavLink to="/seller">
               <Store size={18} />
               Seller
             </NavLink>
           )}
-          {session?.isAdmin && (
+          {isAdmin && (
             <>
               <NavLink to="/admin">
                 <UsersRound size={18} />

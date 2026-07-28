@@ -5,12 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.thaimei.myapp.dto.sellersDto.SellersLoginDto;
+import com.thaimei.myapp.error.AppException;
+
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import com.thaimei.myapp.security.CustomUserDetails;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.thaimei.myapp.security.JwtUtil;
 import com.thaimei.myapp.dto.JwtResponse;
 
@@ -29,14 +31,26 @@ public class SellerLoginController {
     
     @PostMapping("/sellerLogin")
     public ResponseEntity<JwtResponse> sellerLoginPost(@Valid @RequestBody SellersLoginDto sellersLoginDto ) {
-        Authentication authentication = authenticationManager.authenticate( new UsernamePasswordAuthenticationToken(sellersLoginDto.getSellersName(),
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate( new UsernamePasswordAuthenticationToken(sellersLoginDto.getSellersName(),
          sellersLoginDto.getSellersPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+        catch (AuthenticationException e) {
+            throw new AppException("Invalid username or password", 401);
+        }
+
+        boolean iSeller = authentication.getAuthorities().stream()
+        .anyMatch(s -> s.getAuthority().equals("ROLE_SELLER"));
+
+        if(!iSeller) {
+            throw new AppException("Acess denied", 403);
+        }
+
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
         String token = jwtUtil.generateToken(String.valueOf(userId), 3600000L);
         return ResponseEntity.ok(new JwtResponse(token, sellersLoginDto.getSellersName()));
-
     }
     
 }

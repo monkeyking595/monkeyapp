@@ -1,10 +1,16 @@
 const SESSION_KEY = "thaimei.session";
 
+export const ROLES = {
+  CUSTOMER: "CUSTOMER",
+  SELLER: "SELLER",
+  ADMIN: "ADMIN"
+};
+
 export function loadSession() {
   const raw = localStorage.getItem(SESSION_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw);
+    return normalizeSession(JSON.parse(raw));
   } catch {
     localStorage.removeItem(SESSION_KEY);
     return null;
@@ -12,11 +18,52 @@ export function loadSession() {
 }
 
 export function saveSession(session) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  localStorage.setItem(SESSION_KEY, JSON.stringify(normalizeSession(session)));
 }
 
 export function clearSession() {
   localStorage.removeItem(SESSION_KEY);
+}
+
+export function sessionRole(session) {
+  return normalizeRole(session?.role || session?.userRole || session?.authorities);
+}
+
+export function hasRole(session, role) {
+  return sessionRole(session) === role;
+}
+
+export function landingPath(session) {
+  const role = sessionRole(session);
+  if (role === ROLES.ADMIN) return "/admin";
+  if (role === ROLES.SELLER) return "/seller";
+  return "/products";
+}
+
+function normalizeSession(session) {
+  if (!session) return null;
+
+  const role =
+    normalizeRole(session.role || session.userRole || session.authorities) ||
+    (session.isAdmin ? ROLES.ADMIN : session.isSeller ? ROLES.SELLER : ROLES.CUSTOMER);
+
+  return {
+    ...session,
+    role,
+    isAdmin: role === ROLES.ADMIN,
+    isSeller: role === ROLES.SELLER
+  };
+}
+
+function normalizeRole(value) {
+  if (Array.isArray(value)) {
+    return value.map(normalizeRole).find(Boolean) || "";
+  }
+
+  if (!value) return "";
+
+  const normalized = String(value).replace(/^ROLE_/, "").toUpperCase();
+  return Object.values(ROLES).includes(normalized) ? normalized : "";
 }
 
 async function request(path, options = {}) {
@@ -36,14 +83,91 @@ async function request(path, options = {}) {
   const body = text ? tryParseJson(text) : null;
 
   if (!response.ok) {
-    const message =
-      typeof body === "object" && body && "error" in body
-        ? String(body.error)
-        : text || `Request failed with ${response.status}`;
-    throw new Error(message);
+    throw new Error(extractErrorMessage(body, text, response.status));
   }
 
   return body;
+}
+
+function extractErrorMessage(body, text, status) {
+  if (typeof body === "string" && body.trim()) {
+    return body;
+  }
+
+  if (body && typeof body === "object") {
+    const validationMessage = extractValidationMessage(body);
+    if (validationMessage) {
+      return validationMessage;
+    }
+
+    const error = stringValue(body.error);
+    const message = stringValue(body.message);
+    const detail = stringValue(body.detail);
+
+    if (message && (!error || isGenericHttpError(error))) {
+      return message;
+    }
+
+    if (error) {
+      return error;
+    }
+
+    if (message) {
+      return message;
+    }
+
+    if (detail) {
+      return detail;
+    }
+  }
+
+  return text || `Request failed with ${status}`;
+}
+
+function extractValidationMessage(body) {
+  const errors = body.errors || body.fieldErrors || body.validationErrors;
+
+  if (Array.isArray(errors)) {
+    return errors
+      .map((error) => {
+        if (typeof error === "string") return error;
+        if (!error || typeof error !== "object") return "";
+
+        const field = stringValue(error.field || error.property || error.name);
+        const message = stringValue(error.defaultMessage || error.message || error.error || error.reason);
+        return field && message ? `${field}: ${message}` : message;
+      })
+      .filter(Boolean)
+      .join("; ");
+  }
+
+  if (errors && typeof errors === "object") {
+    return Object.entries(errors)
+      .map(([field, value]) => {
+        const message = Array.isArray(value) ? value.filter(Boolean).join(", ") : stringValue(value);
+        return message ? `${field}: ${message}` : "";
+      })
+      .filter(Boolean)
+      .join("; ");
+  }
+
+  return "";
+}
+
+function stringValue(value) {
+  return typeof value === "string" && value.trim() ? value : "";
+}
+
+function isGenericHttpError(error) {
+  return [
+    "Bad Request",
+    "Unauthorized",
+    "Forbidden",
+    "Not Found",
+    "Conflict",
+    "Internal Server Error",
+    "Method Not Allowed"
+  ].includes(error);
 }
 
 function tryParseJson(text) {
@@ -74,11 +198,29 @@ function slicePayload(data) {
   };
 }
 
-function adminList(path, page = 0, size = 20) {
+function contentPayload(data) {
+  return slicePayload(data).content;
+}
+
+function pagedPath(path, page = 0, size = 20, extra = {}) {
+  const query = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+    ...extra
+  });
+
+  return `${path}?${query}`;
+}
+
+function adminList(path, page = 0, size = 20, role) {
   const query = new URLSearchParams({
     page: String(page),
     size: String(size)
   });
+
+  if (role) {
+    query.set("role", role);
+  }
 
   return request(`${path}?${query}`).then(slicePayload);
 }
@@ -90,7 +232,7 @@ export const api = {
       auth: false,
       body: JSON.stringify({ username, password })
     });
-    const session = { ...data, isAdmin: false };
+    const session = { ...data, role: ROLES.CUSTOMER };
     saveSession(session);
     return session;
   },
@@ -101,7 +243,7 @@ export const api = {
       auth: false,
       body: JSON.stringify({ username, email, password, confirmpassword })
     });
-    const session = { ...data, isAdmin: false };
+    const session = { ...data, role: ROLES.CUSTOMER };
     saveSession(session);
     return session;
   },
@@ -112,7 +254,7 @@ export const api = {
       auth: false,
       body: JSON.stringify({ adminUsername, adminPassword })
     });
-    const session = { ...data, isAdmin: true };
+    const session = { ...data, role: ROLES.ADMIN };
     saveSession(session);
     return session;
   },
@@ -123,7 +265,7 @@ export const api = {
       auth: false,
       body: JSON.stringify({ sellersName, sellersPassword })
     });
-    const session = { ...data, isAdmin: false, isSeller: true };
+    const session = { ...data, role: ROLES.SELLER };
     saveSession(session);
     return session;
   },
@@ -134,7 +276,7 @@ export const api = {
       auth: false,
       body: JSON.stringify({ username, email, password, confirmpassword })
     });
-    const session = { ...data, isAdmin: false, isSeller: true };
+    const session = { ...data, role: ROLES.SELLER };
     saveSession(session);
     return session;
   },
@@ -142,22 +284,40 @@ export const api = {
   adminRegister: (adminname, adminemail, adminpassword, adminconfirmpassword) =>
     request("/admin/api/register", {
       method: "POST",
-      body: JSON.stringify({ adminname, adminemail, adminpassword, adminconfirmpassword })
+      body: JSON.stringify({
+        username: adminname,
+        email: adminemail,
+        password: adminpassword,
+        confirmpassword: adminconfirmpassword
+      })
     }),
 
-  products: () => request("/products/productsList"),
-  product: (id) => request(`/Products/productDetails/${id}`),
+  productsSlice: (page = 0, size = 20) => request(pagedPath("/customers/productlist", page, size)),
+  products: (page = 0, size = 20) => api.productsSlice(page, size).then(contentPayload),
+  product: (id) => request(`/customers/details/${id}`),
   cart: () => request("/Cart/getItems"),
   addToCart: (productId, quantity) =>
     request("/Cart/AddItems", {
       method: "POST",
       body: JSON.stringify({ productId, quantity })
     }),
-  orders: () => request("/Orders/GetOrder"),
-  placeOrder: (order) =>
-    request("/Orders/PlaceOrder", {
+  orders: () => request("/cutomers/GetOrder"),
+  checkoutCart: (items) =>
+    request("/cutomers/CartCheckout", {
       method: "POST",
-      body: JSON.stringify(order)
+      body: JSON.stringify({
+        orderItems: items.map(({ productId, quantity }) => ({
+          productId: Number(productId),
+          quantity: Number(quantity)
+        }))
+      })
+    }),
+  buyNow: (productId, quantity = 1) =>
+    request("/cutomers/buyNowCheckout", {
+      method: "POST",
+      body: JSON.stringify({
+        orderItems: [{ productId: Number(productId), quantity: Number(quantity) }]
+      })
     }),
   profile: () => request("/customers/profile-info"),
   saveProfile: (profile) =>
@@ -165,8 +325,24 @@ export const api = {
       method: "POST",
       body: JSON.stringify(profile)
     }),
-  adminUsers: (page = 0, size = 20) => adminList("/admin/api/AllUsers", page, size),
-  adminSellers: (page = 0, size = 20) => adminList("/admin/api/getAllSellers", page, size),
+  adminUsers: (page = 0, size = 20) => adminList("/admin/api/customers/sellers", page, size, ROLES.CUSTOMER),
+  adminSellers: (page = 0, size = 20) => adminList("/admin/api/customers/sellers", page, size, ROLES.SELLER),
+  adminOrders: (page = 0, size = 20) => request(pagedPath("/admin/api/adminOrders", page, size)).then(slicePayload),
+  adminSellerOrders: (sellerId, page = 0, size = 20) =>
+    request(pagedPath(`/admin/api/sellerOrdersForAdmin/${sellerId}`, page, size)).then(slicePayload),
+  adminSellerStores: (sellerId) => request(`/admin/api/getAllStoresBySeller/${sellerId}`),
+  adminSellerProducts: (sellerId, page = 0, size = 20) =>
+    request(pagedPath(`/admin/api/seller/${sellerId}`, page, size)).then(slicePayload),
+  approveStore: (storeId, status) =>
+    request(`/admin/api/approveStores/${storeId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status })
+    }),
+  updateProductStatus: (storeId, productIds, status) =>
+    request(`/admin/api/store/${storeId}/products?${new URLSearchParams({ status })}`, {
+      method: "PATCH",
+      body: JSON.stringify(productIds.map(Number))
+    }),
   updateUserStatus: (userId, userStatus) =>
     request(`/admin/api/updateUserStatus/${userId}`, {
       method: "PATCH",
@@ -178,13 +354,20 @@ export const api = {
       method: "POST",
       body: JSON.stringify(store)
     }),
-  sellerProducts: () => request("/sellers/getProducts"),
+  openSellerStore: (storeId, openCloseStore) =>
+    request(`/sellers/openStore/${storeId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ openCloseStore })
+    }),
+  sellerProductsSlice: (page = 0, size = 20) => request(pagedPath("/sellers/getProducts", page, size)),
+  sellerProducts: (page = 0, size = 20) => api.sellerProductsSlice(page, size).then(contentPayload),
   addSellerProduct: (product) =>
     request("/sellers/addProducts", {
       method: "POST",
       body: JSON.stringify({
         ...product,
         storeId: Number(product.storeId),
+        price: Number(product.price),
         quantity: Number(product.quantity)
       })
     })

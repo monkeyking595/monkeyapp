@@ -31,6 +31,8 @@ public class CustomUserDetails implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        //simpleGrantedAuthority, this represents one Role each 
+        // why list here? because that's how the method is built to do, it can hold multiple role, one user = multiple role, not in my case.
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
 

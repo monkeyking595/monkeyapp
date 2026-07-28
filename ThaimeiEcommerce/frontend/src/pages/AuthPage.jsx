@@ -1,8 +1,46 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LockKeyhole, ShieldCheck, Store, UserPlus } from "lucide-react";
-import { api } from "../lib/api";
+import { api, landingPath } from "../lib/api";
 import { ErrorBanner } from "../components/StateBlocks";
+
+const authCopy = {
+  login: {
+    pill: "Customer access",
+    title: "Welcome back",
+    subtitle: "Sign in to browse products, manage your cart, and track orders.",
+    heading: "Customer sign in",
+    icon: LockKeyhole
+  },
+  signup: {
+    pill: "Customer access",
+    title: "Create your shopping account",
+    subtitle: "Start a customer account for storefront, checkout, and profile flows.",
+    heading: "Customer sign up",
+    icon: UserPlus
+  },
+  admin: {
+    pill: "Admin access",
+    title: "Control the store",
+    subtitle: "Use an admin account to manage users, sellers, stores, products, and orders.",
+    heading: "Admin sign in",
+    icon: ShieldCheck
+  },
+  seller: {
+    pill: "Seller workspace",
+    title: "Manage your stores",
+    subtitle: "Use a seller account to register stores, publish products, and review inventory.",
+    heading: "Seller sign in",
+    icon: Store
+  },
+  "seller-signup": {
+    pill: "Seller workspace",
+    title: "Create your seller account",
+    subtitle: "Create a seller account before registering stores and products.",
+    heading: "Seller sign up",
+    icon: UserPlus
+  }
+};
 
 export default function AuthPage({ mode, onSession }) {
   const [form, setForm] = useState({
@@ -19,6 +57,8 @@ export default function AuthPage({ mode, onSession }) {
   const isSeller = mode === "seller";
   const isSellerSignup = mode === "seller-signup";
   const isRegistration = isSignup || isSellerSignup;
+  const copy = authCopy[mode] || authCopy.login;
+  const Icon = copy.icon;
 
   async function submit(event) {
     event.preventDefault();
@@ -35,7 +75,7 @@ export default function AuthPage({ mode, onSession }) {
           ? await api.adminLogin(form.username, form.password)
           : await api.login(form.username, form.password);
       onSession(session);
-      navigate(isAdmin ? "/admin" : session.isSeller ? "/seller" : "/products");
+      navigate(landingPath(session));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not sign in");
     } finally {
@@ -47,29 +87,16 @@ export default function AuthPage({ mode, onSession }) {
     <main className="auth-page">
       <section className="auth-visual">
         <div>
-          <span className="pill">{isAdmin ? "Admin access" : isSeller || isSellerSignup ? "Seller workspace" : "Thaimei storefront"}</span>
-          <h1>
-            {isRegistration
-              ? isSellerSignup
-                ? "Create your seller account"
-                : "Create your shopping account"
-              : isAdmin
-                ? "Control the store"
-                : isSeller
-                  ? "Manage your stores"
-                  : "Welcome back"}
-          </h1>
-          <p>
-            Browse the latest products, keep your cart ready, manage profile details, and track orders from one clean
-            workspace.
-          </p>
+          <span className="pill">{copy.pill}</span>
+          <h1>{copy.title}</h1>
+          <p>{copy.subtitle}</p>
         </div>
       </section>
 
       <section className="auth-panel">
         <div className="auth-card">
-          {isRegistration ? <UserPlus size={26} /> : isAdmin ? <ShieldCheck size={26} /> : isSeller ? <Store size={26} /> : <LockKeyhole size={26} />}
-          <h2>{isRegistration ? "Sign up" : isAdmin ? "Admin sign in" : isSeller ? "Seller sign in" : "Sign in"}</h2>
+          <Icon size={26} />
+          <h2>{copy.heading}</h2>
           {error && <ErrorBanner message={error} />}
           <form onSubmit={submit}>
             <label>

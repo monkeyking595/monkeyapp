@@ -1,5 +1,4 @@
 package com.thaimei.myapp.service;
-import com.stripe.param.issuing.AuthorizationCreateParams.MerchantData.Category;
 import com.thaimei.myapp.dto.ProductDto;
 import com.thaimei.myapp.dto.sellersDto.AddProductDto;
 import com.thaimei.myapp.enums.Color;
@@ -19,7 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Pageable;
-
+import com.thaimei.myapp.enums.Category;
 
 import com.thaimei.myapp.error.AppException;
 import com.thaimei.myapp.error.ResourceNotFoundException;

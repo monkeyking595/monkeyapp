@@ -370,5 +370,10 @@ export const api = {
         price: Number(product.price),
         quantity: Number(product.quantity)
       })
+    }),
+  deleteSellerProducts: (storeId, productIds) =>
+    request(`/sellers/Stores/${storeId}/productId`, {
+      method: "DELETE",
+      body: JSON.stringify(productIds.map(Number))
     })
 };

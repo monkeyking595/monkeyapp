@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Boxes, PackagePlus, RefreshCw, Store } from "lucide-react";
+import { Boxes, PackagePlus, Power, RefreshCw, Store, Trash2 } from "lucide-react";
 import { api } from "../lib/api";
 import { EmptyState, ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 
@@ -27,8 +27,20 @@ const initialProductForm = {
   size: "M"
 };
 
-function label(value) {
-  return value.replaceAll("_", " ");
+function label(value = "") {
+  return String(value || "").replaceAll("_", " ");
+}
+
+function productId(product) {
+  return product?.productId ?? product?.id;
+}
+
+function productStoreId(product) {
+  return product?.storeId ?? product?.store?.storeId ?? product?.storeModel?.storeId;
+}
+
+function productStatus(product) {
+  return product?.status || product?.productStatus || "ACTIVE";
 }
 
 export default function SellerDashboardPage() {
@@ -36,9 +48,13 @@ export default function SellerDashboardPage() {
   const [products, setProducts] = useState([]);
   const [storeForm, setStoreForm] = useState(initialStoreForm);
   const [productForm, setProductForm] = useState(initialProductForm);
+  const [manageStoreId, setManageStoreId] = useState("");
+  const [selectedProductIds, setSelectedProductIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busyStore, setBusyStore] = useState(false);
   const [busyProduct, setBusyProduct] = useState(false);
+  const [busyDelete, setBusyDelete] = useState(false);
+  const [busyStoreStatusId, setBusyStoreStatusId] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -46,16 +62,33 @@ export default function SellerDashboardPage() {
     loadSellerData();
   }, []);
 
-  useEffect(() => {
-    if (!productForm.storeId && stores.length) {
-      setProductForm((current) => ({ ...current, storeId: String(stores[0].storeId) }));
-    }
-  }, [productForm.storeId, stores]);
-
   const selectedStore = useMemo(
     () => stores.find((store) => String(store.storeId) === String(productForm.storeId)),
     [productForm.storeId, stores]
   );
+
+  const visibleProducts = useMemo(() => {
+    if (!manageStoreId) return products;
+
+    const productsWithStore = products.filter((product) => productStoreId(product));
+    if (!productsWithStore.length) return products;
+
+    return products.filter((product) => String(productStoreId(product)) === String(manageStoreId));
+  }, [manageStoreId, products]);
+
+  useEffect(() => {
+    const firstStoreId = stores[0]?.storeId ? String(stores[0].storeId) : "";
+
+    if (!stores.length) {
+      setProductForm((current) => ({ ...current, storeId: "" }));
+      setManageStoreId("");
+      setSelectedProductIds([]);
+      return;
+    }
+
+    setProductForm((current) => (current.storeId ? current : { ...current, storeId: firstStoreId }));
+    setManageStoreId((current) => current || firstStoreId);
+  }, [stores]);
 
   async function loadSellerData() {
     setError("");
@@ -119,6 +152,62 @@ export default function SellerDashboardPage() {
       setError(err instanceof Error ? err.message : "Product could not be saved");
     } finally {
       setBusyProduct(false);
+    }
+  }
+
+  async function toggleStoreOpenState(store) {
+    const nextStatus = store.openCloseStore === "OPEN" ? "CLOSED" : "OPEN";
+
+    setError("");
+    setNotice("");
+    setBusyStoreStatusId(store.storeId);
+
+    try {
+      await api.openSellerStore(store.storeId, nextStatus);
+      setStores((current) =>
+        current.map((item) => (item.storeId === store.storeId ? { ...item, openCloseStore: nextStatus } : item))
+      );
+      setNotice(`${store.storeName} is now ${label(nextStatus).toLowerCase()}.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Store status could not be updated");
+    } finally {
+      setBusyStoreStatusId(null);
+    }
+  }
+
+  function toggleProductSelection(id) {
+    if (id === null || id === undefined) return;
+
+    setSelectedProductIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
+    );
+  }
+
+  async function deleteSelectedProducts() {
+    if (!manageStoreId) {
+      setError("Select a store before deleting products.");
+      return;
+    }
+
+    if (!selectedProductIds.length) {
+      setError("Select at least one product to delete.");
+      return;
+    }
+
+    setError("");
+    setNotice("");
+    setBusyDelete(true);
+
+    try {
+      await api.deleteSellerProducts(manageStoreId, selectedProductIds);
+      const count = selectedProductIds.length;
+      setSelectedProductIds([]);
+      setNotice(`Deleted ${count} product${count === 1 ? "" : "s"}.`);
+      await loadSellerData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Products could not be deleted");
+    } finally {
+      setBusyDelete(false);
     }
   }
 
@@ -306,13 +395,30 @@ export default function SellerDashboardPage() {
               {!stores.length ? (
                 <EmptyState title="No stores yet" text="Registered stores will appear here." />
               ) : (
-                <div className="store-list">
-                  {stores.map((store) => (
-                    <span className="store-chip" key={store.storeId}>
-                      {store.storeName}
-                      <small>#{store.storeId}</small>
-                    </span>
-                  ))}
+                <div className="store-manage-list">
+                  {stores.map((store) => {
+                    const openCloseStore = store.openCloseStore || "CLOSED";
+                    const nextStatus = openCloseStore === "OPEN" ? "CLOSED" : "OPEN";
+
+                    return (
+                      <article className="store-manage-row" key={store.storeId}>
+                        <div>
+                          <strong>{store.storeName}</strong>
+                          <small>#{store.storeId}</small>
+                        </div>
+                        <button
+                          className="button compact"
+                          type="button"
+                          disabled={busyStoreStatusId === store.storeId}
+                          onClick={() => toggleStoreOpenState(store)}
+                          title={`Mark store ${nextStatus.toLowerCase()}`}
+                        >
+                          <Power size={17} />
+                          {label(openCloseStore)}
+                        </button>
+                      </article>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -324,31 +430,81 @@ export default function SellerDashboardPage() {
                   <h2>Products</h2>
                 </div>
               </div>
-              {!products.length ? (
+              <div className="seller-product-tools">
+                <label>
+                  Store
+                  <select
+                    value={manageStoreId}
+                    onChange={(event) => {
+                      setManageStoreId(event.target.value);
+                      setSelectedProductIds([]);
+                    }}
+                    disabled={!stores.length}
+                  >
+                    {!stores.length && <option value="">No stores</option>}
+                    {stores.map((store) => (
+                      <option key={store.storeId} value={store.storeId}>
+                        {store.storeName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  className="button compact danger"
+                  type="button"
+                  onClick={deleteSelectedProducts}
+                  disabled={busyDelete || !selectedProductIds.length}
+                >
+                  <Trash2 size={17} />
+                  Delete selected
+                </button>
+              </div>
+              {!visibleProducts.length ? (
                 <EmptyState title="No products yet" text="Saved seller products will appear here." />
               ) : (
                 <table>
                   <thead>
                     <tr>
+                      <th></th>
                       <th>ID</th>
                       <th>Name</th>
                       <th>Variant</th>
                       <th>Quantity</th>
                       <th>Price</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {products.map((product) => (
-                      <tr key={product.productId}>
-                        <td>{product.productId}</td>
-                        <td>{product.name}</td>
-                        <td>
-                          {label(product.category)} / {label(product.color)} / {product.size}
-                        </td>
-                        <td>{product.quantity}</td>
-                        <td>Rs. {Number(product.price).toFixed(2)}</td>
-                      </tr>
-                    ))}
+                    {visibleProducts.map((product) => {
+                      const id = productId(product);
+                      const hasId = id !== null && id !== undefined;
+                      const status = productStatus(product);
+
+                      return (
+                        <tr key={hasId ? id : product.name}>
+                          <td>
+                            <input
+                              className="row-check"
+                              type="checkbox"
+                              checked={selectedProductIds.includes(id)}
+                              disabled={!hasId}
+                              onChange={() => toggleProductSelection(id)}
+                              aria-label={`Select ${product.name || `product ${id}`}`}
+                            />
+                          </td>
+                          <td>{id || "-"}</td>
+                          <td>{product.name}</td>
+                          <td>
+                            {label(product.category)} / {label(product.color)} / {product.size}
+                          </td>
+                          <td>{product.quantity}</td>
+                          <td>Rs. {Number(product.price).toFixed(2)}</td>
+                          <td>
+                            <span className={`status status-${String(status).toLowerCase()}`}>{label(status)}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               )}

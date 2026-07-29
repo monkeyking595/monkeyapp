@@ -21,8 +21,8 @@ const authCopy = {
   },
   admin: {
     pill: "Admin access",
-    title: "Control the store",
-    subtitle: "Use an admin account to manage users, sellers, stores, products, and orders.",
+    title: "Seeded admin access",
+    subtitle: "Sign in with your configured admin account to manage users, sellers, stores, products, and orders.",
     heading: "Admin sign in",
     icon: ShieldCheck
   },

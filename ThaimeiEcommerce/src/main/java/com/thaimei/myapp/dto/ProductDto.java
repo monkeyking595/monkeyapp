@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import com.thaimei.myapp.enums.Category;
 import com.thaimei.myapp.enums.Color;
+import com.thaimei.myapp.enums.ProductStatus;
 import com.thaimei.myapp.enums.Size;
 
 
@@ -31,5 +32,7 @@ public class ProductDto {
     private Color color;
   
     private Size size;
+
+    private ProductStatus status;
     
 }

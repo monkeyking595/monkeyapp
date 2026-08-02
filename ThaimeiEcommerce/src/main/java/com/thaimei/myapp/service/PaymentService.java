@@ -6,6 +6,7 @@ import org.modelmapper.ModelMapper;
 import java.util.Optional;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.Charge;
+import com.thaimei.myapp.repository.ProcessWebhookRepo;
 
 
 
@@ -14,9 +15,11 @@ import com.thaimei.myapp.repository.PaymentRepo;
 public class PaymentService {
     private final PaymentRepo paymentRepo;
     private final ModelMapper modelMapper;
-    public PaymentService(PaymentRepo paymentRepo, ModelMapper modelMapper) {
+    private final ProcessWebhookRepo processWebhookRepo;
+    public PaymentService(PaymentRepo paymentRepo, ModelMapper modelMapper, ProcessWebhookRepo processWebhookRepo) {
         this.paymentRepo=paymentRepo;
         this.modelMapper=modelMapper;
+        this.processWebhookRepo=processWebhookRepo;
     }
     public Optional<PaymentDto> getPaymentDetailsByPaymentId(String paymentId) {
         Optional<Payment> payment=paymentRepo.findByPaymentId(paymentId);
@@ -50,6 +53,10 @@ public class PaymentService {
             return false;
         }
 
+    }
+
+    public boolean eventExists(String eventId) {
+        return processWebhookRepo.existsById(eventId);
     }
 
     

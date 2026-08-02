@@ -15,6 +15,7 @@ import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.Charge;
 import org.springframework.beans.factory.annotation.Value;
+
 import java.util.Optional;
 
 
@@ -51,6 +52,11 @@ public class PaymentController {
             Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
             //event.getType() returns the String representation of the event type, which is sent by Stripe in the payload. This is used to determine what kind of event was received, so that we can handle it accordingly.
             String eventType=event.getType();
+
+            //idempotency check: if the event has already been processed, we don't want to process it again. This is important because Stripe may send the same event multiple times in case of network issues or retries.
+            if(paymentService.eventExists(event.getId())) {
+                return ResponseEntity.ok("event already exists!");
+            }
 
             switch(eventType) {
                 

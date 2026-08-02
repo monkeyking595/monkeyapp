@@ -37,5 +37,6 @@ public class SellerOrdersController {
         return ResponseEntity.ok(sellerOrders);
     }
 
+    // order status (pending, placed)
     
 }

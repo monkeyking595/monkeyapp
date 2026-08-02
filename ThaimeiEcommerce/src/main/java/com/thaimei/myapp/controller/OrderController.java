@@ -35,15 +35,15 @@ public class OrderController {
             throw new AppException("buynow excepts only one item", 400);
         }
         User  user=principal.getUser();
-        orderService.checkout(orderDto, user);
-        return ResponseEntity.ok(Map.of("message","Order placed successfully!"));
+        String clientSecret = orderService.checkout(orderDto, user);
+        return ResponseEntity.ok(Map.of("clientSecret", clientSecret));
     }
 
     @PostMapping("/CartCheckout")
     public ResponseEntity<?> checkoutFromCart (@Valid @RequestBody OrderPlaceDto orderDto, @AuthenticationPrincipal CustomUserDetails principal) {
         User  user=principal.getUser();
-        orderService.checkout(orderDto, user);
-        return ResponseEntity.ok(Map.of("message","Order placed successfully!"));
+        String clientSecret = orderService.checkout(orderDto, user);
+        return ResponseEntity.ok(Map.of("clientSecret", clientSecret));
     }
 
     

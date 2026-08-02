@@ -28,6 +28,9 @@ import com.thaimei.myapp.model.OrderItems;
 import com.thaimei.myapp.model.StoreModel;
 import com.thaimei.myapp.repository.StoreRepo;
 import com.thaimei.myapp.repository.UserRepository;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 import com.thaimei.myapp.dto.ItemRequestDto;
 
 @Service
@@ -46,7 +49,7 @@ public class OrderService {
     }
 
 
-    public void checkout(OrderPlaceDto orderDto, User user) {
+    public String checkout(OrderPlaceDto orderDto, User user) {
         //get a list of products since one order can have multiple products.
         List<Long> productId = orderDto.getOrderItems().stream()
         .map(ItemRequestDto::getProductId)
@@ -117,6 +120,50 @@ public class OrderService {
         }
         // saveAll(), save  a list of orders 
         orderRepo.saveAll(ordersToSave);
+
+        //find the grand total of all the orders.
+        BigDecimal grandTotal = ordersToSave.stream()
+        .map(Orders::getTotalPrice)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        //converts the grand total into paise, since Stripe requires the amount to be in the smallest currency unit (paise for INR).
+        //1 rupee = 100 paise
+        //longValue(), a BigDecimal's method to convert the BigDecimal into a long, since Stripe requires the amount to be in long.
+        long amountInPaise = grandTotal.multiply(BigDecimal.valueOf(100)).longValue();
+
+        //collect the ids of all the orders so that webhook can find them later.
+        String orderIds = ordersToSave.stream()
+        //converts each ids into string, since these values are to PaymentIntent Stripe's metadata field and it only accepts Strings.
+        .map(o -> o.getId().toString())
+        //join all the ids into a single string separated by comma
+        // why do this? because Stripe imposes limits (roughly 50 keys max, each key/value has a length cap) it's meant for small amounts of simple, flat data, not for storing structured/nested data.
+        //and there are several other reasons too, joining them into single is just a better alternative.
+        .collect(Collectors.joining(","));
+
+        try {
+        // PaymentIntentCreateParams, a class from Stripe's java SDK, representing all the parameters when creating a paymentIntent.
+        //builder(), a static method of the PaymentIntentCreateParams class, it returns a new instance of the builder class, which is used to build the PaymentIntentCreateParams object.
+        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+        .setAmount(amountInPaise)
+        //"inr" here has to be a value Stripe recognizes — specifically, a valid ISO 4217 currency code, lowercase, from a fixed list Stripe supports ("inr", "usd", "eur", "gbp", etc.).
+        .setCurrency("inr")
+        //metadata internally is a Map, and putMetadata adds one key-value pair at a time (like calling .put() on a Map directly), rather than replacing the whole map at once.
+        .putMetadata("orderIds", orderIds)
+        //the data in the metadata will be used to link back the payment to the userand the order, so that when the webhook is called, we can find the user and the order and update the status accordingly.
+        .putMetadata("userId", user.getId().toString())
+        //build(), this is the final step in the builder chain -- it's the method thay actually takes everything you've set on the Builder and uses those values to construct the real, final PaymentIntentCreateParams object.
+        .build();
+
+        //create the actual paymentIntent object using the params we just built, this is the object that will be sent to Stripe to create a paymentIntent.
+        //create(), a static method of the PaymentIntent class, it takes the params we built and sends a request to Stripe's API to create a new PaymentIntent with those parameters.
+        PaymentIntent intent  = PaymentIntent.create(params);
+        return intent.getClientSecret();
+        } catch (StripeException e) {
+            //if payment creation fails, don't roll back the whole order but keep them as failed, so that the user can try again later, and we can keep track of the failed orders for analysis.
+            ordersToSave.forEach(o-> o.setStatus(OrderStatusEnum.FAILED));
+            orderRepo.saveAll(ordersToSave);
+            throw new AppException("Failed to create payment for order", 502);
+        }
     }
 
 

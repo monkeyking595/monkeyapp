@@ -8,8 +8,13 @@ public class StripeConfig {
     @Value("${stripe.secret.key}")
     private String secretKey;
 
+    // The @PostConstruct annotation is used to indicate that the init() method should be executed after the bean's properties have been set. This is a good place to perform any initialization logic that depends on the injected properties.
+    // why do this? because of sequence followed by Spring which call the constructor first and then injection of the properties, so if we try to use the secretKey in the constructor, it will be null. So we use @PostConstruct to ensure that the secretKey is set before we use it. 
     @PostConstruct
     public void init() {
-        Stripe.apiKey=secretKey; //sets the api key with the secretKey we pulled from the application properties
+        //calls the Static method of Stripe class and set it with secret key from the application properties.
+        Stripe.apiKey=secretKey; 
     }
+
+    // this will be called when creating a new PaymentIntent, so we need to attach the secretKey to the request for authentication purposes.
 }

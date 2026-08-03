@@ -1,9 +1,12 @@
 package com.thaimei.myapp.model;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
+import com.thaimei.myapp.enums.PaymentStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
@@ -29,7 +32,9 @@ public class Payment {
     
    
     @Column(nullable = false)
-    private String paymentStatus;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+    
     
 
     @Column(nullable=false)

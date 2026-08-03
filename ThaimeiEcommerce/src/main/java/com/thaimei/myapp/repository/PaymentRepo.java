@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PaymentRepo extends JpaRepository <Payment, Long> {
     public Optional<Payment> findByPaymentId(String paymentId);
+    Optional<Payment> findByPaymentIdAndOrderId(String paymentId, String orderId);
 }

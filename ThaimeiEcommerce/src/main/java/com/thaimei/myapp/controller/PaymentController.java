@@ -90,6 +90,8 @@ public class PaymentController {
                 break;
             }
 
+            paymentService.markEventProcessed(event.getId());
+
             return ResponseEntity.ok("Webhook processed successfully");
 
         } catch (SignatureVerificationException e) {

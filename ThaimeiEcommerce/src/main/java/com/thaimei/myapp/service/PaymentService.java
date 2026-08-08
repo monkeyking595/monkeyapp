@@ -4,22 +4,25 @@ import com.thaimei.myapp.model.Payment;
 import com.thaimei.myapp.model.ProcessWebhook;
 import com.thaimei.myapp.dto.PaymentDto;
 import com.thaimei.myapp.enums.PaymentStatus;
+import com.thaimei.myapp.error.AppException;
+import com.thaimei.myapp.error.ResourceNotFoundException;
 
 import org.modelmapper.ModelMapper;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.Charge;
 import com.thaimei.myapp.repository.ProcessWebhookRepo;
 import com.thaimei.myapp.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.thaimei.myapp.repository.OrderRepo;
 import com.thaimei.myapp.enums.OrderStatusEnum;
 import com.thaimei.myapp.model.Orders;
-
-
-
+import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.repository.PaymentRepo;
 @Service
 public class PaymentService {
@@ -35,12 +38,24 @@ public class PaymentService {
         this.userRepo=userRepo;
         this.orderRepo=orderRepo;
     }
-    public Optional<PaymentDto> getPaymentDetailsByPaymentId(String paymentId) {
-        Optional<Payment> paymentDetails =paymentRepo.findByPaymentId(paymentId);
-        return paymentDetails.map(checkout-> modelMapper.map(checkout, PaymentDto.class));
+    public PaymentDto getPaymentDetailsByPaymentId(String paymentId, User user) {
+        Payment paymentDetails =paymentRepo.findByPaymentId(paymentId)
+        .orElseThrow(() -> new ResourceNotFoundException("No payment is found"));
+
+        if(!user.getId().equals(paymentDetails.getUser().getId())) {
+            throw new AppException("You don't own this payment", 403);
+        }
+
+        List<Long> orderIds = paymentDetails.getOrders().stream()
+        .map(Orders::getId)
+        .toList();
+        
+        PaymentDto dto = modelMapper.map(paymentDetails, PaymentDto.class);
+        dto.setOrderIds(orderIds);
+        return dto;
     }
 
-    
+    @Transactional
     public boolean  savePaymentDetails(Object paymentObject) {
         if(paymentObject instanceof PaymentIntent intent) {
             //Map lookup using the key, since metadata is Map
@@ -53,38 +68,58 @@ public class PaymentService {
             //declare the type as String array, split creates the array splitting the ids by comma.
             String[] orderIds = orderIdsStr.split(",");
             String userId = intent.getMetadata().get("userId");
-            
-            for(String orderId : orderIds) {
-                Orders order = orderRepo.findById(Long.valueOf(orderId)).orElse(null);
 
+            if(userId == null) {
+                System.out.println("no userId found in metadata for PaymentIntent:" + intent.getId());
+                return false;
+            }
+            
+            //One payment row per paymentIntent --> idempotency via findByPaymentId
+            //if paymentId exists update the existing one with the incoming data.
+            //multiple orderIds could hold a reference to the same payemntId/intentId.
+            Payment payment = paymentRepo.findByPaymentId(intent.getId())
+            //else create a new Payment object.
+            .orElse(new Payment());
+
+            User user =userRepo.findById(Long.valueOf(userId)).orElse(null);
+                if(user == null) {
+                    System.out.println("user not found for id:" + userId);
+                }
+            
+
+            payment.setUser(user);
+            payment.setPaymentId(intent.getId());
+            //get the totalprice from Stripe, divide it by 100 to converts it back to normal unit, since Stripe takes money in smallest unit.
+            payment.setTotalAmount(BigDecimal.valueOf(intent.getAmount()).divide(BigDecimal.valueOf(100))); 
+            payment.setCurrency(intent.getCurrency().toUpperCase()); // Convert to standard currency code.
+            payment.setPaymentStatus(mapStripeStatus(intent.getStatus()));
+            // uses a ternary operator to check if the payment method is null, if it is null, it sets it to "UNKNOWN", otherwise it sets it to the actual payment method.
+            payment.setPaymentMethod(intent.getPaymentMethod() != null ? intent.getPaymentMethod() : "UNKNOWN");
+            paymentRepo.save(payment);
+
+            //set the order status after the payment status is set, successful payment means successful orders.
+            OrderStatusEnum newOrderStatus = switch(payment.getPaymentStatus()) {
+                case SUCCESSFUL -> OrderStatusEnum.CONFIRMED;
+                case FAILED -> OrderStatusEnum.FAILED;
+                default -> OrderStatusEnum.PENDING;
+            };
+        
+            for (String orderId: orderIds) {
+                Orders order = orderRepo.findById(Long.valueOf(orderId)).orElse(null);
                 if(order == null) {
                     System.out.println("order not found for id:" + orderId);
                     //continue, tells java to immediately stop the current iteration of the loop and jump straight to the next one.
                     continue;
                 }
 
-                // this protect against idempotency, if the payment already exists for this orderId and paymentId, we don't want to create a new record, we want to update the existing one.
-                Payment payment = paymentRepo.findByPaymentIdAndOrderId(intent.getId(), orderId)
-                //else create a new Payment object.
-                .orElse(new Payment());
-
-                payment.setUser(userRepo.findById(Long.valueOf(userId)).orElse(null));
-                payment.setOrderId(orderId);
-                payment.setPaymentId(intent.getId());
-                //get the totalprice of each order from the order table and .doubleValue() is a method of bigDecimal which converts it to double.
-                payment.setTotalAmount(order.getTotalPrice().doubleValue()); 
-                payment.setCurrency(intent.getCurrency().toUpperCase()); // Convert to standard currency code.
-                payment.setPaymentStatus(mapStripeStatus(intent.getStatus()));
-                // uses a ternary operator to check if the payment method is null, if it is null, it sets it to "UNKNOWN", otherwise it sets it to the actual payment method.
-                payment.setPaymentMethod(intent.getPaymentMethod() != null ? intent.getPaymentMethod() : "UNKNOWN");
-                paymentRepo.save(payment);
-
-                //if the payment is successful update the order status to confirmed/successful.
-                order.setStatus(intent.getStatus().equals("succeeded") ? OrderStatusEnum.CONFIRMED : OrderStatusEnum.FAILED);
+                order.setPayment(payment);
+                order.setStatus(newOrderStatus);
                 orderRepo.save(order);
             }
+            
             return true;
         }
+
         else if(paymentObject instanceof Charge charge) {
             //connect back to the parent(paymentIntent), since Charge is created underneath a PaymentIntent, as the record of an actual attempt. so every charge carries a reference to it's parent.
             String intentId = charge.getPaymentIntent();
@@ -95,24 +130,22 @@ public class PaymentService {
             }
 
             //find all the rows sharing the current paymentId, since multiple orders could share the same paymentId.
-            List <Payment> payments = paymentRepo.findAllByPaymentId(intentId);
-            if(payments.isEmpty()) {
-                System.out.println("No existing rows found for refund, PaymentmentIntent:" + intentId);
+            Payment payment = paymentRepo.findByPaymentId(intentId).orElse(null);
+            if(payment==null) {
+                System.out.println("No existing row found for refund, PaymentmentIntent:" + intentId);
                 return false;
             }
 
             //mark the whole order as refunded for now, no partial refunds, will be integrated later.
-            for(Payment payment: payments) {
                 payment.setPaymentStatus(PaymentStatus.REFUNDED);
                 //updates the existing row not inserting a new row.
                 paymentRepo.save(payment);
 
                 //update the order status after the refund
-                orderRepo.findById(Long.valueOf(payment.getOrderId())).ifPresent(order ->{
+                for(Orders order: payment.getOrders()) {
                     order.setStatus(OrderStatusEnum.REFUNDED);
                     orderRepo.save(order);
-                });
-            }
+                }
 
             return true;
         }
@@ -128,9 +161,10 @@ public class PaymentService {
     private PaymentStatus mapStripeStatus(String stripeStatus) {
         return switch(stripeStatus) {
             case "succeeded" -> PaymentStatus.SUCCESSFUL;
-            case "failed" -> PaymentStatus.FAILED;
+            case "requires_payment_method", "canceled" -> PaymentStatus.FAILED;
             //the sign "->" here is not a lambda expression, it is a new syntax for switch expressions introduced in Java 12, which allows for more concise and readable code.
             case "refunded" -> PaymentStatus.REFUNDED;
+            case "processing", "requires_action", "requires_confirmation", "requires_capture" -> PaymentStatus.PENDING;
             //default case is used to handle any unexpected or unknown status values, mapping them to PENDING as a safe fallback.
             default -> PaymentStatus.PENDING;
         };

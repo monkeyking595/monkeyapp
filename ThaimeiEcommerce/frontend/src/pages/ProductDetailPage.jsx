@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, CreditCard, Minus, Plus, ShoppingCart } from "lucide-react";
-import { api } from "../lib/api";
+import PaymentCheckout from "../components/PaymentCheckout";
+import { api, paymentIntentIdFromClientSecret } from "../lib/api";
 import { ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 import { productImage } from "./ProductsPage";
 
@@ -11,12 +12,14 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [busyAction, setBusyAction] = useState("");
+  const [checkoutSession, setCheckoutSession] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
     const productId = Number(id);
     if (!productId) return;
+    setCheckoutSession(null);
     api
       .product(productId)
       .then(setProduct)
@@ -47,13 +50,33 @@ export default function ProductDetailPage() {
     setBusyAction("buy");
 
     try {
-      await api.buyNow(product.productId, quantity);
-      setNotice("Order request sent.");
+      const checkout = await api.buyNow(product.productId, quantity);
+      const clientSecret = checkout?.clientSecret;
+
+      if (!clientSecret) {
+        throw new Error("Checkout did not return a payment client secret.");
+      }
+
+      setCheckoutSession({
+        clientSecret,
+        paymentId: paymentIntentIdFromClientSecret(clientSecret),
+        amountLabel: `Rs. ${(Number(product.price || 0) * quantity).toFixed(2)}`
+      });
+      setNotice("Order created. Complete the payment to confirm it.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Order could not be placed");
     } finally {
       setBusyAction("");
     }
+  }
+
+  function changeQuantity(nextQuantity) {
+    setQuantity(nextQuantity);
+    setCheckoutSession(null);
+  }
+
+  function handlePaymentComplete({ payment }) {
+    setNotice(payment ? "Payment confirmed and recorded." : "Payment confirmed. Payment status will update after the webhook.");
   }
 
   const maxQuantity = Math.max(1, Number(product?.quantity || 1));
@@ -77,11 +100,11 @@ export default function ProductDetailPage() {
             <p>{product.description}</p>
             <strong className="price">Rs. {Number(product.price).toFixed(2)}</strong>
             <div className="quantity-control">
-              <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} title="Decrease">
+              <button type="button" onClick={() => changeQuantity(Math.max(1, quantity - 1))} title="Decrease">
                 <Minus size={17} />
               </button>
               <span>{quantity}</span>
-              <button type="button" onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))} title="Increase">
+              <button type="button" onClick={() => changeQuantity(Math.min(maxQuantity, quantity + 1))} title="Increase">
                 <Plus size={17} />
               </button>
             </div>
@@ -95,6 +118,15 @@ export default function ProductDetailPage() {
                 {busyAction === "buy" ? "Placing..." : "Buy now"}
               </button>
             </div>
+            {checkoutSession && (
+              <PaymentCheckout
+                clientSecret={checkoutSession.clientSecret}
+                intentId={checkoutSession.paymentId}
+                amountLabel={checkoutSession.amountLabel}
+                onPaid={handlePaymentComplete}
+                onCancel={() => setCheckoutSession(null)}
+              />
+            )}
           </div>
         </section>
       )}

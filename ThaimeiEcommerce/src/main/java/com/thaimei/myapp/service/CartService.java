@@ -39,7 +39,6 @@ public class CartService {
         .orElseThrow(()-> new ResourceNotFoundException("cart not found for current User"));
         // if the cart is empty return the empty cart as it is, empty is not an exception.
         if (cart.getCartItems().isEmpty()) {
-
             CartDto emptyCart = new CartDto();
             emptyCart.setCartId(cart.getCartId());
             emptyCart.setItems(List.of());
@@ -52,6 +51,7 @@ public class CartService {
         .map(item -> {
             CartItemDto cartItemDto = new CartItemDto();
             cartItemDto.setItemId(item.getItemId());
+            cartItemDto.setProductId(item.getProduct().getProductId());
             cartItemDto.setQuantity(item.getQuantity());
             cartItemDto.setPrice(item.getProduct().getPrice());
             cartItemDto.setProductName(item.getProduct().getName());
@@ -87,8 +87,9 @@ public class CartService {
         return cartDto;
     }
 
-    //return an int the quantity of the items in the cart, so that we can instantly display the number of items in the cart after adding the items.
+    
     @Transactional
+    //return an int the quantity of the items in the cart, so that we can instantly display the number of items in the cart after adding the items.
     public int  addItemsToCart(AddItem addItem, long userId) {
 
         User user = userRepository.findById(userId) 

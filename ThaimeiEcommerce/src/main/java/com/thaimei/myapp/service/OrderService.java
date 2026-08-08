@@ -86,6 +86,7 @@ public class OrderService {
             Orders order = new Orders();
             order.setUser(user);
             order.setStore(store);
+            //get the status from the payment entity, if payment failed order fail
             order.setStatus(OrderStatusEnum.PENDING);
 
             // new OrderItems list for each order object (happens every new iteration)

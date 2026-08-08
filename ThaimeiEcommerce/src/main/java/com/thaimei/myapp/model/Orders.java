@@ -55,4 +55,8 @@ public class Orders {
     @CreationTimestamp
     private LocalDateTime creationTime;
 
+    @ManyToOne
+    @JoinColumn(name="payment_id", nullable = true)
+    private Payment payment;
+
 }

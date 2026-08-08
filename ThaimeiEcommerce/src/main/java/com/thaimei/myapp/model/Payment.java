@@ -6,11 +6,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.thaimei.myapp.enums.PaymentStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
@@ -38,18 +43,19 @@ public class Payment {
     
 
     @Column(nullable=false)
-    private double totalAmount;
+    private BigDecimal totalAmount;
 
     @Column(nullable = false) 
     private String paymentMethod;
    
-    @Column(nullable = false, unique=true)
+    @Column(nullable = false, unique = true)
     private String paymentId; 
 
-    @Column(nullable = false, unique = true)
-    private String orderId; 
     
     @Column(nullable = false)
     private String currency="INR";
+
+    @OneToMany(mappedBy ="payment")
+    private List<Orders> orders = new ArrayList<>();
 }
     

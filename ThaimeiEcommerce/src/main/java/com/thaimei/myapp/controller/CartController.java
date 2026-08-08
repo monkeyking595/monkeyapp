@@ -21,6 +21,7 @@ public class CartController {
     public CartController(CartService cartService) {
         this.cartService = cartService;
     }
+    
     @GetMapping("/getItems")
     public ResponseEntity<?> getMyCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return  ResponseEntity.ok(cartService.getCartByUserId(userDetails.getId()));
@@ -31,7 +32,6 @@ public class CartController {
         long userId = userDetails.getId();
         cartService.addItemsToCart(addItem, userId);
         return ResponseEntity.ok(Map.of("message","Items added to cart"));
-
     } 
 }
     

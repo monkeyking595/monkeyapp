@@ -31,6 +31,7 @@ public class SecurityConfig {
         .exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthEntryPoint))
         .authorizeHttpRequests(auth->auth.requestMatchers("/customers/signup","/customers/login").permitAll()
         .requestMatchers("/admin/api/adminlogin").permitAll()
+        .requestMatchers("/payment/webhook").permitAll()
         .requestMatchers("/sellers/sellerLogin","/sellers/registration").permitAll()
         .requestMatchers("/admin/**").hasRole("ADMIN")
         .requestMatchers("/sellers/**").hasRole("SELLER")

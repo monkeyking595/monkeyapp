@@ -1,11 +1,15 @@
 package com.thaimei.myapp.controller;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.thaimei.myapp.service.PaymentService;
 import com.thaimei.myapp.dto.PaymentDto;
+import com.thaimei.myapp.model.User;
+import com.thaimei.myapp.security.CustomUserDetails;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -16,7 +20,6 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.Charge;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.Optional;
 
 
 
@@ -33,14 +36,10 @@ public class PaymentController {
     }
 
     @GetMapping("/customer/{paymentId}")
-    public ResponseEntity<?> getPaymentDetails(@PathVariable String paymentId) {
-        Optional<PaymentDto> dto= paymentService.getPaymentDetailsByPaymentId(paymentId);
-        if(dto.isPresent()) {
-            return ResponseEntity.ok(dto.get());
-        }
-        else {
-            return ResponseEntity.status(404).body("Payment Details not found for this ID: "+ paymentId);
-        }
+    public ResponseEntity<PaymentDto> getPaymentDetails(@PathVariable String paymentId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
+        PaymentDto dto= paymentService.getPaymentDetailsByPaymentId(paymentId,user);
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/webhook")
@@ -58,50 +57,51 @@ public class PaymentController {
                 return ResponseEntity.ok("event already exists!");
             }
 
+            boolean success;
             switch(eventType) {
                 
                 case "payment_intent.succeeded":
                     //event.getDataObjectDeserializer().getObject(), this returns an generic object --Stripe doesn't know in advance what kind of thing is inside data.object, since it depends on the object type. so it needs to be casted.
                     //event.getDataObjectDeserializer().getObject(), this returns the actual object inside data.object, but it is wrapped in an Optional, so we need to call .orElse(null) to get the actual object or null if it is not present.
                     PaymentIntent successIntent=(PaymentIntent) event.getDataObjectDeserializer().getObject().orElse(null);
-
-                    if(successIntent!=null) {
-                        paymentService.savePaymentDetails(successIntent);
-                    }
-                break;
+                    success =successIntent !=null &&  paymentService.savePaymentDetails(successIntent);
+                    break;
 
                 case "payment_intent.payment_failed": 
                     PaymentIntent failedIntent=(PaymentIntent) event.getDataObjectDeserializer().getObject().orElse(null);
-                    if(failedIntent!=null) {
-                        paymentService.savePaymentDetails(failedIntent);
-                    }
-                break;
+                    success = failedIntent !=null && paymentService.savePaymentDetails(failedIntent);
+                    break;
 
                 case "charge.refunded":
                     Charge refundedCharge=(Charge) event.getDataObjectDeserializer().getObject().orElse(null);
-                    if(refundedCharge!=null) {
-                        paymentService.savePaymentDetails(refundedCharge);
-                    }
-                    
-                break;
+                    success = refundedCharge != null && paymentService.savePaymentDetails(refundedCharge);
+                    break;
 
                 default: 
                     System.out.println("Unhandled event type: " + eventType);
-                break;
+                    success = true;
+                    break;
             }
 
-            paymentService.markEventProcessed(event.getId());
-
-            return ResponseEntity.ok("Webhook processed successfully");
+            //process the eventId if only the above methods evaluates to true
+            if(success) {
+                paymentService.markEventProcessed(event.getId());
+                return ResponseEntity.ok("webhook processed successfully");
+            }
+            else {
+                System.out.println("webhook received but not fully processed, will retry");
+                return ResponseEntity.ok("webhook received but not fully processed, will retry");
+            }
 
         } catch (SignatureVerificationException e) {
             return ResponseEntity.status(400).body("invalid signature" + e.getMessage());
         }
 
     }
+}
     
         
-}
+
     
 
    

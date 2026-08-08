@@ -9,6 +9,7 @@ import AuthPage from "./pages/AuthPage";
 import CartPage from "./pages/CartPage";
 import HomePage from "./pages/HomePage";
 import OrdersPage from "./pages/OrdersPage";
+import PaymentsPage from "./pages/PaymentsPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductsPage from "./pages/ProductsPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -55,6 +56,14 @@ export default function App() {
           element={
             <ProtectedRoute session={session}>
               <OrdersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payments"
+          element={
+            <ProtectedRoute session={session}>
+              <PaymentsPage />
             </ProtectedRoute>
           }
         />

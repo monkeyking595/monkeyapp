@@ -40,6 +40,11 @@ export function landingPath(session) {
   return "/products";
 }
 
+export function paymentIntentIdFromClientSecret(clientSecret) {
+  const [paymentIntentId] = String(clientSecret || "").split("_secret_");
+  return paymentIntentId?.startsWith("pi_") ? paymentIntentId : "";
+}
+
 function normalizeSession(session) {
   if (!session) return null;
 
@@ -319,6 +324,7 @@ export const api = {
         orderItems: [{ productId: Number(productId), quantity: Number(quantity) }]
       })
     }),
+  paymentDetails: (paymentId) => request(`/payment/customer/${encodeURIComponent(paymentId)}`),
   profile: () => request("/customers/profile-info"),
   saveProfile: (profile) =>
     request("/customers/profile", {

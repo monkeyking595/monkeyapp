@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CreditCard, RefreshCw } from "lucide-react";
-import { api } from "../lib/api";
+import PaymentCheckout from "../components/PaymentCheckout";
+import { api, paymentIntentIdFromClientSecret } from "../lib/api";
 import { EmptyState, ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 
 export default function CartPage() {
@@ -8,6 +9,7 @@ export default function CartPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [checkoutBusy, setCheckoutBusy] = useState(false);
+  const [checkoutSession, setCheckoutSession] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const items = useMemo(() => {
@@ -70,14 +72,28 @@ export default function CartPage() {
     }
 
     try {
-      await api.checkoutCart(orderItems);
-      setNotice("Order request sent.");
-      await loadCart();
+      const checkout = await api.checkoutCart(orderItems);
+      const clientSecret = checkout?.clientSecret;
+
+      if (!clientSecret) {
+        throw new Error("Checkout did not return a payment client secret.");
+      }
+
+      setCheckoutSession({
+        clientSecret,
+        paymentId: paymentIntentIdFromClientSecret(clientSecret)
+      });
+      setNotice("Order created. Complete the payment to confirm it.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Order could not be placed");
     } finally {
       setCheckoutBusy(false);
     }
+  }
+
+  function handlePaymentComplete({ payment }) {
+    setNotice(payment ? "Payment confirmed and recorded." : "Payment confirmed. Payment status will update after the webhook.");
+    loadCart();
   }
 
   return (
@@ -123,10 +139,20 @@ export default function CartPage() {
               <span>Total</span>
               <strong>Rs. {total.toFixed(2)}</strong>
             </div>
-            <button className="button" type="button" onClick={placeOrders} disabled={checkoutBusy}>
-              <CreditCard size={18} />
-              {checkoutBusy ? "Placing..." : "Place order"}
-            </button>
+            {checkoutSession ? (
+              <PaymentCheckout
+                clientSecret={checkoutSession.clientSecret}
+                intentId={checkoutSession.paymentId}
+                amountLabel={`Rs. ${total.toFixed(2)}`}
+                onPaid={handlePaymentComplete}
+                onCancel={() => setCheckoutSession(null)}
+              />
+            ) : (
+              <button className="button" type="button" onClick={placeOrders} disabled={checkoutBusy}>
+                <CreditCard size={18} />
+                {checkoutBusy ? "Placing..." : "Place order"}
+              </button>
+            )}
           </aside>
         </section>
       )}

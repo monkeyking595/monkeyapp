@@ -144,6 +144,12 @@ button {
   min-height: 38px;
 }
 
+.button.secondary {
+  background: #fff;
+  color: #161616;
+  border: 1px solid #ded6ca;
+}
+
 .button.danger {
   background: #9a291d;
 }
@@ -501,6 +507,147 @@ textarea:focus {
   margin: 22px 0;
   padding-top: 18px;
   border-top: 1px solid #e5dfd3;
+}
+
+.compact-row {
+  margin: 0;
+  padding: 12px 0;
+}
+
+.payment-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #e5dfd3;
+}
+
+.detail-copy > .payment-panel {
+  margin-top: 2px;
+  padding: 18px;
+  border: 1px solid #e2dbcf;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.payment-heading,
+.payment-actions,
+.payment-record div {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.payment-heading {
+  justify-content: space-between;
+}
+
+.payment-heading h2 {
+  margin: 8px 0 0;
+  font-size: 20px;
+}
+
+.payment-form {
+  display: grid;
+  gap: 14px;
+}
+
+.payment-actions {
+  flex-wrap: wrap;
+}
+
+.inline-link {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  width: max-content;
+  color: #4f6f23;
+  font-weight: 800;
+}
+
+.payment-record {
+  display: grid;
+  gap: 10px;
+}
+
+.compact-record {
+  padding: 12px;
+  border: 1px solid #e4ddcf;
+  border-radius: 8px;
+  background: #faf8f3;
+}
+
+.compact-record strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.lookup-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.payment-details {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.75fr) minmax(0, 1.25fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.payment-status-card,
+.payment-meta {
+  border: 1px solid #e2dbcf;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.payment-status-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 20px;
+}
+
+.payment-status-card h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.payment-status-card p {
+  margin: 0;
+  color: #6b665f;
+  line-height: 1.5;
+}
+
+.payment-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  background: #e8e0d4;
+}
+
+.payment-meta div {
+  min-width: 0;
+  padding: 16px;
+  background: #fff;
+}
+
+.payment-meta dt {
+  color: #6b665f;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.payment-meta dd {
+  margin: 6px 0 0;
+  font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .profile-form {
@@ -907,16 +1054,26 @@ th {
 .status-accepted,
 .status-active,
 .status-delivered,
-.status-shipped {
+.status-shipped,
+.status-successful,
+.status-succeeded {
   background: #edf5e5;
   color: #355318;
 }
 
 .status-rejected,
 .status-disabled,
-.status-cancelled {
+.status-cancelled,
+.status-failed,
+.status-requires_payment_method {
   background: #fff0ee;
   color: #9a291d;
+}
+
+.status-processing,
+.status-refunded {
+  background: #fff4dc;
+  color: #7a4d00;
 }
 
 .status-control {
@@ -968,6 +1125,7 @@ select:disabled {
   .feature-strip,
   .detail-layout,
   .split-layout,
+  .payment-details,
   .seller-grid,
   .seller-summary,
   .admin-seller-layout,
@@ -1053,7 +1211,9 @@ select:disabled {
   .status-control.compact,
   .bulk-actions,
   .seller-product-tools,
-  .store-admin-item {
+  .store-admin-item,
+  .lookup-form,
+  .payment-meta {
     grid-template-columns: 1fr;
   }
 

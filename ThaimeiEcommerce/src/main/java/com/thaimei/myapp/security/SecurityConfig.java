@@ -1,4 +1,8 @@
 package com.thaimei.myapp.security;
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -9,20 +13,31 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final JwtAuthenticationEntryPoint jwtAuthEntryPoint;
+    private final String corsAllowedOrigins;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter, JwtAuthenticationEntryPoint jwtAuthEntryPoint) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthFilter,
+            JwtAuthenticationEntryPoint jwtAuthEntryPoint,
+            //property injection, with a fallback value if the value if not found in the source 
+            //this is purely for local development.
+            @Value("${app.cors.allowed-origins:http://localhost:5173,http://127.0.0.1:5173}") String corsAllowedOrigins) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.jwtAuthEntryPoint = jwtAuthEntryPoint; 
+        this.corsAllowedOrigins = corsAllowedOrigins;
     }
         
     @Bean
     public SecurityFilterChain SecurityConfigSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(csrf->csrf.disable())
         //here the configurer object (sessionManagementConfigurer) is passed in to the lambda 
         //lambda implements the functional interface (customizer) which has the customize() method which takes the configurer object and configures it with STATELESS
@@ -45,6 +60,29 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(parseCsv(corsAllowedOrigins));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    private List<String> parseCsv(String value) {
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(item -> !item.isEmpty())
+                .toList();
+    }
+
     @Bean
     // AuthenticationConfiguration configures everything that is needed by the authenticationManager
     public AuthenticationManager authenticationManager (AuthenticationConfiguration authConfig) throws Exception {

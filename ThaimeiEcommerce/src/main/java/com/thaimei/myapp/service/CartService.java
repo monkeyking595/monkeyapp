@@ -140,5 +140,4 @@ public class CartService {
         .mapToInt(CartItem::getQuantity)
         .sum();
     }
-
 }

@@ -160,6 +160,7 @@ public class OrderService {
         PaymentIntent intent  = PaymentIntent.create(params);
         return intent.getClientSecret();
         } catch (StripeException e) {
+            System.out.println("payment creation failed" + e.getMessage());
             //if payment creation fails, don't roll back the whole order but keep them as failed, so that the user can try again later, and we can keep track of the failed orders for analysis.
             ordersToSave.forEach(o-> o.setStatus(OrderStatusEnum.FAILED));
             orderRepo.saveAll(ordersToSave);

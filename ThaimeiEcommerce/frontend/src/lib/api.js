@@ -1,4 +1,6 @@
 const SESSION_KEY = "thaimei.session";
+const ORDER_API_BASE = "/customers";
+const API_BASE_URL = normalizeApiBase(import.meta.env.VITE_API_BASE_URL);
 
 export const ROLES = {
   CUSTOMER: "CUSTOMER",
@@ -83,7 +85,7 @@ async function request(path, options = {}) {
     headers.set("Authorization", `Bearer ${session.token}`);
   }
 
-  const response = await fetch(path, { ...options, headers });
+  const response = await fetch(requestUrl(path), { ...options, headers });
   const text = await response.text();
   const body = text ? tryParseJson(text) : null;
 
@@ -92,6 +94,20 @@ async function request(path, options = {}) {
   }
 
   return body;
+}
+
+function requestUrl(path) {
+  const value = String(path);
+
+  if (/^https?:\/\//i.test(value) || !API_BASE_URL) {
+    return value;
+  }
+
+  return `${API_BASE_URL}/${value.replace(/^\/+/, "")}`;
+}
+
+function normalizeApiBase(value) {
+  return String(value || "").trim().replace(/\/+$/, "");
 }
 
 function extractErrorMessage(body, text, status) {
@@ -306,9 +322,9 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ productId, quantity })
     }),
-  orders: () => request("/cutomers/GetOrder"),
+  orders: () => request(`${ORDER_API_BASE}/GetOrder`),
   checkoutCart: (items) =>
-    request("/cutomers/CartCheckout", {
+    request(`${ORDER_API_BASE}/CartCheckout`, {
       method: "POST",
       body: JSON.stringify({
         orderItems: items.map(({ productId, quantity }) => ({
@@ -318,7 +334,7 @@ export const api = {
       })
     }),
   buyNow: (productId, quantity = 1) =>
-    request("/cutomers/buyNowCheckout", {
+    request(`${ORDER_API_BASE}/buyNowCheckout`, {
       method: "POST",
       body: JSON.stringify({
         orderItems: [{ productId: Number(productId), quantity: Number(quantity) }]

@@ -64,6 +64,8 @@ public class PaymentController {
                     //event.getDataObjectDeserializer().getObject(), this returns an generic object --Stripe doesn't know in advance what kind of thing is inside data.object, since it depends on the object type. so it needs to be casted.
                     //event.getDataObjectDeserializer().getObject(), this returns the actual object inside data.object, but it is wrapped in an Optional, so we need to call .orElse(null) to get the actual object or null if it is not present.
                     PaymentIntent successIntent=(PaymentIntent) event.getDataObjectDeserializer().getObject().orElse(null);
+                    System.out.println("successIntent is null?" + (successIntent==null));
+                    System.out.println("stripe-java API version: " + com.stripe.Stripe.API_VERSION);
                     success =successIntent !=null &&  paymentService.savePaymentDetails(successIntent);
                     break;
 

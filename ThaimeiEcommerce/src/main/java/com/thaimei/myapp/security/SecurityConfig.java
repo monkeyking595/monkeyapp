@@ -71,7 +71,11 @@ public class SecurityConfig {
         configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(false);
 
+        //concrete implementation of corsConfigurationSource 
+        //maps Url pattern to those rules(mapped everything to one rule set via /**)
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        //registerCorsConfiguration, this method takes two parameters one is the endpoint and the other is the cors rules being applied to it.
+        //different endpoint can have a separate cors rules.
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

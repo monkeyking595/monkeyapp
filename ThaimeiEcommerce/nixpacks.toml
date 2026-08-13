@@ -1,3 +1,0 @@
-[phases.setup]
-nixPkgs = ["jdk21", "maven"]
-//nixpacks.toml is a configuration file specifically for Nixpacks — the automated build system Railway uses by default to figure out how to build and run your app, without you having to write a Dockerfile by hand.

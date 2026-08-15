@@ -26,9 +26,6 @@ private Long id;
 private String fullname;
 
 
-@Column(nullable =false)
-private String email;
-
 @Column(nullable = false)
 private String phone;
 

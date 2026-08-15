@@ -140,4 +140,14 @@ public class CartService {
         .mapToInt(CartItem::getQuantity)
         .sum();
     }
+
+    public void removeItems(Long itemId, Long userId) {
+        CartItem item = cartItemRepository.findById(itemId)
+        .orElseThrow(()-> new ResourceNotFoundException("item not found in the cart"));
+
+        if(!item.getCart().getUser().getId().equals(userId)) {
+            throw new AppException("you don't own this cart", 403);
+        }
+        cartItemRepository.delete(item);
+    }
 }

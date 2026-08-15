@@ -1,6 +1,5 @@
 package com.thaimei.myapp.dto;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Min;
@@ -16,8 +15,6 @@ import lombok.AllArgsConstructor;
 public class UserInfoDto {
     @NotBlank(message="Name cannot be empty")
     private String fullname;
-    @Email(message="Invalid email format")
-    private String email;
     @NotBlank(message="Phone cannot be empty")
     @Pattern(regexp="\\d{10}", message="phone must be exactly 10 digits")
     private String phone;

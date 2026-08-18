@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import com.thaimei.myapp.dto.adminDto.AdminOrderDto;
 import com.thaimei.myapp.dto.sellersDto.SellerOrdersResponse;
+import com.thaimei.myapp.dto.sellersDto.UpdateOrderStatus;
 import com.thaimei.myapp.model.ProductsModel;
 import com.thaimei.myapp.repository.ProductsRepo;
 import com.thaimei.myapp.model.User;
@@ -228,5 +229,22 @@ public class OrderService {
 
         return orders
         .map(order-> modelMapper.map(order, AdminOrderDto.class));
+    }
+
+    public void updateStoreStatus (UpdateOrderStatus status, Long userId, Long Id) {
+        Orders order = orderRepo.findById(Id)
+        .orElseThrow(()-> new ResourceNotFoundException("Order not found"));
+
+        if(!order.getUser().getId().equals(userId)) {
+            throw new AppException("you don't own this order", 403);
+        }
+
+        //block the status update if both of these conditions evaluates to true.
+        if(order.getStatus() != OrderStatusEnum.CONFIRMED && status.getStatus() == OrderStatusEnum.SHIPPED) {
+            throw new AppException("Order must be confirmed before shipping",400 );
+        }
+
+        order.setStatus(status.getStatus());
+        orderRepo.save(order);
     }
 }

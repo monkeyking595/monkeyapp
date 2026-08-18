@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.thaimei.myapp.security.CustomUserDetails;
 import com.thaimei.myapp.service.StoreService;
 import com.thaimei.myapp.dto.sellersDto.StoresDto;
+import com.thaimei.myapp.dto.sellersDto.UpdateStoreLoc;
 import com.thaimei.myapp.model.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -48,6 +49,12 @@ public class StoreController {
         User user = userDetails.getUser();
         storeService.openStore(openStoreDto, storeId, user);
         return ResponseEntity.ok(Map.of("message", "Store is open!"));
+    }
+
+    @PatchMapping("/storeLoc/{storeId}")
+    public ResponseEntity<?> updateStoreLocation(@Valid @RequestBody UpdateStoreLoc locDto, @PathVariable Long storeId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        storeService.updateStoreLocation(locDto, storeId, userDetails.getId());
+        return ResponseEntity.ok(Map.of("message","store location updated successfully!"));
     }
     
 }

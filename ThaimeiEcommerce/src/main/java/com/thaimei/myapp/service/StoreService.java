@@ -10,6 +10,8 @@ import com.thaimei.myapp.enums.OpenCloseStore;
 import com.thaimei.myapp.enums.StoreStatus;
 import java.util.List;
 import com.thaimei.myapp.dto.sellersDto.StoresDto;
+import com.thaimei.myapp.dto.sellersDto.UpdateStoreLoc;
+
 import org.modelmapper.ModelMapper;
 
 import com.thaimei.myapp.dto.UserStoreDto;
@@ -62,6 +64,9 @@ public class StoreService {
     public List<StoresDto> getStoresByUser(User user) {
         //inner list is for storing the list of StoreModel which will come from the repo they should always match the type 
         List<StoreModel> stores = storeRepo.findAllByUser(user);
+        if(stores.isEmpty()) {
+            throw new ResourceNotFoundException("please create a store to add products");
+        }
         return stores.stream()
         //take each store model object and convert it to storeDto
         .map(store -> modelMapper.map(store, StoresDto.class))
@@ -95,6 +100,18 @@ public class StoreService {
         .orElseThrow(() -> new AppException("store not found or you don't own it", 403));
 
         store.setOpenCloseStore(openStoreDto.getOpenCloseStore());
+        storeRepo.save(store);
+    }
+
+    public void updateStoreLocation(UpdateStoreLoc locDto, Long storeId, Long userId) {
+        StoreModel store = storeRepo.findById(storeId)
+        .orElseThrow(() -> new ResourceNotFoundException("Store not found"));
+
+        if(!store.getUser().getId().equals(userId)) {
+            throw new AppException("you don't own this store", 403);
+        }
+        store.setLatitude(locDto.getLatitude());
+        store.setLongitude(locDto.getLongitude());
         storeRepo.save(store);
     }
 

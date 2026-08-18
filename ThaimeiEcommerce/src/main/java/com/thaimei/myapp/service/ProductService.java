@@ -4,6 +4,7 @@ import com.thaimei.myapp.dto.sellersDto.AddProductDto;
 import com.thaimei.myapp.enums.Color;
 import com.thaimei.myapp.enums.ProductStatus;
 import com.thaimei.myapp.enums.Size;
+import com.thaimei.myapp.enums.StoreStatus;
 import  com.thaimei.myapp.model.ProductsModel;
 
 import java.math.BigDecimal;
@@ -63,6 +64,11 @@ public class ProductService {
     public void saveProducts(AddProductDto productDto, User user) {
         StoreModel store = storeRepo.findByStoreIdAndUser(productDto.getStoreId(), user)
         .orElseThrow(() -> new AppException("Store not found for the given User", 400));
+        
+        if(store.getStoreStatus()!= StoreStatus.ACCEPTED) {
+            throw new AppException("Your store is not verified yet",403);
+        }
+        
         ProductsModel existing = productsRepo.findByStoreModelAndCategoryAndColorAndSize(store, productDto.getCategory(), productDto.getColor(), productDto.getSize());
 
         if (existing!=null) {

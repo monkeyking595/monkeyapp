@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface StoreRepo extends JpaRepository<StoreModel, Long> {
     List<StoreModel> findAllByUser(User user);
+    
     Optional<StoreModel> findByStoreIdAndUser(Long id, User user);
     //IgnoreCase, this will makes the case insensitive
     Optional<StoreModel> findByStoreNameIgnoreCase(String storeName);

@@ -45,7 +45,7 @@ public class StoreModel {
     private List<ProductsModel> productsModel;
 
     @Enumerated(EnumType.STRING) 
-    private StoreStatus storeStatus;
+    private StoreStatus storeStatus = StoreStatus.PENDING;
 
     // coordinates will be hardcoded for now later geocoding will be implemented
     private Double longitude;

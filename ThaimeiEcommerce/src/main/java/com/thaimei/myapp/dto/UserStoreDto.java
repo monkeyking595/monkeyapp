@@ -19,4 +19,8 @@ public class UserStoreDto {
     private List<ProductDto> products;
 
     private OpenCloseStore openCloseStore;
+
+    private Double longitude;
+
+    private Double latitude;
 }

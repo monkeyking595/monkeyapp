@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.thaimei.myapp.dto.OrderPlaceDto;
 import com.thaimei.myapp.dto.OrderResponseDto;
+import com.thaimei.myapp.dto.RefundDto;
 import com.thaimei.myapp.error.AppException;
 import com.thaimei.myapp.service.OrderService;
 
@@ -14,6 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import com.thaimei.myapp.security.CustomUserDetails;
 import com.thaimei.myapp.repository.UserRepository;
 import com.thaimei.myapp.model.User;
@@ -52,5 +55,12 @@ public class OrderController {
         User user=principal.getUser();
         List<OrderResponseDto>orders=orderService.getOrdersByUserId(user);
         return ResponseEntity.ok(orders);
+    }
+
+    @PostMapping("/refund")
+    public ResponseEntity<?> orderRefund(@Valid @RequestBody RefundDto dto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getId();
+        orderService.refundPayment(dto, userId);
+        return ResponseEntity.ok(Map.of("message","Your refund is process successfully"));
     }
 }

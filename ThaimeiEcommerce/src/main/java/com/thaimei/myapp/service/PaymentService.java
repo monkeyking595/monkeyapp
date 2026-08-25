@@ -6,6 +6,7 @@ import com.thaimei.myapp.dto.PaymentDto;
 import com.thaimei.myapp.enums.PaymentStatus;
 import com.thaimei.myapp.error.AppException;
 import com.thaimei.myapp.error.ResourceNotFoundException;
+import com.thaimei.myapp.error.WebhookProcessingException;
 
 import org.modelmapper.ModelMapper;
 
@@ -13,7 +14,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import com.stripe.model.PaymentIntent;
-import com.stripe.model.Charge;
 import com.thaimei.myapp.repository.ProcessWebhookRepo;
 import com.thaimei.myapp.repository.UserRepository;
 
@@ -82,10 +82,10 @@ public class PaymentService {
             .orElse(new Payment());
 
             User user =userRepo.findById(Long.valueOf(userId)).orElse(null);
-                if(user == null) {
-                    System.out.println("user not found for id:" + userId);
-                }
-            
+            if (user == null) {
+                System.out.println("user not found for id: "+ userId);
+                return false;
+            }
 
             payment.setUser(user);
             payment.setPaymentId(intent.getId());
@@ -108,45 +108,13 @@ public class PaymentService {
                 Orders order = orderRepo.findById(Long.valueOf(orderId)).orElse(null);
                 if(order == null) {
                     System.out.println("order not found for id:" + orderId);
-                    //continue, tells java to immediately stop the current iteration of the loop and jump straight to the next one.
-                    continue;
+                    throw new WebhookProcessingException("orderId doesn't exist");
                 }
 
                 order.setPayment(payment);
                 order.setStatus(newOrderStatus);
                 orderRepo.save(order);
             }
-            
-            return true;
-        }
-
-        else if(paymentObject instanceof Charge charge) {
-            //connect back to the parent(paymentIntent), since Charge is created underneath a PaymentIntent, as the record of an actual attempt. so every charge carries a reference to it's parent.
-            String intentId = charge.getPaymentIntent();
-            if(intentId == null) {
-                //could be helful for debugging.
-                System.out.println("No paymentIntent linked to refunded charge" + charge.getId());
-                return false;
-            }
-
-            //find all the rows sharing the current paymentId, since multiple orders could share the same paymentId.
-            Payment payment = paymentRepo.findByPaymentId(intentId).orElse(null);
-            if(payment==null) {
-                System.out.println("No existing row found for refund, PaymentmentIntent:" + intentId);
-                return false;
-            }
-
-            //mark the whole order as refunded for now, no partial refunds, will be integrated later.
-                payment.setPaymentStatus(PaymentStatus.REFUNDED);
-                //updates the existing row not inserting a new row.
-                paymentRepo.save(payment);
-
-                //update the order status after the refund
-                for(Orders order: payment.getOrders()) {
-                    order.setStatus(OrderStatusEnum.REFUNDED);
-                    orderRepo.save(order);
-                }
-
             return true;
         }
        return false;

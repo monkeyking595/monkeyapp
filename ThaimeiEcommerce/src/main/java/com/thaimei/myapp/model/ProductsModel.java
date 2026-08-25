@@ -9,7 +9,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.Data;
+import lombok.Setter;
+import lombok.Getter;
 import com.thaimei.myapp.enums.Category;
 import com.thaimei.myapp.enums.Color;
 import com.thaimei.myapp.enums.Size;   
@@ -20,7 +21,8 @@ import jakarta.persistence.EnumType;
 import com.thaimei.myapp.enums.ProductStatus;
 
 @Entity
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"store_id", "category", "color", "size",}))

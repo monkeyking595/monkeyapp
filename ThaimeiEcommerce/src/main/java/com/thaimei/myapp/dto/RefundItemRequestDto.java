@@ -2,21 +2,19 @@ package com.thaimei.myapp.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 
-public class ItemRequestDto {
+public class RefundItemRequestDto {
 
-    @NotNull(message = "Product ID cannot be null")
-    private Long productId;
+   @NotNull(message ="Id cannot be Empty")
+   private Long itemId;
 
-    @Min(value = 1, message = "Quantity must atleast be one")
+    @Min(value = 1, message ="Quantity cannot be less than 1")
     @NotNull(message ="quantity cannot be null")
     private Integer quantity;
 }

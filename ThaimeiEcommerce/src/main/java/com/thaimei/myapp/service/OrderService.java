@@ -4,6 +4,8 @@ import com.thaimei.myapp.model.Orders;
 import org.springframework.stereotype.Service;
 import com.thaimei.myapp.dto.OrderPlaceDto;
 import com.thaimei.myapp.dto.OrderResponseDto;
+import com.thaimei.myapp.dto.RefundDto;
+
 import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
@@ -246,5 +248,10 @@ public class OrderService {
 
         order.setStatus(status.getStatus());
         orderRepo.save(order);
+    }
+
+    public void refundPayment(RefundDto dto, Long userId) {
+        
+        
     }
 }

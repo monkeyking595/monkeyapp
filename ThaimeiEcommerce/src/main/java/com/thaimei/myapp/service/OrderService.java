@@ -4,7 +4,6 @@ import com.thaimei.myapp.model.Orders;
 import org.springframework.stereotype.Service;
 import com.thaimei.myapp.dto.OrderPlaceDto;
 import com.thaimei.myapp.dto.OrderResponseDto;
-import com.thaimei.myapp.dto.RefundDto;
 
 import org.modelmapper.ModelMapper;
 
@@ -20,7 +19,10 @@ import com.thaimei.myapp.model.ProductsModel;
 import com.thaimei.myapp.repository.ProductsRepo;
 import com.thaimei.myapp.model.User;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 import com.thaimei.myapp.enums.OrderStatusEnum;
+import com.thaimei.myapp.enums.ReturnItemStatus;
 import com.thaimei.myapp.error.AppException;
 import com.thaimei.myapp.error.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
@@ -31,24 +33,31 @@ import com.thaimei.myapp.model.OrderItems;
 import com.thaimei.myapp.model.StoreModel;
 import com.thaimei.myapp.repository.StoreRepo;
 import com.thaimei.myapp.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.thaimei.myapp.dto.ItemRequestDto;
+import com.thaimei.myapp.repository.OrderItemRepo;
 
 @Service
 public class OrderService {
+    private final static int REFUND_WINDOW_DAYS = 7;
+    private final OrderItemRepo orderItemRepo;
     private final OrderRepo orderRepo;
     private final ModelMapper modelMapper;
     private final StoreRepo storeRepo;
     private final UserRepository userRepository;
     private final ProductsRepo productsRepo;
-    public OrderService(OrderRepo orderRepo, ModelMapper modelMapper, ProductsRepo productsRepo, StoreRepo storeRepo, UserRepository userRepository) {
+    public OrderService(OrderRepo orderRepo, OrderItemRepo orderItemRepo, ModelMapper modelMapper, ProductsRepo productsRepo, StoreRepo storeRepo, UserRepository userRepository) {
         this.orderRepo=orderRepo;
         this.modelMapper=modelMapper;
         this.productsRepo=productsRepo;
         this.storeRepo = storeRepo;
         this.userRepository = userRepository;
+        this.orderItemRepo = orderItemRepo;
     }
 
 
@@ -250,8 +259,28 @@ public class OrderService {
         orderRepo.save(order);
     }
 
-    public void refundPayment(RefundDto dto, Long userId) {
-        
-        
+    @Transactional
+    public void markItemsReturned(List<Long>itemIds, Long userId) {
+        for(Long itemId : itemIds) {
+            OrderItems orderItem = orderItemRepo.findById(itemId)
+            .orElseThrow(() -> new ResourceNotFoundException("item not found"));
+            Orders order = orderItem.getOrders();
+            if(!order.getUser().getId().equals(userId)) {
+                throw new AppException("You don't own this order", 400);
+            }
+            
+            if(order.getDeliveredAt()== null || LocalDateTime.now().isAfter(order.getDeliveredAt().plusDays(REFUND_WINDOW_DAYS))) {
+                throw new AppException("Refund windows has expired", 400);
+            }
+
+            if(orderItem.getStatus()!=ReturnItemStatus.NOT_REQUESTED) {
+                throw new AppException("A return has already been requested for this item", 400);
+            }
+
+            orderItem.setStatus(ReturnItemStatus.RETURN_REQUESTED);
+            orderItem.setRequestedAt(LocalDateTime.now());
+            orderItemRepo.save(orderItem);
+        }
+       
     }
 }

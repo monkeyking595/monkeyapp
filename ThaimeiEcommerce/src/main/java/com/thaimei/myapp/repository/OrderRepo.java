@@ -1,5 +1,7 @@
 package com.thaimei.myapp.repository;
 import java.util.List;
+import java.util.Optional;
+
 import com.thaimei.myapp.model.Orders;
 import org.springframework.data.domain.Pageable;
 import com.thaimei.myapp.model.User;
@@ -12,4 +14,5 @@ public interface OrderRepo extends JpaRepository<Orders, Long> {
     public List<Orders>  findByUser_Id (Long id);
     Slice<Orders> findByStore_User(User user, Pageable pageable);
     Slice<Orders> findByStore_StoreId(Long storeId, Pageable pageable);
+    Optional<Orders>findByOrderItems_Id(Long itemId);
 }

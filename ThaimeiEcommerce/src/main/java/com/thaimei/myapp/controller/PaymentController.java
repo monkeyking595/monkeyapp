@@ -91,8 +91,8 @@ public class PaymentController {
                 return ResponseEntity.ok("webhook processed successfully");
             }
             else {
-                System.out.println("webhook received but not fully processed, will retry");
-                return ResponseEntity.ok("webhook received but not fully processed, will retry");
+                System.out.println("webhook processing failed for event" + event.getId() + " (type: " + eventType + ")- needs manual review");
+                return ResponseEntity.ok("webhook received, logged for manual review");
             }
 
         } catch (SignatureVerificationException e) {

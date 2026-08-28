@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import com.stripe.model.PaymentIntent;
 import com.thaimei.myapp.repository.ProcessWebhookRepo;
@@ -99,7 +100,7 @@ public class PaymentService {
 
             //set the order status after the payment status is set, successful payment means successful orders.
             OrderStatusEnum newOrderStatus = switch(payment.getPaymentStatus()) {
-                case SUCCESSFUL -> OrderStatusEnum.CONFIRMED;
+                case SUCCESSFUL -> OrderStatusEnum.DELIVERED;
                 case FAILED -> OrderStatusEnum.FAILED;
                 default -> OrderStatusEnum.PENDING;
             };
@@ -113,6 +114,7 @@ public class PaymentService {
 
                 order.setPayment(payment);
                 order.setStatus(newOrderStatus);
+                order.setDeliveredAt(LocalDateTime.now());
                 orderRepo.save(order);
             }
             return true;

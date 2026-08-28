@@ -6,5 +6,5 @@ public enum OrderStatusEnum {
     DELIVERED,
     CANCELLED,
     FAILED,
-    REFUNDED
+    RETURNED
 }

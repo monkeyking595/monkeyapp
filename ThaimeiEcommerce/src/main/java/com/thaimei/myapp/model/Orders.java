@@ -59,4 +59,6 @@ public class Orders {
     @JoinColumn(name="payment_id", nullable = true)
     private Payment payment;
 
+    private LocalDateTime deliveredAt;
+
 }

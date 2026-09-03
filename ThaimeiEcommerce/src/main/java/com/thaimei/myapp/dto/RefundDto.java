@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 public class RefundDto {
     @NotNull
     @NotEmpty(message="this field cannot be empty")
+    
     @Valid
     private List<RefundItemRequestDto> items;
 }

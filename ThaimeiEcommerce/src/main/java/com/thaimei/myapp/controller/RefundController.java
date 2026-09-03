@@ -16,7 +16,7 @@ import com.thaimei.myapp.service.RefundService;
 import jakarta.validation.Valid;
 
 @RestController 
-@RequestMapping("/admin")
+@RequestMapping("/customer")
 public class RefundController {
     private final RefundService refundService;
 
@@ -27,8 +27,7 @@ public class RefundController {
     @PostMapping("/refund")
     public ResponseEntity<?> recordRefund(@Valid @RequestBody RefundDto dto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getId();
-        refundService.recordRefund(dto, userId);
+        refundService.requestRefund(dto, userId);
         return ResponseEntity.ok(Map.of("message","Refunded"));
     }
-    
 }

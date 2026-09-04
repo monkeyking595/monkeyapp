@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, RefreshCw, Search } from "lucide-react";
+import { Plus, RefreshCw, Search, Store, X } from "lucide-react";
 import { api } from "../lib/api";
 import { EmptyState, ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 
@@ -17,9 +17,12 @@ export function productImage(product, index = 0) {
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [query, setQuery] = useState("");
+  const [storeQuery, setStoreQuery] = useState("");
+  const [storeResult, setStoreResult] = useState(null);
   const [page, setPage] = useState(0);
   const [pageInfo, setPageInfo] = useState({ first: true, last: true, number: 0 });
   const [loading, setLoading] = useState(true);
+  const [storeLoading, setStoreLoading] = useState(false);
   const [addingId, setAddingId] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -49,11 +52,44 @@ export default function ProductsPage() {
 
   const visibleProducts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return products;
-    return products.filter((product) =>
+    const sourceProducts = storeResult?.products || products;
+    if (!normalized) return sourceProducts;
+    return sourceProducts.filter((product) =>
       [product.name, product.description].some((value = "") => value.toLowerCase().includes(normalized))
     );
-  }, [products, query]);
+  }, [products, query, storeResult]);
+
+  async function searchStore(event) {
+    event.preventDefault();
+
+    const normalized = storeQuery.trim();
+    if (!normalized) {
+      setError("Enter a store name to search.");
+      return;
+    }
+
+    setError("");
+    setNotice("");
+    setStoreLoading(true);
+
+    try {
+      const store = await api.searchStore(normalized);
+      setStoreResult(store);
+      setQuery("");
+    } catch (err) {
+      setStoreResult(null);
+      setError(err instanceof Error ? err.message : "Store could not be found");
+    } finally {
+      setStoreLoading(false);
+    }
+  }
+
+  function clearStoreSearch() {
+    setStoreResult(null);
+    setStoreQuery("");
+    setError("");
+    setNotice("");
+  }
 
   async function add(productId) {
     setError("");
@@ -79,21 +115,66 @@ export default function ProductsPage() {
         </div>
         <label className="field-inline">
           <Search size={18} />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Filter products" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={storeResult ? "Filter store products" : "Filter products"}
+          />
         </label>
         <button className="icon-button" type="button" onClick={loadProducts} title="Refresh products">
           <RefreshCw size={18} />
         </button>
       </div>
 
+      <form className="store-search-panel" onSubmit={searchStore}>
+        <label className="field-inline store-search-field">
+          <Store size={18} />
+          <input
+            value={storeQuery}
+            onChange={(event) => setStoreQuery(event.target.value)}
+            placeholder="Search store by name"
+          />
+        </label>
+        <button className="button compact" type="submit" disabled={storeLoading}>
+          <Search size={18} />
+          {storeLoading ? "Searching..." : "Search store"}
+        </button>
+        {storeResult && (
+          <button className="icon-button" type="button" onClick={clearStoreSearch} title="Clear store search">
+            <X size={18} />
+          </button>
+        )}
+      </form>
+
       {error && <ErrorBanner message={error} />}
       {notice && <div className="banner success">{notice}</div>}
       {loading && <LoadingBlock label="Loading products" />}
-      {!loading && !visibleProducts.length && <EmptyState title="No products yet" text="Add products in the backend database and they will appear here." />}
+      {storeResult && (
+        <section className="store-result-strip">
+          <div>
+            <span className={`status status-${String(storeResult.openCloseStore || "unknown").toLowerCase()}`}>
+              {storeResult.openCloseStore || "OPEN"}
+            </span>
+            <h2>{storeResult.storeName || "Store"}</h2>
+            <p>
+              {(storeResult.products || []).length} product{(storeResult.products || []).length === 1 ? "" : "s"}
+              {storeResult.latitude !== undefined && storeResult.longitude !== undefined
+                ? ` near ${storeResult.latitude}, ${storeResult.longitude}`
+                : ""}
+            </p>
+          </div>
+        </section>
+      )}
+      {!loading && !visibleProducts.length && (
+        <EmptyState
+          title={storeResult ? "No products in this store" : "No products yet"}
+          text={storeResult ? "This store did not return matching products." : "Add products in the backend database and they will appear here."}
+        />
+      )}
 
       <section className="product-grid">
         {visibleProducts.map((product, index) => (
-          <article className="product-card" key={product.productId}>
+          <article className="product-card" key={product.productId || `${product.name}-${index}`}>
             <Link to={`/products/${product.productId}`} className="product-image-link">
               <img src={productImage(product, index)} alt={product.name} />
             </Link>
@@ -122,7 +203,7 @@ export default function ProductsPage() {
         ))}
       </section>
 
-      {!loading && !!products.length && (
+      {!loading && !storeResult && !!products.length && (
         <div className="pager">
           <button className="button compact" type="button" onClick={() => setPage((value) => Math.max(0, value - 1))} disabled={pageInfo.first || loading}>
             Previous

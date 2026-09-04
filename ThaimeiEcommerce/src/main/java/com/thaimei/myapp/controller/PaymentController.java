@@ -76,7 +76,7 @@ public class PaymentController {
 
                 case "charge.refunded":
                     Charge refundedCharge=(Charge) event.getDataObjectDeserializer().getObject().orElse(null);
-                    success = refundedCharge != null && paymentService.savePaymentDetails(refundedCharge);
+                    success = refundedCharge != null && paymentService.handleChargeRefunded(refundedCharge);
                     break;
 
                 default: 

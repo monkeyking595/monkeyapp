@@ -3,6 +3,7 @@ import {
   CreditCard,
   LogOut,
   Package,
+  RotateCcw,
   ShieldPlus,
   ShoppingBag,
   ShoppingCart,
@@ -53,6 +54,10 @@ export default function AppShell({ session, onLogout }) {
               <NavLink to="/payments">
                 <CreditCard size={18} />
                 Payments
+              </NavLink>
+              <NavLink to="/returns">
+                <RotateCcw size={18} />
+                Returns
               </NavLink>
             </>
           )}

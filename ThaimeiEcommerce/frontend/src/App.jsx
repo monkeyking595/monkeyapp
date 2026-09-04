@@ -13,6 +13,7 @@ import PaymentsPage from "./pages/PaymentsPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductsPage from "./pages/ProductsPage";
 import ProfilePage from "./pages/ProfilePage";
+import ReturnsPage from "./pages/ReturnsPage";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
 
 export default function App() {
@@ -64,6 +65,14 @@ export default function App() {
           element={
             <ProtectedRoute session={session}>
               <PaymentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/returns"
+          element={
+            <ProtectedRoute session={session}>
+              <ReturnsPage />
             </ProtectedRoute>
           }
         />

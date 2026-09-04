@@ -6,12 +6,16 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.stripe.model.Charge;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Refund;
+import com.stripe.param.RefundCreateParams;
 import com.thaimei.myapp.dto.RefundDto;
 import com.thaimei.myapp.dto.RefundItemRequestDto;
 import com.thaimei.myapp.dto.RefundResponseListDto;
+import com.thaimei.myapp.dto.ResponseRefundDto;
+import com.thaimei.myapp.dto.UserSideRefundDto;
+import com.thaimei.myapp.dto.UserSideResponseRefundDto;
 import com.thaimei.myapp.enums.OrderStatusEnum;
-import com.thaimei.myapp.enums.PaymentStatus;
 import com.thaimei.myapp.enums.RefundStatus;
 import com.thaimei.myapp.error.AppException;
 import com.thaimei.myapp.error.ResourceNotFoundException;
@@ -19,8 +23,8 @@ import com.thaimei.myapp.model.OrderItems;
 import com.thaimei.myapp.model.Orders;
 import com.thaimei.myapp.model.RefundModel;
 import com.thaimei.myapp.repository.OrderItemRepo;
-import com.thaimei.myapp.repository.OrderRepo;
 import com.thaimei.myapp.repository.RefundRepo;
+import com.thaimei.myapp.model.Payment;
 
 import jakarta.transaction.Transactional;
 
@@ -30,12 +34,10 @@ import jakarta.transaction.Transactional;
 public class RefundService {
     private final static int REFUND_WINDOWS_DAYS = 7;
     private final RefundRepo refundRepo;
-    private final OrderRepo orderRepo;
     private final OrderItemRepo orderItemRepo;
 
-    public RefundService(RefundRepo refundRepo, OrderRepo orderRepo, OrderItemRepo orderItemRepo) {
+    public RefundService(RefundRepo refundRepo, OrderItemRepo orderItemRepo) {
         this.refundRepo = refundRepo;
-        this.orderRepo = orderRepo;
         this.orderItemRepo = orderItemRepo;
     }
 
@@ -74,12 +76,81 @@ public class RefundService {
         }
     }
 
+    @Transactional
     public void approveRefund(Long id) {
+        RefundModel refund = refundRepo.findById(id)
+        .orElseThrow(()-> new ResourceNotFoundException ("refund Request not found" + id));
 
+        if(refund.getStatus() != RefundStatus.PENDING) {
+            throw new AppException("only pending refunds request can be approved", 400);
+        }
+
+        Orders order = refund.getOrder();
+        Payment payment = order.getPayment();
+
+        if(payment ==  null) {
+            throw new AppException("Payment not found for this order", 400);
+        }
+
+        try {
+            RefundCreateParams params = RefundCreateParams.builder()
+                .setPaymentIntent(payment.getPaymentId())
+                .setAmount(refund.getAmount().multiply(BigDecimal.valueOf(100)).longValue())
+                .putMetadata("refundRecord", refund.getId().toString())
+                .build();
+
+                 Refund.create(params);
+
+                refund.setStatus(RefundStatus.PROCESSING);
+                refundRepo.save(refund);
+        } catch (StripeException e) {
+            refund.setStatus(RefundStatus.FAILED);
+            refundRepo.save(refund);
+            throw new AppException("Failed to process refund" + e.getMessage(), 502);
+        }
     }
 
     public RefundResponseListDto getRefunds() {
-        
+        List<RefundModel> pendingRefunds = refundRepo.findByStatus(RefundStatus.PENDING);
+
+        List<ResponseRefundDto> dtos = pendingRefunds.stream()
+        .map(refund -> new ResponseRefundDto(refund.getId(), 
+        refund.getStatus(), 
+        refund.getOrderItem().getProduct().getName(),
+        refund.getQuantity(),
+        refund.getAmount(),
+        refund.getCreatedAt()
+    ))
+        .toList();
+        RefundResponseListDto response = new RefundResponseListDto();
+        response.setRefundResponseList(dtos);
+        return response;
+    }
+
+    @Transactional 
+    public void completeRefund(Long refundRecordId) {
+        RefundModel refund = refundRepo.findById(refundRecordId)
+        .orElseThrow(() -> new ResourceNotFoundException("Refund record not found for this Id" + refundRecordId));
+        refund.setStatus(RefundStatus.COMPLETED);
+        refundRepo.save(refund);
+    }
+
+    public UserSideResponseRefundDto getRefundForUser(Long userId) {
+        List<RefundModel> refunds = refundRepo.findByOrder_User_Id(userId);
+        List<UserSideRefundDto> dtos = refunds.stream()
+        .map(refund -> new UserSideRefundDto(
+            refund.getId(),
+            refund.getOrderItem().getProduct().getName(),
+            refund.getQuantity(),
+            refund.getAmount(),
+            refund.getStatus(),
+            refund.getCreatedAt()
+        ))
+        .toList();
+
+        UserSideResponseRefundDto response = new UserSideResponseRefundDto();
+        response.setRefunds(dtos);
+        return response;
     }
 
 }

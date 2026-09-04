@@ -14,7 +14,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.stripe.model.Charge;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.Refund;
 import com.thaimei.myapp.repository.ProcessWebhookRepo;
 import com.thaimei.myapp.repository.UserRepository;
 
@@ -25,19 +28,22 @@ import com.thaimei.myapp.enums.OrderStatusEnum;
 import com.thaimei.myapp.model.Orders;
 import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.repository.PaymentRepo;
+
 @Service
 public class PaymentService {
+    private final RefundService refundService;
     private final PaymentRepo paymentRepo;
     private final ModelMapper modelMapper;
     private final ProcessWebhookRepo processWebhookRepo;
     private final UserRepository userRepo;
     private final OrderRepo orderRepo;
-    public PaymentService(PaymentRepo paymentRepo, ModelMapper modelMapper, ProcessWebhookRepo processWebhookRepo, UserRepository userRepo, OrderRepo orderRepo) {
+    public PaymentService(PaymentRepo paymentRepo, ModelMapper modelMapper, ProcessWebhookRepo processWebhookRepo, UserRepository userRepo, OrderRepo orderRepo, RefundService refundService) {
         this.paymentRepo=paymentRepo;
         this.modelMapper=modelMapper;
         this.processWebhookRepo=processWebhookRepo;
         this.userRepo=userRepo;
         this.orderRepo=orderRepo;
+        this.refundService=refundService;
     }
     public PaymentDto getPaymentDetailsByPaymentId(String paymentId, User user) {
         Payment paymentDetails =paymentRepo.findByPaymentId(paymentId)
@@ -120,6 +126,25 @@ public class PaymentService {
             return true;
         }
        return false;
+    }
+
+    @Transactional
+    public boolean handleChargeRefunded(Charge charge) {
+        Payment payment = paymentRepo.findByPaymentId(charge.getPaymentIntent()).orElse(null);
+        if(payment == null) {
+            System.out.println("no payment found for PaymentIntent:" + charge.getPaymentIntent());
+            return false;
+        }
+        payment.setPaymentStatus(PaymentStatus.REFUNDED);
+        paymentRepo.save(payment);
+
+        for(Refund r: charge.getRefunds().getData()) {
+            String refundRecordId = r.getMetadata().get("refundRecord");
+            if(refundRecordId != null && "succeeded".equals(r.getStatus())) {
+                 refundService.completeRefund(Long.valueOf(refundRecordId));
+            }
+        }
+        return true;
     }
 
     public boolean eventExists(String eventId) {

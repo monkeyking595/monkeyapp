@@ -233,6 +233,12 @@ function pagedPath(path, page = 0, size = 20, extra = {}) {
   return `${path}?${query}`;
 }
 
+function listQueryParam(name, values) {
+  const query = new URLSearchParams();
+  values.forEach((value) => query.append(name, String(value)));
+  return query;
+}
+
 function adminList(path, page = 0, size = 20, role) {
   const query = new URLSearchParams({
     page: String(page),
@@ -316,6 +322,7 @@ export const api = {
   productsSlice: (page = 0, size = 20) => request(pagedPath("/customers/productlist", page, size)),
   products: (page = 0, size = 20) => api.productsSlice(page, size).then(contentPayload),
   product: (id) => request(`/customers/details/${id}`),
+  searchStore: (storeName) => request(`/customers/search/store?${new URLSearchParams({ storeName })}`),
   cart: () => request("/Cart/getItems"),
   addToCart: (productId, quantity) =>
     request("/Cart/AddItems", {
@@ -323,6 +330,21 @@ export const api = {
       body: JSON.stringify({ productId, quantity })
     }),
   orders: () => request(`${ORDER_API_BASE}/GetOrder`),
+  requestReturn: (itemIds) =>
+    request(`${ORDER_API_BASE}/returnProducts?${listQueryParam("itemIds", itemIds.map(Number))}`, {
+      method: "PATCH"
+    }),
+  requestRefund: (items) =>
+    request("/customer/requestRefund", {
+      method: "POST",
+      body: JSON.stringify({
+        items: items.map(({ itemId, quantity }) => ({
+          itemId: Number(itemId),
+          quantity: Number(quantity)
+        }))
+      })
+    }),
+  customerRefunds: () => request("/customer/getRefunds"),
   checkoutCart: (items) =>
     request(`${ORDER_API_BASE}/CartCheckout`, {
       method: "POST",
@@ -350,6 +372,11 @@ export const api = {
   adminUsers: (page = 0, size = 20) => adminList("/admin/api/customers/sellers", page, size, ROLES.CUSTOMER),
   adminSellers: (page = 0, size = 20) => adminList("/admin/api/customers/sellers", page, size, ROLES.SELLER),
   adminOrders: (page = 0, size = 20) => request(pagedPath("/admin/api/adminOrders", page, size)).then(slicePayload),
+  adminRefunds: () => request("/admin/refund/pullrefund"),
+  approveRefund: (refundId) =>
+    request(`/admin/refund/approve/${refundId}`, {
+      method: "PATCH"
+    }),
   adminSellerOrders: (sellerId, page = 0, size = 20) =>
     request(pagedPath(`/admin/api/sellerOrdersForAdmin/${sellerId}`, page, size)).then(slicePayload),
   adminSellerStores: (sellerId) => request(`/admin/api/getAllStoresBySeller/${sellerId}`),
@@ -380,6 +407,14 @@ export const api = {
     request(`/sellers/openStore/${storeId}`, {
       method: "PATCH",
       body: JSON.stringify({ openCloseStore })
+    }),
+  sellerOrdersSlice: (page = 0, size = 20) => request(pagedPath("/sellers/orders", page, size)).then(slicePayload),
+  sellerStoreOrdersSlice: (storeId, page = 0, size = 20) =>
+    request(pagedPath(`/sellers/store/${storeId}`, page, size)).then(slicePayload),
+  updateSellerOrderStatus: (orderId, status) =>
+    request(`/sellers/${orderId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status })
     }),
   sellerProductsSlice: (page = 0, size = 20) => request(pagedPath("/sellers/getProducts", page, size)),
   sellerProducts: (page = 0, size = 20) => api.sellerProductsSlice(page, size).then(contentPayload),

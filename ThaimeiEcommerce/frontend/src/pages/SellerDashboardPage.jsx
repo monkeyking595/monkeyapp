@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Boxes, PackagePlus, Power, RefreshCw, Store, Trash2 } from "lucide-react";
+import { Boxes, ClipboardList, PackagePlus, Power, RefreshCw, Save, Store, Trash2 } from "lucide-react";
 import { api } from "../lib/api";
 import { EmptyState, ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 
@@ -7,6 +7,7 @@ const businessTypes = ["RETAIL", "INDIVIDUAL"];
 const categories = ["T_SHIRTS", "HOODIES", "PANTS", "SHOES", "JACKETS"];
 const colors = ["RED", "BLUE", "GREY", "YELLOW", "BLACK", "WHITE"];
 const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+const orderStatusOptions = ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED", "FAILED", "RETURNED"];
 
 const initialStoreForm = {
   storeName: "",
@@ -31,6 +32,13 @@ function label(value = "") {
   return String(value || "").replaceAll("_", " ");
 }
 
+function money(value) {
+  if (value === null || value === undefined || value === "") return "-";
+  const amount = Number(value);
+  if (Number.isNaN(amount)) return value;
+  return `Rs. ${amount.toFixed(2)}`;
+}
+
 function productId(product) {
   return product?.productId ?? product?.id;
 }
@@ -43,24 +51,54 @@ function productStatus(product) {
   return product?.status || product?.productStatus || "ACTIVE";
 }
 
+function storeId(store) {
+  return store?.storeId ?? store?.id;
+}
+
+function storeName(store) {
+  return store?.storeName || store?.name || `Store #${storeId(store) || "-"}`;
+}
+
+function orderId(order) {
+  return order?.orderId ?? order?.id;
+}
+
+function orderStatus(order) {
+  return order?.status || order?.orderStatus || "PENDING";
+}
+
+function pageState() {
+  return { first: true, last: true, number: 0 };
+}
+
 export default function SellerDashboardPage() {
   const [stores, setStores] = useState([]);
   const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [storeForm, setStoreForm] = useState(initialStoreForm);
   const [productForm, setProductForm] = useState(initialProductForm);
   const [manageStoreId, setManageStoreId] = useState("");
+  const [orderStoreId, setOrderStoreId] = useState("");
+  const [orderPage, setOrderPage] = useState(0);
+  const [orderPageInfo, setOrderPageInfo] = useState(pageState);
   const [selectedProductIds, setSelectedProductIds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const [busyStore, setBusyStore] = useState(false);
   const [busyProduct, setBusyProduct] = useState(false);
   const [busyDelete, setBusyDelete] = useState(false);
   const [busyStoreStatusId, setBusyStoreStatusId] = useState(null);
+  const [savingOrderId, setSavingOrderId] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
     loadSellerData();
   }, []);
+
+  useEffect(() => {
+    loadSellerOrders();
+  }, [orderPage, orderStoreId]);
 
   const selectedStore = useMemo(
     () => stores.find((store) => String(store.storeId) === String(productForm.storeId)),
@@ -102,6 +140,34 @@ export default function SellerDashboardPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function loadSellerOrders(storeIdValue = orderStoreId, pageValue = orderPage) {
+    setError("");
+    setOrdersLoading(true);
+
+    try {
+      const data = storeIdValue
+        ? await api.sellerStoreOrdersSlice(storeIdValue, pageValue)
+        : await api.sellerOrdersSlice(pageValue);
+
+      setOrders(data.content || []);
+      setOrderPageInfo({
+        first: data.first ?? pageValue === 0,
+        last: data.last ?? true,
+        number: data.number ?? pageValue
+      });
+    } catch (err) {
+      setOrders([]);
+      setOrderPageInfo(pageState());
+      setError(err instanceof Error ? err.message : "Seller orders could not load");
+    } finally {
+      setOrdersLoading(false);
+    }
+  }
+
+  async function refreshSellerWorkspace() {
+    await Promise.all([loadSellerData(), loadSellerOrders()]);
   }
 
   function updateStoreForm(key, value) {
@@ -183,6 +249,41 @@ export default function SellerDashboardPage() {
     );
   }
 
+  function changeOrderStatus(id, status) {
+    setOrders((current) =>
+      current.map((order) => (orderId(order) === id ? { ...order, pendingStatus: status } : order))
+    );
+  }
+
+  async function saveOrderStatus(order) {
+    const id = orderId(order);
+    const nextStatus = order.pendingStatus || orderStatus(order);
+
+    if (!id) {
+      setError("Order id is missing from this row.");
+      return;
+    }
+
+    setError("");
+    setNotice("");
+    setSavingOrderId(id);
+
+    try {
+      await api.updateSellerOrderStatus(id, nextStatus);
+      setOrders((current) =>
+        current.map((item) =>
+          orderId(item) === id ? { ...item, status: nextStatus, orderStatus: nextStatus, pendingStatus: undefined } : item
+        )
+      );
+      setNotice(`Order #${id} is now ${label(nextStatus).toLowerCase()}.`);
+      await loadSellerOrders();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Order status could not be updated");
+    } finally {
+      setSavingOrderId(null);
+    }
+  }
+
   async function deleteSelectedProducts() {
     if (!manageStoreId) {
       setError("Select a store before deleting products.");
@@ -216,9 +317,9 @@ export default function SellerDashboardPage() {
       <div className="page-heading">
         <div>
           <span className="pill">Seller</span>
-          <h1>Store Manager</h1>
+          <h1>Seller Workspace</h1>
         </div>
-        <button className="icon-button" type="button" onClick={loadSellerData} title="Refresh seller data">
+        <button className="icon-button" type="button" onClick={refreshSellerWorkspace} title="Refresh seller data">
           <RefreshCw size={18} />
         </button>
       </div>
@@ -298,8 +399,8 @@ export default function SellerDashboardPage() {
                 >
                   {!stores.length && <option value="">No stores</option>}
                   {stores.map((store) => (
-                    <option key={store.storeId} value={store.storeId}>
-                      {store.storeName}
+                    <option key={storeId(store)} value={storeId(store)}>
+                      {storeName(store)}
                     </option>
                   ))}
                 </select>
@@ -399,17 +500,18 @@ export default function SellerDashboardPage() {
                   {stores.map((store) => {
                     const openCloseStore = store.openCloseStore || "CLOSED";
                     const nextStatus = openCloseStore === "OPEN" ? "CLOSED" : "OPEN";
+                    const id = storeId(store);
 
                     return (
-                      <article className="store-manage-row" key={store.storeId}>
+                      <article className="store-manage-row" key={id}>
                         <div>
-                          <strong>{store.storeName}</strong>
-                          <small>#{store.storeId}</small>
+                          <strong>{storeName(store)}</strong>
+                          <small>#{id}</small>
                         </div>
                         <button
                           className="button compact"
                           type="button"
-                          disabled={busyStoreStatusId === store.storeId}
+                          disabled={busyStoreStatusId === id}
                           onClick={() => toggleStoreOpenState(store)}
                           title={`Mark store ${nextStatus.toLowerCase()}`}
                         >
@@ -443,8 +545,8 @@ export default function SellerDashboardPage() {
                   >
                     {!stores.length && <option value="">No stores</option>}
                     {stores.map((store) => (
-                      <option key={store.storeId} value={store.storeId}>
-                        {store.storeName}
+                      <option key={storeId(store)} value={storeId(store)}>
+                        {storeName(store)}
                       </option>
                     ))}
                   </select>
@@ -509,6 +611,129 @@ export default function SellerDashboardPage() {
                 </table>
               )}
             </div>
+
+            <section className="table-wrap seller-orders-table span-two">
+              <div className="table-title seller-orders-title">
+                <div className="form-heading">
+                  <ClipboardList size={22} />
+                  <h2>Orders</h2>
+                </div>
+                <button className="icon-button" type="button" onClick={() => loadSellerOrders()} title="Refresh orders">
+                  <RefreshCw size={18} />
+                </button>
+              </div>
+              <div className="seller-product-tools seller-order-tools">
+                <label>
+                  Store
+                  <select
+                    value={orderStoreId}
+                    onChange={(event) => {
+                      setOrderStoreId(event.target.value);
+                      setOrderPage(0);
+                    }}
+                    disabled={!stores.length || ordersLoading}
+                  >
+                    <option value="">All stores</option>
+                    {stores.map((store) => (
+                      <option key={storeId(store)} value={storeId(store)}>
+                        {storeName(store)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <span className="table-count">{orders.length} loaded</span>
+              </div>
+
+              {ordersLoading && <LoadingBlock label="Loading seller orders" />}
+              {!ordersLoading && !orders.length && <EmptyState title="No orders yet" text="Orders for your stores will appear here." />}
+              {!ordersLoading && !!orders.length && (
+                <>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Order</th>
+                        <th>Name</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders.map((order) => {
+                        const id = orderId(order);
+                        const currentStatus = orderStatus(order);
+                        const selectedStatus = order.pendingStatus || currentStatus;
+                        const isDirty = selectedStatus !== currentStatus;
+                        const isSaving = savingOrderId === id;
+                        const options = orderStatusOptions.includes(selectedStatus)
+                          ? orderStatusOptions
+                          : [selectedStatus, ...orderStatusOptions];
+
+                        return (
+                          <tr key={id || order.name}>
+                            <td>{id ? `#${id}` : "-"}</td>
+                            <td>
+                              <strong>{order.name || order.productName || `Order #${id || "-"}`}</strong>
+                              <small>{order.storeName || order.customerName || ""}</small>
+                            </td>
+                            <td>{money(order.totalPrice)}</td>
+                            <td>
+                              <div className="status-control">
+                                <span className={`status status-${String(selectedStatus).toLowerCase()}`}>
+                                  {label(selectedStatus)}
+                                </span>
+                                <select
+                                  value={selectedStatus}
+                                  onChange={(event) => changeOrderStatus(id, event.target.value)}
+                                  disabled={isSaving || !id}
+                                  aria-label={`Status for order ${id || ""}`}
+                                >
+                                  {options.map((status) => (
+                                    <option key={status} value={status}>
+                                      {label(status)}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </td>
+                            <td>
+                              <button
+                                className="icon-button"
+                                type="button"
+                                onClick={() => saveOrderStatus(order)}
+                                disabled={!isDirty || isSaving || !id}
+                                title="Save order status"
+                              >
+                                <Save size={17} />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  <div className="pager">
+                    <button
+                      className="button compact"
+                      type="button"
+                      onClick={() => setOrderPage((value) => Math.max(0, value - 1))}
+                      disabled={orderPageInfo.first || ordersLoading}
+                    >
+                      Previous
+                    </button>
+                    <span>Page {orderPageInfo.number + 1}</span>
+                    <button
+                      className="button compact"
+                      type="button"
+                      onClick={() => setOrderPage((value) => value + 1)}
+                      disabled={orderPageInfo.last || ordersLoading}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </>
+              )}
+            </section>
           </section>
         </>
       )}

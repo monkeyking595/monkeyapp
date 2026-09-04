@@ -10,4 +10,6 @@ import com.thaimei.myapp.model.RefundModel;
 
 public interface  RefundRepo extends JpaRepository<RefundModel, Long> {
     Optional<RefundModel> findByOrderItem_IdAndStatusIn(Long itemId, List<RefundStatus> statuses);
+    List<RefundModel> findByStatus (RefundStatus status);
+    List<RefundModel> findByOrder_User_Id(Long userId);
 }

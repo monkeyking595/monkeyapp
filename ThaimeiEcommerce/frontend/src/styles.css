@@ -284,6 +284,37 @@ button {
   gap: 18px;
 }
 
+.store-search-panel {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  margin: -8px 0 18px;
+}
+
+.store-result-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid #e2dbcf;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.store-result-strip h2 {
+  margin: 8px 0 4px;
+  font-size: 24px;
+}
+
+.store-result-strip p {
+  margin: 0;
+  color: #6b665f;
+  font-weight: 700;
+}
+
 .product-card {
   overflow: hidden;
   min-width: 0;
@@ -750,6 +781,37 @@ textarea:focus {
   padding: 16px 18px;
 }
 
+.seller-orders-table {
+  margin-top: 0;
+}
+
+.seller-orders-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+}
+
+.seller-order-tools {
+  grid-template-columns: minmax(180px, 280px) 1fr;
+  align-items: center;
+}
+
+.table-count {
+  justify-self: end;
+  color: #6b665f;
+  font-weight: 800;
+}
+
+.table-wrap .loading,
+.table-wrap .empty-state {
+  margin: 16px 18px 18px;
+}
+
+.seller-orders-table .pager {
+  padding: 0 18px 18px;
+}
+
 .table-title {
   padding: 18px 18px 0;
 }
@@ -1054,6 +1116,7 @@ th {
 .status-accepted,
 .status-active,
 .status-delivered,
+.status-open,
 .status-shipped,
 .status-successful,
 .status-succeeded {
@@ -1062,6 +1125,7 @@ th {
 }
 
 .status-rejected,
+.status-closed,
 .status-disabled,
 .status-cancelled,
 .status-failed,
@@ -1198,7 +1262,9 @@ select:disabled {
   .status-control,
   .status-control.compact,
   .bulk-actions,
+  .seller-order-tools,
   .seller-product-tools,
+  .store-search-panel,
   .pager {
     align-items: stretch;
   }
@@ -1211,10 +1277,16 @@ select:disabled {
   .status-control.compact,
   .bulk-actions,
   .seller-product-tools,
+  .seller-order-tools,
+  .store-search-panel,
   .store-admin-item,
   .lookup-form,
   .payment-meta {
     grid-template-columns: 1fr;
+  }
+
+  .table-count {
+    justify-self: start;
   }
 
   .store-manage-row {

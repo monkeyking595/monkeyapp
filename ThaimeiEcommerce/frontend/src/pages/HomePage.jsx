@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Boxes, PackageCheck, ShieldCheck, ShoppingBag, ShoppingCart, Store, UserRound, UsersRound } from "lucide-react";
+import { ArrowRight, Boxes, PackageCheck, ShieldCheck, ShoppingBag, ShoppingCart, Sparkles, Store, UserRound, UsersRound } from "lucide-react";
 import { hasRole, ROLES } from "../lib/api";
 
 const actions = {
@@ -34,17 +34,44 @@ function actionSet(session) {
 
 export default function HomePage({ session }) {
   const cards = actionSet(session);
+  const isGuest = !session;
 
   return (
     <main className="home">
       <section className="hero app-hero">
         <div className="hero-copy">
-          <span className="pill">{session?.role || "Thaimei"}</span>
-          <h1>Thaimei</h1>
-          <p>{session ? `Signed in as ${session.username}.` : "Choose the right workspace for your account."}</p>
+          <span className="eyebrow"><Sparkles size={14} /> {session?.role || "A smarter marketplace"}</span>
+          <h1>Style that feels<br />like <em>you.</em></h1>
+          <p>
+            {session
+              ? `Welcome back, ${session.username}. Your ${String(session.role || "customer").toLowerCase()} workspace is ready.`
+              : "Discover everyday essentials, independent stores, and a checkout built to keep up with you."}
+          </p>
+          <div className="hero-actions">
+            <Link className="button hero-button" to={isGuest ? "/login" : cards[0].to}>
+              {isGuest ? "Start shopping" : `Open ${cards[0].title}`}
+              <ArrowRight size={18} />
+            </Link>
+            {isGuest && <Link className="text-button" to="/seller-signup">Sell with Thaimei</Link>}
+          </div>
         </div>
+        <div className="hero-orb" aria-hidden="true" />
       </section>
 
+      <section className="trust-bar" aria-label="Store benefits">
+        <span>Curated stores</span>
+        <span>Secure payments</span>
+        <span>Simple returns</span>
+        <span>Real-time orders</span>
+      </section>
+
+      <section className="home-intro">
+        <div>
+          <span className="section-kicker">Your next move</span>
+          <h2>{isGuest ? "Everything in one considered place." : "Pick up where you left off."}</h2>
+        </div>
+        <p>{isGuest ? "Whether you are shopping, selling, or managing the marketplace, begin from the space made for you." : "Use these shortcuts to stay on top of the work that matters today."}</p>
+      </section>
       <section className="feature-strip">
         {cards.map((item) => {
           const Icon = item.icon;
@@ -61,6 +88,18 @@ export default function HomePage({ session }) {
           );
         })}
       </section>
+
+      {isGuest && (
+        <section className="home-editorial">
+          <div className="editorial-image" />
+          <div className="editorial-copy">
+            <span className="section-kicker">Built for discovery</span>
+            <h2>A marketplace with a human pulse.</h2>
+            <p>Search active inventory, keep a cart across your session, and follow each order from checkout to delivery.</p>
+            <Link className="inline-link" to="/login">Explore the storefront <ArrowRight size={16} /></Link>
+          </div>
+        </section>
+      )}
     </main>
   );
 }

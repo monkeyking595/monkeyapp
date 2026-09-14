@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
+  ArrowUpRight,
   CreditCard,
   LogOut,
   Package,
@@ -18,6 +19,7 @@ export default function AppShell({ session, onLogout }) {
   const isAdmin = hasRole(session, ROLES.ADMIN);
   const isSeller = hasRole(session, ROLES.SELLER);
   const isCustomer = !session || hasRole(session, ROLES.CUSTOMER);
+  const displayName = session?.username || session?.userName || "Account";
 
   function logout() {
     clearSession();
@@ -27,16 +29,20 @@ export default function AppShell({ session, onLogout }) {
 
   return (
     <div className="app-shell">
+      <div className="announcement-bar">
+        <span>New season, considered choices.</span>
+        <Link to={session ? "/products" : "/signup"}>Explore Thaimei <ArrowUpRight size={13} /></Link>
+      </div>
       <header className="topbar">
         <Link className="brand" to="/">
           <span className="brand-mark">T</span>
           <span>
             <strong>Thaimei</strong>
-            <small>AI shopping</small>
+            <small>Modern marketplace</small>
           </span>
         </Link>
 
-        <nav className="nav">
+        <nav className="nav" aria-label="Primary navigation">
           {isCustomer && (
             <>
               <NavLink to="/products">
@@ -88,9 +94,15 @@ export default function AppShell({ session, onLogout }) {
         </nav>
 
         {session ? (
-          <button className="icon-button" type="button" onClick={logout} title="Sign out">
-            <LogOut size={19} />
-          </button>
+          <div className="account-actions">
+            <Link className="account-chip" to={isAdmin ? "/admin" : isSeller ? "/seller" : "/profile"} title="Open workspace">
+              <span>{displayName.charAt(0).toUpperCase()}</span>
+              <strong>{displayName}</strong>
+            </Link>
+            <button className="icon-button signout-button" type="button" onClick={logout} title="Sign out">
+              <LogOut size={18} />
+            </button>
+          </div>
         ) : (
           <Link className="button compact" to="/login">
             Sign in
@@ -98,6 +110,33 @@ export default function AppShell({ session, onLogout }) {
         )}
       </header>
       <Outlet />
+      <footer className="site-footer">
+        <div className="footer-brand">
+          <Link className="brand" to="/">
+            <span className="brand-mark">T</span>
+            <strong>Thaimei</strong>
+          </Link>
+          <p>A more thoughtful way to discover, buy, and grow with independent commerce.</p>
+        </div>
+        <div className="footer-links">
+          <div>
+            <span>Marketplace</span>
+            <Link to="/products">Shop all</Link>
+            {isCustomer && <Link to="/orders">Your orders</Link>}
+            {isCustomer && <Link to="/returns">Returns</Link>}
+          </div>
+          <div>
+            <span>Account</span>
+            {session ? <Link to={isSeller ? "/seller" : isAdmin ? "/admin" : "/profile"}>Your workspace</Link> : <Link to="/login">Sign in</Link>}
+            {!session && <Link to="/seller-signup">Sell with us</Link>}
+            {isCustomer && <Link to="/payments">Payment status</Link>}
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <span>© {new Date().getFullYear()} Thaimei</span>
+          <span>Secure checkout · Order tracking · Easy returns</span>
+        </div>
+      </footer>
     </div>
   );
 }

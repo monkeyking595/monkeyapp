@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { PackageCheck } from "lucide-react";
+import { ArrowRight, PackageCheck, ShoppingBag } from "lucide-react";
+import { Link } from "react-router-dom";
 import { api } from "../lib/api";
 import { EmptyState, ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 
@@ -21,14 +22,22 @@ export default function OrdersPage() {
       <div className="page-heading">
         <div>
           <span className="pill">History</span>
-          <h1>Orders</h1>
+          <h1>Your orders</h1>
+          <p className="page-subtitle">Every purchase, in one clear place.</p>
         </div>
         <PackageCheck size={30} />
       </div>
 
       {error && <ErrorBanner message={error} />}
       {loading && <LoadingBlock label="Loading orders" />}
-      {!loading && !orders.length && <EmptyState title="No orders found" text="Completed orders from your backend will appear here." />}
+      {!loading && !orders.length && (
+        <div className="empty-state empty-state-action">
+          <ShoppingBag size={26} />
+          <h2>Your order history starts here</h2>
+          <p>When you check out, order updates and totals will appear here automatically.</p>
+          <Link className="button compact" to="/products">Discover products <ArrowRight size={16} /></Link>
+        </div>
+      )}
 
       <section className="line-items">
         {orders.map((order, index) => {

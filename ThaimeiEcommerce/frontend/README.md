@@ -1,5 +1,24 @@
 # Thaimei Frontend
 
+## Local development
+
+The frontend and Spring backend share the repository-root `.env` file. A local development version is included for convenience; it uses a local MySQL database and proxies browser API calls to `http://127.0.0.1:8080`.
+
+1. Start the backend and MySQL from the repository root: `docker compose up --build`
+2. In another terminal, run `cd frontend && npm install && npm run dev`
+3. Open `http://127.0.0.1:5173`
+
+For a production-style frontend server, build and serve it with `cd frontend && npm start`. It listens on `http://127.0.0.1:4173` and uses `API_PROXY_TARGET` from the root `.env` file.
+
+Before using checkout, put Stripe **test** keys in `.env`:
+
+- `STRIPE_SECRET_KEY`
+- `STRIPE_PUBLISHABLE_KEY`
+- `VITE_STRIPE_PUBLISHABLE_KEY`
+- `STRIPE_WEBHOOK_SECRET` (only needed for webhook verification)
+
+Do not commit real secrets. Copy `.env.example` if you need to recreate the configuration.
+
 ## Production hosting
 
 - Build command: `npm run build`

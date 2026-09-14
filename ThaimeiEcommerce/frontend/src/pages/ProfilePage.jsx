@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Save } from "lucide-react";
+import { MapPin, Save, ShieldCheck } from "lucide-react";
 import { api } from "../lib/api";
 import { ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 
@@ -51,7 +51,8 @@ export default function ProfilePage() {
       <div className="page-heading">
         <div>
           <span className="pill">Account</span>
-          <h1>Profile</h1>
+          <h1>Your details</h1>
+          <p className="page-subtitle">Keep your delivery information current for a smoother checkout.</p>
         </div>
       </div>
       {error && <ErrorBanner message={error} />}
@@ -59,7 +60,12 @@ export default function ProfilePage() {
       {loading ? (
         <LoadingBlock label="Loading profile" />
       ) : (
-        <form className="profile-form" onSubmit={submit}>
+        <form className="profile-form profile-card" onSubmit={submit}>
+          <div className="form-intro span-two">
+            <div><ShieldCheck size={21} /><strong>Private by design</strong></div>
+            <p>Your details are used to support your account and fulfil your orders.</p>
+          </div>
+          <div className="form-section-title span-two"><MapPin size={18} /> Delivery details</div>
           <label>
             Full name
             <input value={profile.fullname} onChange={(event) => update("fullname", event.target.value)} required />

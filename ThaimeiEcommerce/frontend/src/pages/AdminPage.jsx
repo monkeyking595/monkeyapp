@@ -638,6 +638,15 @@ export default function AdminPage() {
                               >
                                 <Save size={17} />
                               </button>
+                              <button
+                                className="button compact accept-store-button"
+                                type="button"
+                                onClick={() => saveStoreStatus({ ...store, pendingStatus: "ACCEPTED" })}
+                                disabled={selectedStatus === "ACCEPTED" || isSaving}
+                              >
+                                <CheckCircle2 size={16} />
+                                {isSaving && selectedStatus === "ACCEPTED" ? "Accepting..." : "Accept"}
+                              </button>
                             </div>
                           </article>
                         );

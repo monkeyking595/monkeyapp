@@ -169,6 +169,16 @@ button {
   border: 1px solid #ded6ca;
 }
 
+.icon-button.danger {
+  color: #9a291d;
+  border-color: #e7b7b0;
+}
+
+.icon-button.danger:hover:not(:disabled) {
+  background: #fff1ef;
+  color: #7e1f17;
+}
+
 .page,
 .home {
   width: min(1180px, calc(100% - 32px));
@@ -340,8 +350,18 @@ button {
 
 .product-info {
   display: grid;
+  min-height: 190px;
+  grid-template-rows: 1fr auto;
   gap: 18px;
   padding: 16px;
+}
+
+.product-name-link {
+  color: inherit;
+}
+
+.product-name-link:hover {
+  color: #276a53;
 }
 
 .product-actions {
@@ -349,6 +369,27 @@ button {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+}
+
+.product-actions > div {
+  display: grid;
+  gap: 6px;
+}
+
+.product-detail-link {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  gap: 4px;
+  color: #276a53;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.product-detail-link:hover {
+  color: #184638;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .auth-page {
@@ -436,11 +477,35 @@ textarea:focus {
 }
 
 .auth-links {
-  display: flex;
-  gap: 14px;
+  display: grid;
+  gap: 8px;
   margin-top: 18px;
+}
+
+.auth-links a {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid #d9e6ce;
+  border-radius: 8px;
+  background: #f7fbf2;
   color: #4f6f23;
   font-weight: 700;
+  text-align: center;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.auth-links a:hover {
+  border-color: #9db882;
+  background: #edf6e6;
+  color: #355318;
+}
+
+.auth-return {
+  width: 100%;
+  margin-top: 10px;
 }
 
 .detail-layout,
@@ -524,6 +589,43 @@ textarea:focus {
   border: 1px solid #e2dbcf;
   border-radius: 8px;
   background: #fff;
+}
+
+.item-copy {
+  display: flex;
+  min-width: 0;
+  gap: 14px;
+  align-items: center;
+}
+
+.item-thumb {
+  display: block;
+  flex: 0 0 96px;
+  width: 96px;
+  height: 96px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #eee9df;
+}
+
+.item-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.remove-cart-button {
+  min-height: 36px;
+  padding: 0 12px;
+  color: #9a291d;
+  border-color: #e7b7b0;
+}
+
+.remove-cart-button:hover:not(:disabled) {
+  background: #fff1ef;
+  color: #7e1f17;
 }
 
 .summary-panel {
@@ -844,10 +946,16 @@ textarea:focus {
 .admin-page {
   display: grid;
   gap: 18px;
+  width: min(1240px, calc(100% - 48px));
 }
 
 .admin-heading {
   margin-bottom: 0;
+}
+
+.admin-heading h1 {
+  font-size: clamp(36px, 4vw, 48px);
+  line-height: 1.05;
 }
 
 .admin-section-tabs {
@@ -883,6 +991,7 @@ textarea:focus {
 
 .admin-panel {
   min-width: 0;
+  overflow: hidden;
   border: 1px solid #e2dbcf;
   border-radius: 8px;
   background: #fff;
@@ -983,7 +1092,7 @@ td small,
 
 .store-admin-item {
   display: grid;
-  grid-template-columns: minmax(140px, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   align-items: center;
   padding: 14px;
@@ -993,8 +1102,15 @@ td small,
 }
 
 .status-control.compact {
-  grid-template-columns: minmax(94px, auto) minmax(126px, 1fr) 42px;
+  width: 100%;
+  grid-template-columns: minmax(94px, auto) minmax(110px, 1fr) 38px auto;
   min-width: 0;
+}
+
+.accept-store-button {
+  min-height: 38px;
+  padding: 0 12px;
+  white-space: nowrap;
 }
 
 .bulk-actions {
@@ -1008,6 +1124,34 @@ td small,
 .compact-table th,
 .compact-table td {
   padding: 12px;
+}
+
+.admin-page .table-wrap {
+  max-width: 100%;
+}
+
+.admin-page table {
+  min-width: 680px;
+}
+
+.admin-page .compact-table table {
+  min-width: 520px;
+}
+
+.admin-page th,
+.admin-page td {
+  white-space: nowrap;
+}
+
+.admin-page td strong,
+.admin-page td small {
+  white-space: normal;
+}
+
+.admin-page .bulk-actions select,
+.admin-page .status-control select {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .row-check {
@@ -1205,6 +1349,14 @@ select:disabled {
   .summary-panel {
     position: static;
   }
+
+  .admin-page .seller-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-page .span-two {
+    grid-column: auto;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1222,6 +1374,23 @@ select:disabled {
   .page-heading {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .admin-page {
+    width: min(100% - 24px, 1240px);
+    gap: 14px;
+  }
+
+  .admin-heading h1 {
+    font-size: 36px;
+  }
+
+  .admin-panel {
+    padding: 14px;
+  }
+
+  .admin-section-tabs {
+    width: 100%;
   }
 
   .hero {

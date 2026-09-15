@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, RefreshCw, Search, Store, X } from "lucide-react";
+import { ArrowUpRight, Plus, RefreshCw, Search, Store, X } from "lucide-react";
 import { api } from "../lib/api";
 import { EmptyState, ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 
@@ -107,7 +107,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <main className="page">
+    <main className="page products-page">
       <div className="page-heading">
         <div>
           <span className="pill">Storefront</span>
@@ -183,16 +183,26 @@ export default function ProductsPage() {
                 <span className="meta-line">
                   {product.category?.replaceAll("_", " ")} / {product.color} / {product.size}
                 </span>
-                <h2>{product.name}</h2>
+                <h2>
+                  <Link className="product-name-link" to={`/products/${product.productId}`}>
+                    {product.name}
+                  </Link>
+                </h2>
                 <p>{product.description}</p>
               </div>
               <div className="product-actions">
-                <strong>Rs. {Number(product.price).toFixed(2)}</strong>
+                <div>
+                  <strong>Rs. {Number(product.price).toFixed(2)}</strong>
+                  <Link className="product-detail-link" to={`/products/${product.productId}`}>
+                    View details <ArrowUpRight size={15} />
+                  </Link>
+                </div>
                 <button
                   className="icon-button dark"
                   type="button"
                   onClick={() => add(product.productId)}
                   title="Add to cart"
+                  aria-label={`Add ${product.name} to cart`}
                   disabled={addingId === product.productId || Number(product.quantity) < 1}
                 >
                   <Plus size={18} />

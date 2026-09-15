@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CreditCard, RefreshCw } from "lucide-react";
+import { CreditCard, RefreshCw, Trash2 } from "lucide-react";
 import PaymentCheckout from "../components/PaymentCheckout";
 import { api, paymentIntentIdFromClientSecret } from "../lib/api";
 import { EmptyState, ErrorBanner, LoadingBlock } from "../components/StateBlocks";
@@ -9,6 +9,7 @@ export default function CartPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [checkoutBusy, setCheckoutBusy] = useState(false);
+  const [removingItemId, setRemovingItemId] = useState(null);
   const [checkoutSession, setCheckoutSession] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -91,6 +92,27 @@ export default function CartPage() {
     }
   }
 
+  async function removeCartItem(itemId) {
+    if (!itemId) return;
+
+    setError("");
+    setNotice("");
+    setRemovingItemId(itemId);
+
+    try {
+      await api.removeCartItem(itemId);
+      setCart((currentCart) => ({
+        ...currentCart,
+        items: (currentCart?.items ?? []).filter((item) => item.itemId !== itemId)
+      }));
+      setNotice("Product removed from your cart.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Product could not be removed");
+    } finally {
+      setRemovingItemId(null);
+    }
+  }
+
   function handlePaymentComplete({ payment }) {
     setNotice(payment ? "Payment confirmed and recorded." : "Payment confirmed. Payment status will update after the webhook.");
     loadCart();
@@ -128,7 +150,20 @@ export default function CartPage() {
                     <p>Qty {item.quantity} x Rs. {Number(item.price).toFixed(2)}</p>
                   </div>
                 </div>
-                <strong>Rs. {Number(item.totalPrice).toFixed(2)}</strong>
+                <div className="item-actions">
+                  <strong>Rs. {Number(item.totalPrice).toFixed(2)}</strong>
+                  <button
+                    className="button secondary danger remove-cart-button"
+                    type="button"
+                    onClick={() => removeCartItem(item.itemId)}
+                    disabled={!item.itemId || removingItemId === item.itemId}
+                    aria-label={`Remove ${item.productName} from cart`}
+                    title="Remove from cart"
+                  >
+                    <Trash2 size={17} />
+                    {removingItemId === item.itemId ? "Removing..." : "Remove"}
+                  </button>
+                </div>
               </article>
             ))}
           </div>

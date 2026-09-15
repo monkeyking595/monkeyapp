@@ -329,6 +329,10 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ productId, quantity })
     }),
+  removeCartItem: (itemId) =>
+    request(`/Cart/${encodeURIComponent(itemId)}`, {
+      method: "DELETE"
+    }),
   orders: () => request(`${ORDER_API_BASE}/GetOrder`),
   requestReturn: (itemIds) =>
     request(`${ORDER_API_BASE}/returnProducts?${listQueryParam("itemIds", itemIds.map(Number))}`, {

@@ -151,9 +151,11 @@ export default function AuthPage({ mode, onSession }) {
             {!isAdmin && !isSeller && !isSellerSignup && <Link to="/admin-login">Admin login</Link>}
             {!isSeller && !isSellerSignup && <Link to="/seller-login">Seller login</Link>}
             {isSeller && <Link to="/seller-signup">Create seller account</Link>}
-            {(isSeller || isSellerSignup) && <Link to="/login">Customer login</Link>}
             {isAdmin && <Link to="/login">Customer login</Link>}
           </div>
+          <Link className="button secondary auth-return" to="/">
+            Return to main page
+          </Link>
         </div>
       </section>
     </main>

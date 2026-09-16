@@ -14,7 +14,7 @@ export function productImage(product, index = 0) {
   return product.imageURL || fallbackImages[index % fallbackImages.length];
 }
 
-export default function ProductsPage() {
+export default function ProductsPage({ session }) {
   const [products, setProducts] = useState([]);
   const [query, setQuery] = useState("");
   const [storeQuery, setStoreQuery] = useState("");
@@ -126,25 +126,27 @@ export default function ProductsPage() {
         </button>
       </div>
 
-      <form className="store-search-panel" onSubmit={searchStore}>
-        <label className="field-inline store-search-field">
-          <Store size={18} />
-          <input
-            value={storeQuery}
-            onChange={(event) => setStoreQuery(event.target.value)}
-            placeholder="Search store by name"
-          />
-        </label>
-        <button className="button compact" type="submit" disabled={storeLoading}>
-          <Search size={18} />
-          {storeLoading ? "Searching..." : "Search store"}
-        </button>
-        {storeResult && (
-          <button className="icon-button" type="button" onClick={clearStoreSearch} title="Clear store search">
-            <X size={18} />
+      {session && (
+        <form className="store-search-panel" onSubmit={searchStore}>
+          <label className="field-inline store-search-field">
+            <Store size={18} />
+            <input
+              value={storeQuery}
+              onChange={(event) => setStoreQuery(event.target.value)}
+              placeholder="Search store by name"
+            />
+          </label>
+          <button className="button compact" type="submit" disabled={storeLoading}>
+            <Search size={18} />
+            {storeLoading ? "Searching..." : "Search store"}
           </button>
-        )}
-      </form>
+          {storeResult && (
+            <button className="icon-button" type="button" onClick={clearStoreSearch} title="Clear store search">
+              <X size={18} />
+            </button>
+          )}
+        </form>
+      )}
 
       {error && <ErrorBanner message={error} />}
       {notice && <div className="banner success">{notice}</div>}
@@ -197,16 +199,18 @@ export default function ProductsPage() {
                     View details <ArrowUpRight size={15} />
                   </Link>
                 </div>
-                <button
-                  className="icon-button dark"
-                  type="button"
-                  onClick={() => add(product.productId)}
-                  title="Add to cart"
-                  aria-label={`Add ${product.name} to cart`}
-                  disabled={addingId === product.productId || Number(product.quantity) < 1}
-                >
-                  <Plus size={18} />
-                </button>
+                {session && (
+                  <button
+                    className="icon-button dark"
+                    type="button"
+                    onClick={() => add(product.productId)}
+                    title="Add to cart"
+                    aria-label={`Add ${product.name} to cart`}
+                    disabled={addingId === product.productId || Number(product.quantity) < 1}
+                  >
+                    <Plus size={18} />
+                  </button>
+                )}
               </div>
             </div>
           </article>

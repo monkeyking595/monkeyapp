@@ -4,6 +4,7 @@ import { hasRole, ROLES } from "../lib/api";
 
 const actions = {
   guest: [
+    { to: "/products", icon: ShoppingBag, title: "Products", text: "Browse active products from the marketplace." },
     { to: "/login", icon: UserRound, title: "Customer Login", text: "Shop products, save your cart, and place orders." },
     { to: "/seller-login", icon: Store, title: "Seller Login", text: "Manage stores and publish inventory." },
     { to: "/admin-login", icon: ShieldCheck, title: "Admin Login", text: "Review users, sellers, stores, and orders." }
@@ -48,8 +49,8 @@ export default function HomePage({ session }) {
               : "Discover everyday essentials, independent stores, and a checkout built to keep up with you."}
           </p>
           <div className="hero-actions">
-            <Link className="button hero-button" to={isGuest ? "/login" : cards[0].to}>
-              {isGuest ? "Start shopping" : `Open ${cards[0].title}`}
+            <Link className="button hero-button" to={cards[0].to}>
+              {isGuest ? "Browse products" : `Open ${cards[0].title}`}
               <ArrowRight size={18} />
             </Link>
             {isGuest && <Link className="text-button" to="/seller-signup">Sell with Thaimei</Link>}

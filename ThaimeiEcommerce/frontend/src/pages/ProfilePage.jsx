@@ -5,7 +5,6 @@ import { ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 
 const emptyProfile = {
   fullname: "",
-  email: "",
   phone: "",
   age: 18,
   gender: "",
@@ -35,7 +34,8 @@ export default function ProfilePage() {
     setError("");
     setNotice("");
     try {
-      await api.saveProfile(profile);
+      const { email: _email, ...profileData } = profile;
+      await api.saveProfile(profileData);
       setNotice("Profile saved.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Profile could not be saved");
@@ -69,10 +69,6 @@ export default function ProfilePage() {
           <label>
             Full name
             <input value={profile.fullname} onChange={(event) => update("fullname", event.target.value)} required />
-          </label>
-          <label>
-            Email
-            <input type="email" value={profile.email} onChange={(event) => update("email", event.target.value)} required />
           </label>
           <label>
             Phone

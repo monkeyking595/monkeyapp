@@ -319,9 +319,9 @@ export const api = {
       })
     }),
 
-  productsSlice: (page = 0, size = 20) => request(pagedPath("/customers/productlist", page, size)),
+  productsSlice: (page = 0, size = 20) => request(pagedPath("/customers/productList", page, size)),
   products: (page = 0, size = 20) => api.productsSlice(page, size).then(contentPayload),
-  product: (id) => request(`/customers/details/${id}`),
+  product: (id) => request(`/customers/productDetails/${id}`),
   searchStore: (storeName) => request(`/customers/search/store?${new URLSearchParams({ storeName })}`),
   cart: () => request("/Cart/getItems"),
   addToCart: (productId, quantity) =>

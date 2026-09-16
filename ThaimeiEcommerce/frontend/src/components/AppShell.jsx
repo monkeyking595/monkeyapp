@@ -43,12 +43,12 @@ export default function AppShell({ session, onLogout }) {
         </Link>
 
         <nav className="nav" aria-label="Primary navigation">
-          {isCustomer && (
+          <NavLink to="/products">
+            <ShoppingBag size={18} />
+            Start Shopping
+          </NavLink>
+          {session && isCustomer && (
             <>
-              <NavLink to="/products">
-                <ShoppingBag size={18} />
-                Products
-              </NavLink>
               <NavLink to="/cart">
                 <ShoppingCart size={18} />
                 Cart
@@ -122,14 +122,14 @@ export default function AppShell({ session, onLogout }) {
           <div>
             <span>Marketplace</span>
             <Link to="/products">Shop all</Link>
-            {isCustomer && <Link to="/orders">Your orders</Link>}
-            {isCustomer && <Link to="/returns">Returns</Link>}
+            {session && isCustomer && <Link to="/orders">Your orders</Link>}
+            {session && isCustomer && <Link to="/returns">Returns</Link>}
           </div>
           <div>
             <span>Account</span>
             {session ? <Link to={isSeller ? "/seller" : isAdmin ? "/admin" : "/profile"}>Your workspace</Link> : <Link to="/login">Sign in</Link>}
             {!session && <Link to="/seller-signup">Sell with us</Link>}
-            {isCustomer && <Link to="/payments">Payment status</Link>}
+            {session && isCustomer && <Link to="/payments">Payment status</Link>}
           </div>
         </div>
         <div className="footer-bottom">

@@ -28,7 +28,7 @@ public class ProductDetails {
     public ProductDetails(ProductService productService) {
         this.productService = productService;
     }
-    @GetMapping("/details/{id}")
+    @GetMapping("/productDetails/{id}")
     //pulls a specific product using the id sent from the product listing.
     public ResponseEntity<ProductDto> getProductDetails(@PathVariable Long id) {
         ProductDto productDetail= productService.getProductById(id);

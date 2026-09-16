@@ -24,7 +24,7 @@ public class ProductListController {
         this.productService=productService;
     }
 
-    @GetMapping("/productlist")
+    @GetMapping("/productList")
     public ResponseEntity<Slice<ProductDto>> getAllProducts(@RequestParam (defaultValue = "0")int page, @RequestParam ( defaultValue = "20")int size) {
         Pageable pageable = PageRequest.of(page, size,Sort.by("price").ascending().and (Sort.by("productId").ascending()));
         //the status here is hardcoded so every product the user is pulling should have an active status else the request will be  ignored.

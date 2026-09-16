@@ -28,22 +28,8 @@ export default function App() {
       <Route path="/seller-signup" element={<AuthPage mode="seller-signup" onSession={setSession} />} />
       <Route element={<AppShell session={session} onLogout={() => setSession(null)} />}>
         <Route path="/" element={<HomePage session={session} />} />
-        <Route
-          path="/products"
-          element={
-            <ProtectedRoute session={session}>
-              <ProductsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/products/:id"
-          element={
-            <ProtectedRoute session={session}>
-              <ProductDetailPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/products" element={<ProductsPage session={session} />} />
+        <Route path="/products/:id" element={<ProductDetailPage session={session} />} />
         <Route
           path="/cart"
           element={

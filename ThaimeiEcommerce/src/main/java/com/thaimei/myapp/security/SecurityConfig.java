@@ -45,6 +45,7 @@ public class SecurityConfig {
         .sessionManagement(sm->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthEntryPoint))
         .authorizeHttpRequests(auth->auth.requestMatchers("/customers/signup","/customers/login").permitAll()
+        .requestMatchers("/customers/productList","/customers/productDetails/**").permitAll()
         .requestMatchers("/admin/api/adminlogin").permitAll()
         .requestMatchers("/payment/webhook").permitAll()
         .requestMatchers("/sellers/sellerLogin","/sellers/registration").permitAll()

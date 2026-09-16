@@ -6,7 +6,7 @@ import { api, paymentIntentIdFromClientSecret } from "../lib/api";
 import { ErrorBanner, LoadingBlock } from "../components/StateBlocks";
 import { productImage } from "./ProductsPage";
 
-export default function ProductDetailPage() {
+export default function ProductDetailPage({ session }) {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -99,25 +99,29 @@ export default function ProductDetailPage() {
             <h1>{product.name}</h1>
             <p>{product.description}</p>
             <strong className="price">Rs. {Number(product.price).toFixed(2)}</strong>
-            <div className="quantity-control">
-              <button type="button" onClick={() => changeQuantity(Math.max(1, quantity - 1))} title="Decrease">
-                <Minus size={17} />
-              </button>
-              <span>{quantity}</span>
-              <button type="button" onClick={() => changeQuantity(Math.min(maxQuantity, quantity + 1))} title="Increase">
-                <Plus size={17} />
-              </button>
-            </div>
-            <div className="button-row">
-              <button className="button" type="button" onClick={add} disabled={isUnavailable || busyAction === "cart"}>
-                <ShoppingCart size={18} />
-                {busyAction === "cart" ? "Adding..." : "Add to cart"}
-              </button>
-              <button className="button secondary" type="button" onClick={buyNow} disabled={isUnavailable || busyAction === "buy"}>
-                <CreditCard size={18} />
-                {busyAction === "buy" ? "Placing..." : "Buy now"}
-              </button>
-            </div>
+            {session && (
+              <div className="quantity-control">
+                <button type="button" onClick={() => changeQuantity(Math.max(1, quantity - 1))} title="Decrease">
+                  <Minus size={17} />
+                </button>
+                <span>{quantity}</span>
+                <button type="button" onClick={() => changeQuantity(Math.min(maxQuantity, quantity + 1))} title="Increase">
+                  <Plus size={17} />
+                </button>
+              </div>
+            )}
+            {session && (
+              <div className="button-row">
+                <button className="button" type="button" onClick={add} disabled={isUnavailable || busyAction === "cart"}>
+                  <ShoppingCart size={18} />
+                  {busyAction === "cart" ? "Adding..." : "Add to cart"}
+                </button>
+                <button className="button secondary" type="button" onClick={buyNow} disabled={isUnavailable || busyAction === "buy"}>
+                  <CreditCard size={18} />
+                  {busyAction === "buy" ? "Placing..." : "Buy now"}
+                </button>
+              </div>
+            )}
             {checkoutSession && (
               <PaymentCheckout
                 clientSecret={checkoutSession.clientSecret}

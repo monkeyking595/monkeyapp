@@ -25,6 +25,8 @@ private Long id;
 @Column(nullable = false)
 private String fullname;
 
+@Column(nullable = false)
+private Integer age;
 
 @Column(nullable = false)
 private String phone;
@@ -44,7 +46,6 @@ private String locality;
 
 @Column(nullable=false) 
 private String zip;
-
 
 @Column(nullable = false)
 private String country;

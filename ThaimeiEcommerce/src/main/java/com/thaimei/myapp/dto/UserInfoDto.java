@@ -21,7 +21,7 @@ public class UserInfoDto {
     @NotNull(message="Age cannot be empty")
     @Min(value=1, message="Age must be at least 1")
     @Max(value=120, message="Age must be at most 120")
-    private int age;
+    private Integer age;
     @NotBlank(message="Gender cannot be empty")
     private String gender;
     @NotBlank(message="Country cannot be empty")

@@ -116,8 +116,7 @@ public class PaymentService {
                 if(order == null) {
                     System.out.println("order not found for id:" + orderId);
                     throw new WebhookProcessingException("orderId doesn't exist");
-                }
-
+                } 
                 order.setPayment(payment);
                 order.setStatus(newOrderStatus);
                 order.setDeliveredAt(LocalDateTime.now());

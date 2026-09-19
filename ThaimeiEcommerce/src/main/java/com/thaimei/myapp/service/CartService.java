@@ -114,12 +114,6 @@ public class CartService {
 
         // add the current cartItem quantity with the new incoming quantity.
         int totalRequestQty = currentQtyInCart + addItem.getQuantity();
-
-        // checks if the current product's quantity is less than the incoming new quantity (existing cartItem quantity + new incoming quantity).
-        // if smaller then the there's no more stock.
-        if (product.getQuantity() < totalRequestQty) {
-            throw new AppException ("insufficient stock", 400);
-        }
         
         if(existingItem.isPresent()) {
             //extract the existing item and update quantity.

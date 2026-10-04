@@ -715,6 +715,34 @@ textarea:focus {
   overflow-wrap: anywhere;
 }
 
+.payment-order-outcomes {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.payment-order-outcomes li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.payment-orders {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #e2dbcf;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.payment-orders h2 {
+  margin: 0 0 14px;
+  font-size: 20px;
+}
+
 .lookup-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -1190,6 +1218,12 @@ td small,
   background: #eef8e5;
   color: #355318;
   border: 1px solid #cde6b5;
+}
+
+.banner.warning {
+  background: #fff7e6;
+  color: #79520b;
+  border: 1px solid #ead39e;
 }
 
 .loading,

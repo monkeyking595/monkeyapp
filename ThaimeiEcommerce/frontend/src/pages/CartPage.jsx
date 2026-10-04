@@ -113,9 +113,15 @@ export default function CartPage() {
     }
   }
 
-  function handlePaymentComplete({ payment }) {
-    setNotice(payment ? "Payment confirmed and recorded." : "Payment confirmed. Payment status will update after the webhook.");
-    loadCart();
+  async function handlePaymentComplete({ payment, hasFailedOrders }) {
+    setNotice(
+      hasFailedOrders
+        ? "Payment succeeded, but one or more orders could not be fulfilled. Review the payment status for order details."
+        : payment
+          ? "Payment confirmed and recorded."
+          : "Payment confirmed. Payment status will update after the webhook."
+    );
+    await loadCart();
   }
 
   return (

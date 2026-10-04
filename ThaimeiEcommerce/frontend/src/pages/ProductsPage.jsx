@@ -190,6 +190,9 @@ export default function ProductsPage({ session }) {
                     {product.name}
                   </Link>
                 </h2>
+                <span className="pill product-stock-pill">
+                  {Number(product.quantity || 0) > 0 ? `${product.quantity} in stock` : "Out of stock"}
+                </span>
                 <p>{product.description}</p>
               </div>
               <div className="product-actions">

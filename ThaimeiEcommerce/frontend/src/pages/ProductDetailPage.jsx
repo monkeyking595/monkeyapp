@@ -20,12 +20,19 @@ export default function ProductDetailPage({ session }) {
     const productId = Number(id);
     if (!productId) return;
     setCheckoutSession(null);
+    loadProduct(productId);
+  }, [id]);
+
+  function loadProduct(productId) {
     api
       .product(productId)
-      .then(setProduct)
+      .then((nextProduct) => {
+        setProduct(nextProduct);
+        setQuantity((current) => Math.min(Math.max(1, current), Math.max(1, Number(nextProduct?.quantity || 1))));
+      })
       .catch((err) => setError(err instanceof Error ? err.message : "Product could not load"))
       .finally(() => setLoading(false));
-  }, [id]);
+  }
 
   async function add() {
     if (!product) return;
@@ -75,8 +82,18 @@ export default function ProductDetailPage({ session }) {
     setCheckoutSession(null);
   }
 
-  function handlePaymentComplete({ payment }) {
-    setNotice(payment ? "Payment confirmed and recorded." : "Payment confirmed. Payment status will update after the webhook.");
+  function handlePaymentComplete({ payment, hasFailedOrders }) {
+    setNotice(
+      hasFailedOrders
+        ? "Payment succeeded, but the order could not be fulfilled. Review the payment status for details."
+        : payment
+          ? "Payment confirmed and recorded."
+          : "Payment confirmed. Payment status will update after the webhook."
+    );
+    const productId = Number(id);
+    if (productId) {
+      loadProduct(productId);
+    }
   }
 
   const maxQuantity = Math.max(1, Number(product?.quantity || 1));

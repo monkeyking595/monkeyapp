@@ -25,9 +25,12 @@ import jakarta.transaction.Transactional;
 
 import com.thaimei.myapp.repository.OrderRepo;
 import com.thaimei.myapp.enums.OrderStatusEnum;
+import com.thaimei.myapp.model.OrderItems;
 import com.thaimei.myapp.model.Orders;
 import com.thaimei.myapp.model.User;
 import com.thaimei.myapp.repository.PaymentRepo;
+import com.thaimei.myapp.repository.ProductsRepo;
+import com.thaimei.myapp.dto.OrderSummary;
 
 @Service
 public class PaymentService {
@@ -37,7 +40,9 @@ public class PaymentService {
     private final ProcessWebhookRepo processWebhookRepo;
     private final UserRepository userRepo;
     private final OrderRepo orderRepo;
-    public PaymentService(PaymentRepo paymentRepo, ModelMapper modelMapper, ProcessWebhookRepo processWebhookRepo, UserRepository userRepo, OrderRepo orderRepo, RefundService refundService) {
+    private final ProductsRepo productsRepo;
+    public PaymentService(ProductsRepo productsRepo, PaymentRepo paymentRepo, ModelMapper modelMapper, ProcessWebhookRepo processWebhookRepo, UserRepository userRepo, OrderRepo orderRepo, RefundService refundService) {
+        this.productsRepo=productsRepo;
         this.paymentRepo=paymentRepo;
         this.modelMapper=modelMapper;
         this.processWebhookRepo=processWebhookRepo;
@@ -53,12 +58,12 @@ public class PaymentService {
             throw new AppException("You don't own this payment", 403);
         }
 
-        List<Long> orderIds = paymentDetails.getOrders().stream()
-        .map(Orders::getId)
+        List<OrderSummary> orderSummaries  = paymentDetails.getOrders().stream()
+        .map(o -> new OrderSummary(o.getId(), o.getStatus()))
         .toList();
         
         PaymentDto dto = modelMapper.map(paymentDetails, PaymentDto.class);
-        dto.setOrderIds(orderIds);
+        dto.setOrders(orderSummaries);
         return dto;
     }
 
@@ -117,8 +122,24 @@ public class PaymentService {
                     System.out.println("order not found for id:" + orderId);
                     throw new WebhookProcessingException("orderId doesn't exist");
                 } 
+                // we're doing so that when one order runs out of stock it shouldn't flip other unrelated orders in the same payment to FAILED.
+                OrderStatusEnum finalStatus = newOrderStatus;
+
+                boolean firstSuccess = newOrderStatus == OrderStatusEnum.DELIVERED && order.getStatus() != OrderStatusEnum.DELIVERED;
+
+                if(firstSuccess) {
+                    for(OrderItems oi: order.getOrderItems()) {
+                        int updatedStock = productsRepo.decreaseStock(oi.getProduct().getProductId(), oi.getQuantity());
+                        if(updatedStock == 0) {
+                            finalStatus = OrderStatusEnum.FAILED;
+                            break;
+                        }
+                        
+                    }
+                }
+                
                 order.setPayment(payment);
-                order.setStatus(newOrderStatus);
+                order.setStatus(finalStatus);
                 order.setDeliveredAt(LocalDateTime.now());
                 orderRepo.save(order);
             }
@@ -169,6 +190,4 @@ public class PaymentService {
         //constructor injector, reliable if there are less fields
         processWebhookRepo.save(new ProcessWebhook(eventId, Instant.now()));
     }
-    
-    
 }

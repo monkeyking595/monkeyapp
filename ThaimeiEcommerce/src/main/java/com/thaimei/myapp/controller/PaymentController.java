@@ -48,7 +48,8 @@ public class PaymentController {
         try {
             //Event is a class provided by Stripe to represent the webhook event received from Stripe, this is the result produced by webhook.
             //webhook is a also a class provided by Stripe to construct the event from the payload and signature header, everything happens here Deserialization of the data, recomputation of the signature and verification of the signature.
-            Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
+            System.out.println(" debug webhookSecret: = + [" + webhookSecret + "]");
+            Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret.trim());
             //event.getType() returns the String representation of the event type, which is sent by Stripe in the payload. This is used to determine what kind of event was received, so that we can handle it accordingly.
             String eventType=event.getType();
 
@@ -96,6 +97,7 @@ public class PaymentController {
             }
 
         } catch (SignatureVerificationException e) {
+            System.out.println("Debug signature error: " + e.getMessage());
             return ResponseEntity.status(400).body("invalid signature" + e.getMessage());
         }
 

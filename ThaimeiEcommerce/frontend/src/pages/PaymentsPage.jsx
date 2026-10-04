@@ -12,39 +12,56 @@ export default function PaymentsPage() {
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(Boolean(initialPaymentId));
   const [error, setError] = useState("");
+  const [awaitingRecord, setAwaitingRecord] = useState(false);
 
   useEffect(() => {
     if (initialPaymentId) {
-      loadPayment(initialPaymentId);
+      loadPayment(initialPaymentId, { waitForWebhook: redirectStatus === "succeeded" });
     }
   }, [initialPaymentId]);
 
-  async function loadPayment(nextPaymentId = paymentId) {
+  async function loadPayment(nextPaymentId = paymentId, { waitForWebhook = false } = {}) {
     const trimmedPaymentId = nextPaymentId.trim();
     if (!trimmedPaymentId) return;
 
     setError("");
+    setAwaitingRecord(false);
     setLoading(true);
     setPayment(null);
 
-    try {
-      const nextPayment = await api.paymentDetails(trimmedPaymentId);
-      setPayment(nextPayment);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Payment could not load");
-    } finally {
-      setLoading(false);
+    for (let attempt = 0; attempt < (waitForWebhook ? 10 : 1); attempt += 1) {
+      if (attempt > 0) {
+        await new Promise((resolve) => window.setTimeout(resolve, 1000));
+      }
+
+      try {
+        const nextPayment = await api.paymentDetails(trimmedPaymentId);
+        setPayment(nextPayment);
+        setLoading(false);
+        return;
+      } catch (err) {
+        if (attempt === 0 && !waitForWebhook) {
+          setError(err instanceof Error ? err.message : "Payment could not load");
+          setLoading(false);
+          return;
+        }
+      }
     }
+
+    setAwaitingRecord(true);
+    setLoading(false);
   }
 
   function submit(event) {
     event.preventDefault();
-    loadPayment();
+    loadPayment(paymentId, { waitForWebhook: redirectStatus === "succeeded" });
   }
 
-  const status = payment?.status || payment?.paymentStatus || "";
+  const status = payment?.paymentStatus || payment?.status || "";
   const amount = useMemo(() => formatMoney(payment?.totalAmount, payment?.currency), [payment]);
-  const orderIds = useMemo(() => normalizeOrderIds(payment), [payment]);
+  const orders = useMemo(() => normalizeOrders(payment), [payment]);
+  const orderIds = useMemo(() => normalizeOrderIds(payment, orders), [payment, orders]);
+  const failedOrders = orders.filter((order) => String(order.status || "").toUpperCase() === "FAILED");
   const orderLabel = formatOrderIds(orderIds);
   const orderSummary = formatOrderSummary(orderIds);
 
@@ -67,6 +84,16 @@ export default function PaymentsPage() {
         <div className="banner success">Stripe confirmed the payment. The backend record may take a moment to appear.</div>
       )}
       {error && <ErrorBanner message={error} />}
+      {awaitingRecord && (
+        <div className="banner">
+          Stripe confirmed the payment, but the backend has not recorded it yet. Check again shortly before relying on the updated inventory.
+        </div>
+      )}
+      {!!failedOrders.length && (
+        <div className="banner warning">
+          Payment was successful, but {failedOrders.length} order{failedOrders.length === 1 ? "" : "s"} could not be fulfilled. Review the order statuses below.
+        </div>
+      )}
 
       <form className="lookup-form" onSubmit={submit}>
         <label>
@@ -81,13 +108,16 @@ export default function PaymentsPage() {
         </label>
         <button className="button" type="submit" disabled={loading || !paymentId.trim()}>
           {loading ? <RefreshCw size={18} /> : <Search size={18} />}
-          {loading ? "Checking..." : "Check payment"}
+          {loading ? "Checking..." : awaitingRecord ? "Check again" : "Check payment"}
         </button>
       </form>
 
       {loading && <LoadingBlock label="Loading payment" />}
       {!loading && !payment && !error && (
-        <EmptyState title="No payment selected" text="Enter the Stripe PaymentIntent id returned during checkout." />
+        <EmptyState
+          title={awaitingRecord ? "Payment record is pending" : "No payment selected"}
+          text={awaitingRecord ? "The webhook may still be processing. Use Check again to refresh its status." : "Enter the Stripe PaymentIntent id returned during checkout."}
+        />
       )}
 
       {payment && (
@@ -117,14 +147,39 @@ export default function PaymentsPage() {
           </dl>
         </section>
       )}
+      {!!orders.length && (
+        <section className="payment-orders">
+          <h2>Order outcomes</h2>
+          <ul className="payment-order-outcomes">
+            {orders.map((order) => (
+              <li key={order.orderId}>
+                <span>Order {order.orderId ?? "—"}</span>
+                <span className={`status status-${String(order.status || "unknown").toLowerCase()}`}>
+                  {order.status || "UNKNOWN"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </main>
   );
 }
 
-function normalizeOrderIds(payment) {
+function normalizeOrders(payment) {
+  return Array.isArray(payment?.orders) ? payment.orders : [];
+}
+
+function normalizeOrderIds(payment, orders) {
   if (!payment) return [];
 
-  const rawOrderIds = Array.isArray(payment.orderIds) ? payment.orderIds : payment.orderId ? [payment.orderId] : [];
+  const rawOrderIds = orders.length
+    ? orders.map((order) => order.orderId)
+    : Array.isArray(payment.orderIds)
+      ? payment.orderIds
+      : payment.orderId
+        ? [payment.orderId]
+        : [];
   return rawOrderIds.map((orderId) => String(orderId).trim()).filter(Boolean);
 }
 

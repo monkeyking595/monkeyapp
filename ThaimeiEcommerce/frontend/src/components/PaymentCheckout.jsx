@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { CheckCircle2, CreditCard, ExternalLink, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CreditCard, ExternalLink, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api, paymentIntentIdFromClientSecret } from "../lib/api";
 
@@ -59,11 +59,34 @@ export default function PaymentCheckout({ clientSecret, intentId, amountLabel, o
 function CheckoutForm({ paymentId, onPaid, onCancel }) {
   const stripe = useStripe();
   const elements = useElements();
+  const completedPaymentId = useRef("");
   const [busy, setBusy] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [paymentRecord, setPaymentRecord] = useState(null);
+
+  async function fetchPayment(nextPaymentId) {
+    if (!nextPaymentId) return null;
+
+    try {
+      return await api.paymentDetails(nextPaymentId);
+    } catch {
+      return null;
+    }
+  }
+
+  function recordSuccessfulPayment(record, nextPaymentId) {
+    const status = String(record?.paymentStatus || record?.status || "").toUpperCase();
+    if (status !== "SUCCESSFUL" || completedPaymentId.current === nextPaymentId) return false;
+
+    completedPaymentId.current = nextPaymentId;
+    const failedOrders = (Array.isArray(record.orders) ? record.orders : []).filter(
+      (order) => String(order.status || "").toUpperCase() === "FAILED"
+    );
+    onPaid?.({ payment: record, paymentId: nextPaymentId, hasFailedOrders: failedOrders.length > 0 });
+    return true;
+  }
 
   async function refreshPayment(nextPaymentId = paymentId, { quiet = false } = {}) {
     if (!nextPaymentId) return null;
@@ -74,8 +97,18 @@ function CheckoutForm({ paymentId, onPaid, onCancel }) {
     }
 
     try {
-      const record = await api.paymentDetails(nextPaymentId);
+      const record = await fetchPayment(nextPaymentId);
+      if (!record) {
+        if (!quiet) {
+          setError("The backend has not recorded this payment yet. Check again shortly.");
+        }
+        return null;
+      }
+
       setPaymentRecord(record);
+      if (recordSuccessfulPayment(record, nextPaymentId)) {
+        setNotice(paymentRecordNotice(record));
+      }
       return record;
     } catch (err) {
       if (!quiet) {
@@ -85,6 +118,27 @@ function CheckoutForm({ paymentId, onPaid, onCancel }) {
     } finally {
       setRefreshing(false);
     }
+  }
+
+  async function waitForPaymentRecord(nextPaymentId) {
+    let record = null;
+
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      if (attempt > 0) {
+        await new Promise((resolve) => window.setTimeout(resolve, 1000));
+      }
+
+      record = await fetchPayment(nextPaymentId);
+      if (record) {
+        setPaymentRecord(record);
+        const status = String(record.paymentStatus || record.status || "").toUpperCase();
+        if (status === "SUCCESSFUL" || status === "FAILED" || status === "REFUNDED") {
+          return record;
+        }
+      }
+    }
+
+    return record;
   }
 
   async function submitPayment(event) {
@@ -112,10 +166,22 @@ function CheckoutForm({ paymentId, onPaid, onCancel }) {
       const paymentIntent = result.paymentIntent;
       const nextPaymentId = paymentIntent?.id || paymentId;
       const status = paymentIntent?.status || "processing";
-      const record = await refreshPayment(nextPaymentId, { quiet: true });
+      const record =
+        status === "succeeded"
+          ? await waitForPaymentRecord(nextPaymentId)
+          : await refreshPayment(nextPaymentId, { quiet: true });
+      const backendStatus = String(record?.paymentStatus || record?.status || "").toUpperCase();
 
-      setNotice(paymentNotice(status, Boolean(record)));
-      onPaid?.({ paymentIntent, payment: record, paymentId: nextPaymentId });
+      if (backendStatus === "SUCCESSFUL") {
+        recordSuccessfulPayment(record, nextPaymentId);
+        setNotice(paymentRecordNotice(record));
+      } else if (backendStatus === "FAILED") {
+        setNotice("The backend recorded this payment as failed. Check your order status before trying again.");
+      } else if (status === "succeeded") {
+        setNotice("Stripe confirmed payment. Waiting for the backend webhook to record payment and update inventory.");
+      } else {
+        setNotice(paymentNotice(status, Boolean(record)));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Payment could not be confirmed");
     } finally {
@@ -157,18 +223,44 @@ function CheckoutForm({ paymentId, onPaid, onCancel }) {
 }
 
 function PaymentRecord({ payment, paymentId }) {
-  const status = payment.status || payment.paymentStatus || "RECORDED";
+  const status = payment.paymentStatus || payment.status || "RECORDED";
   const displayPaymentId = payment.paymentId || paymentId || "Payment recorded";
+  const orders = Array.isArray(payment.orders) ? payment.orders : [];
+  const failedOrders = orders.filter((order) => String(order.status || "").toUpperCase() === "FAILED");
 
   return (
     <div className="payment-record compact-record">
       <span className={`status status-${String(status).toLowerCase()}`}>{status}</span>
       <div>
-        <CheckCircle2 size={18} />
+        {failedOrders.length ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} />}
         <strong>{displayPaymentId}</strong>
       </div>
+      {!!orders.length && (
+        <ul className="payment-order-outcomes">
+          {orders.map((order) => (
+            <li key={order.orderId}>
+              <span>Order {order.orderId ?? "—"}</span>
+              <span className={`status status-${String(order.status || "unknown").toLowerCase()}`}>
+                {order.status || "UNKNOWN"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
+}
+
+function paymentRecordNotice(record) {
+  const failedCount = (Array.isArray(record?.orders) ? record.orders : []).filter(
+    (order) => String(order.status || "").toUpperCase() === "FAILED"
+  ).length;
+
+  if (failedCount) {
+    return `Payment succeeded, but ${failedCount} order${failedCount === 1 ? "" : "s"} could not be fulfilled. Review the order statuses below.`;
+  }
+
+  return "Payment confirmed and recorded.";
 }
 
 function paymentNotice(status, hasRecord) {

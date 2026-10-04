@@ -15,7 +15,7 @@ import lombok.AllArgsConstructor;
 public class PaymentDto {
 
 
-    private List<Long> orderIds;
+    private List<OrderSummary> orders;
 
     private PaymentStatus paymentStatus;
 

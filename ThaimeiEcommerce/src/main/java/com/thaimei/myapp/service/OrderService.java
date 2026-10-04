@@ -84,12 +84,13 @@ public class OrderService {
                 throw new ResourceNotFoundException("product not found!");
             }
             if(product.getQuantity() < item.getQuantity()) {
-                problems.add(product.getName() + "(only" +product.getQuantity() + " left)");
-            }
-            if(!problems.isEmpty()) {
-                throw new AppException("Some items are unavailable: " + String.join(", ", problems), 400);
+                problems.add(product.getName() + "(only " +product.getQuantity() + " left)");
             }
         }
+
+        if(!problems.isEmpty()) {
+                throw new AppException("Some items are unavailable: " + String.join(", ", problems), 400);
+            }
 
         //collector.groupingBy() --> a classifier method, it internal build a list and accumulate elements into the list (products in our case) base on the key (StoreModel), which we get from productsModel, since storeModel lives in ProductsModel (manyToOne relationship). 
         //why do this? since it's the business requirement, one order per Store, without grouping first we won't know which items belong to which store
